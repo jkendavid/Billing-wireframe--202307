@@ -257,14 +257,14 @@
     })
 
     var contractVariables = deepCopy(variables).filter(x=> x.category == 'inputs')
-    $.each($(modalBody).find('#tblVarInput tbody tr'),function(i,tr){
+    $.each($(modalBody).find('.tblVarInput tbody tr'),function(i,tr){
       var inputs = $(tr).find('td .form-control')
       var field = inputs[0].value
       var period_start = inputs[1].value
       var value = inputs[2].value
-      var variable = contractVariables.filter(x=> x.code == field)
+      var variable = getVariable(field)
       var validationResult = fieldValidation(variable,value)
-      if (!validationResult.ok)errFields.push(validationResult.message)   
+      if (!validationResult.ok)errFields.push(validationResult.message) 
       newTransData[getcontractDataType(variable.type)].push({variable:field,period_start:period_start,value:value})
     })
     
