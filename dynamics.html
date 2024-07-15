@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Dynamics</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Dynamics</h2>      
+    <div class="form-row my-2">
+      <div class="form-group">
+        <select class="form-control" id="optDynamicCategories" onchange="refreshDynamicTable()"></select>
+      </div>
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateDynamic()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableDynamics">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+
+  var dynamicCategory = ''
+  var windowCategory ={}
+
+  function dynamicRowButtons (arg,status){
+    var btns = []
+    if(status!='submitted')btns.push(`<a href="#" class="mx-2" onclick='updateDynamic(${arg})'>Edit</a>`)
+    if(status=='draft')btns.push(`<a href="#" class="mx-2" onclick='submitDynamic(${arg})'>Submit</a>`)
+    if(status=='submitted')btns.push(`<a href="#" class="mx-2" onclick='approveDynamic(${arg})'>Approve</a>`)
+    if(status=='submitted')btns.push(`<a href="#" class="mx-2" onclick='returnDynamic(${arg})'>Return</a>`)
+    if(status=='draft')btns.push(`<a href="#" class="mx-2" onclick='cancelDynamic(${arg})'>Cancel</a>`)
+    btns.push(`<a href="#" class="mx-2" onclick='showDynamicHistory(${arg})'>History</a>`)
+    return btns.join('')
+  }
+
+  function optDynamicCategories(){
+    var opt =$('#optDynamicCategories')
+    opt.empty()   
+    window_categories.filter(x=> x.window == 'dynamics' ).map(x=>{
+      opt.append(`<option value='${x.code}'>${x.text}</option>`)
+    })
+  }
+  optDynamicCategories()
+
+  const defaultHeader = [
+    {...getVariable('period_from'),selector:'form',field_locs:'row',required:true,readonly:true,main:false},
+    {...getVariable('period_to'),selector:'form',field_locs:'row',required:false,readonly:false,main:false},
+  ]
+  var filterHeader =  {code:'filter',text:'Filter',type:'domain',required:true,readonly:true,main:true}
+
+  var dynamicRowHeaders = []
+  var dynamicDetailHeaders = []
+  const endHeaders = [
+    {code:'status',text:'Status'},
+    {code:'sub_status',text:'Sub Status',view:'sub_status_text'},
+    {code:'remarks',text:'Remarks'},
+    {code:'update_by',text:'Update By'},
+    {code:'update_time',text:'Update Time'},
+  ]
+
+
+  function refreshDynamicTable(){    
+    dynamicCategory = $('#optDynamicCategories').val();
+    windowCategory = deepCopy(window_categories).filter(x=> x.window =='dynamics' && x.code == dynamicCategory)[0]
+    filterHeader.options = getOptionDomain(windowCategory.filter)
+    var table = $('#tableDynamics');
+    var trHead = table.find('thead tr');
+    trHead.empty();    
+    dynamicRowHeaders = deepCopy(defaultHeader)
+    dynamicDetailHeaders = []
+  
+    //add headers to table
+    var rowHeaders = [...dynamicRowHeaders,...endHeaders]    
+    rowHeaders.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    //add data
+    var tbody = table.find('tbody');
+    tbody.empty();    
+    getLatestDynamic().filter(x=> x.category == dynamicCategory).map(data=>{
+      var strTr = [`<tr>`];
+      rowHeaders.map(header => {  
+        strTr.push(`<td>${data[header.view??header.code]??''}</td>`);   
+      });      
+      strTr.push(`<td>${dynamicRowButtons(JSON.stringify(data),data.status)}</td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateDynamic(item=''){
+    var update = item!='';
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">'); 
+    //Row controls
+    var rowHeaders = []
+    deepCopy(dynamicRowHeaders).map(header=>{
+      if(update){
+        header.value = item[header.code]
+      }
+      html.push(htmlControl(header,update))
+      rowHeaders.push(header.code)
+    })
+    html.push('</div>');
+    html.push(`<table class="table table-bordered" id="tblVarInput">`);
+    var btnAddNewLine = `<a href="#" class="mx-2" onclick='dynamicAddNewVariableLine(this)'>Add</a>`
+    html.push(`<thead><tr><th>Filter</th>`)    
+    deepCopy(windowCategory.variables).map(variable=>{  
+      html.push(`<th>${getVariable(variable.code).text}</th>`)   
+    })    
+    html.push(`<th>${btnAddNewLine}</th></thead>`)
+    html.push(`<tbody>`)   
+    if (item){
+      item.filters.map(line=>{
+        html.push(dynamicNewVariableLineHtml(line))
+      })
+    }
+    html.push(`</tbody></table>`)  
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveDynamic(this,${update})">Save</button>`)
+    modal = modalShow(update?'Edit':'Add' + ' Dynamic',html.join(''))
+  }
+
+  function dynamicAddNewVariableLine (btn){
+    $($(btn).closest('table')).find('tbody').append(dynamicNewVariableLineHtml())
+  }
+
+  function dynamicNewVariableLineHtml (line=null){
+    var html = []
+    html.push(`<tr>`)
+    var header = deepCopy(filterHeader)
+    if(line)header.value = line.filter
+    html.push(`<td>${htmlControl(header)}</td>`)
+    deepCopy(windowCategory.variables).map(variable=>{   
+      var variable = deepCopy(getVariable(variable.code));
+      variable.required = windowCategory.required
+      if(line){
+        var value = [...line.numbers,...line.texts].filter(x=>x.variable == variable.code)
+        if(value)variable.value = value[0].value
+      }
+      html.push(`<td>${htmlControl(variable)}</td>`)
+    })    
+    html.push(`<td><button type="button" class="btn btn-primary" onclick="dynamicRemoveNewVariableLine(this)">Remove</button></td>`)
+    html.push(`</tr>`)
+    return html.join('')
+  }
+
+  function dynamicNewVariableLineValueHtml(variable,value = null){
+    var variable = deepCopy(variables).filter(x=> x.code == variable)[0]   
+    return htmlControl({...variable,required:true,value:value})
+  }
+
+  function updateVariableValueField(ctrl, value=null){
+    $($(ctrl).closest('tr').find('td')[2]).html(dynamicNewVariableLineValueHtml(ctrl.value))
+  }
+
+  function dynamicRemoveNewVariableLine(ctrl){
+    $(ctrl).closest('tr').remove()
+  }
+
+
+  function getDynamicLatestTransItem(item){
+    return getLast(getDynamicTransItem(item))
+  }
+
+  function getDynamicTransItem(item){
+    return dynamic_update_trans.filter(x=> getLast(x.status).status!='canceled' 
+      && x.period_from == item.period_from && x.category == item.category)
+  }
+
+  function getdynamicDataType(variableType){
+    var type = 'texts'
+    switch (variableType){
+      case 'number':
+        type = 'numbers'
+        break;
+      case 'domain':
+        type = 'filters'
+        break;
+    }
+    return type
+  }
+
+  function saveDynamic(ctrl,update){
+    var errFields = []
+    var newTransData = {
+      category:dynamicCategory,
+      create_by:getUser(), create_time:getCurrentTime(), 
+      status:[{status:'draft',sub_status:'',update_by:getUser(),update_time:getCurrentTime(),remarks:''},],
+      filters: [],
+    }
+    var modalBody = $(ctrl).closest('.modal-body') 
+    var dynamicData = {category:dynamicCategory}
+
+    defaultHeader.map(variable=>{
+      var value = $(`.rowFields .form-control[val="${variable.code}"]`).val()
+      var validationResult = fieldValidation(variable,value)
+      if (!validationResult.ok)errFields.push(validationResult.message)
+      if(variable.main){
+        dynamicData[variable.code] = value  
+        if(variable.code=='code')newTransData["dynamic"] = value  
+      }else{
+        newTransData[variable.code] = value  
+      }    
+    })
+
+    var dynamicVariables = deepCopy(variables).filter(x=> x.category == 'inputs')
+    $.each($(modalBody).find('#tblVarInput tbody tr'),function(i,tr){
+      var newTransFilterData = {texts:[],numbers:[]}
+      $.each(modal.find('td .form-control'),function(i,v){  
+        var field = $(v).attr('val');
+        var value = $(v).val()  
+        if(field=='filter'){
+          newTransFilterData.filter = value
+        }else{
+          var variable = dynamicVariables.filter(x=> x.code == field)[0]
+          var validationResult = fieldValidation(variable,value)
+          if (!validationResult.ok)errFields.push(validationResult.message)   
+          newTransFilterData[getdynamicDataType(variable.type)].push({variable:field,value:value})
+        }
+      })
+      newTransData.filters.push(newTransFilterData)
+    })
+    
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }     
+   
+    //dynamic code exist
+    if (!update&&dynamic_update_trans.filter(x=> x.category == dynamicCategory && x.period_from==newTransData.period_from).length>0){      
+      alert(`Period From: ${newTransData.period_from} already exist.`);
+      return
+    }
+
+    var lastTrans = getDynamicLatestTransItem(newTransData)
+    var lastTransStatus = lastTrans?getLast(lastTrans.status).status:''
+  
+    //save data
+    if(lastTransStatus=='draft'){ 
+      Object.assign(lastTrans, newTransData);
+    }else{
+      dynamic_update_trans.push(newTransData)
+    }
+    
+    modal.modal('hide')
+    refreshDynamicTable()
+    return
+  }
+    
+  function submitDynamic(item){    
+    var remarks = showPromptRemarks(true);
+    if(remarks.ok){
+
+      var trans = getDynamicLatestTransItem(item)
+      var approvalrule = window_categories.filter(x=> x.code == dynamicCategory)[0].approval
+      var step = approval_steps.filter(x=> x.rule==approvalrule)[0].code
+      latestStatus = getLast(trans.status)
+      var newStatus = {status:'submitted',sub_status:step, update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text}
+      if(latestStatus.status=='draft'){
+        Object.assign(latestStatus,newStatus)
+      } else{
+        trans.status.push(newStatus)
+      }
+      refreshDynamicTable()
+    }
+  }
+     
+  function approveDynamic(item){    
+    var remarks = showPromptRemarks(false);
+    if(remarks.ok){
+      var trans = getDynamicLatestTransItem(item)
+      var step = $(trans.status).last().get(0).sub_status
+      var approvalrule = window_categories.filter(x=> x.code == dynamicCategory)[0].approval
+      var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
+      var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
+      trans.status.push({status:newStep?'submitted':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
+      refreshDynamicTable()
+    }
+  } 
+     
+  function returnDynamic(item){    
+    var remarks = showPromptRemarks(true);
+    if(remarks.ok){
+      var trans = getDynamicLatestTransItem(item)
+      trans.status.push({status:'returned',sub_status:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
+      refreshDynamicTable()
+    }
+  } 
+     
+  function cancelDynamic(item){    
+    var remarks = showPromptRemarks(true);
+    if(remarks.ok){
+      var trans = getDynamicLatestTransItem(item)
+      trans.status.push({status:'canceled',sub_status:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
+      refreshDynamicTable()
+    }
+  } 
+  
+  function showDynamicHistory(item){
+    var html = []
+    var trans = getDynamicTransItem(item)
+    var prevFields = null
+    var prevVals = {}
+    var prevFields = []
+
+    const mainFields = ['period_from','period_to']
+
+    trans.map(tran=>{     
+      var newstat = getLast(tran.status).status
+      html.push('<div class="card p-3 mb-3">')        
+
+      //update values 
+      html.push('<div>') 
+      html.push('<h5>Update Values</h5>')      
+      html.push('<table class="table table-sm table-condensed table-bordered">')
+      html.push(`<tr><th></th><th>Old</th><th>New</th></tr>`)
+
+      var newVals = {}      
+      mainFields.map(field=>{
+        newVals[field]= tran[field]
+      })
+      tran.filters.map(filter=>{
+        [...filter.numbers,...filter.texts].map(v=>{
+          newVals[`${getVariable(v.variable).text}[${filter.filter}]`] = v.value
+        })
+      })
+      Object.keys(newVals).forEach(field => {
+        var prevVal = prevVals[field]??''
+        var newVal = newVals[field]
+        if(prevVal!=newVal&&newstat){
+          html.push(`<tr><td>${field}</td><td>${prevVal}</td><td>${newVal}</td></tr>`)
+          if(newstat=='approved')prevVals[field]=newVal
+        }
+      });
+      html.push('</table>')   
+      html.push('</div>')
+
+      
+
+      //approval logs
+      html.push('<div>') 
+      html.push('<h5>Approval Logs</h5>')      
+      html.push('<table class="table table-sm table-condensed table-bordered">')
+      html.push(`<tr><th>Time</th><th>User</th><th>Status</th><th>Sub Status</th><th>Remarks</th></tr>`)
+      tran.status.map(stat=>{
+        var substatus = approval_steps.filter(x=> x.code==stat.sub_status)[0]
+        html.push(`<tr><td>${stat.update_time}</td><td>${stat.update_by}</td><td>${stat.status??''}</td><td>${substatus?substatus.text:''}</td><td>${stat.remarks??''}</td></tr>`)
+      })
+      html.push('</table>')      
+      html.push('</div>')
+
+      html.push('</div>')
+    })
+    modal = modalShow(`Change History [${item.code}]`,html.join(''))
+  }
+
+  refreshDynamicTable()
+ 
+</script>
+
+</body>
+</html>

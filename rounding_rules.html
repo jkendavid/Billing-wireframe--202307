@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Rounding Rules</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Rounding Rules</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateRounding()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableRoundings">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+ 
+
+  const headers = [
+    {...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+    {row:true,selector:'form',code:'text',text:'Text',readonly:false,required:false,type:'text'},
+    {row:true,selector:'form',code:'decimal_place',text:'Decimal Place',readonly:false,required:false,type:'number',min:0, max:12},
+    {row:true,selector:'form',code:'description',text:'Description',readonly:false,required:false,type:'text'},
+  ]
+  
+
+  function getRoundingData(){
+    return rounding_rules
+  }
+
+  function refreshTableRoundings(){    
+    var table = $('#tableRoundings');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getRoundingData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateRounding('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateRounding(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getRoundingData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).filter(x=> x.row==true).map(header=>{
+      if(header.code=='rounding'){
+        header.options = rounding_rules.map(x=>{
+          return {value: x.code,text:x.text}
+        })
+      }
+      if(code)header.value = rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');    
+  
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveRounding('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Rounding',html.join(''))
+  }
+
+  function saveRounding(code=""){
+    var errFields = []
+    var newData = {}
+    var gindex = 1
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()
+      
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })   
+
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = rounding_rules.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      rounding_rules.push(newData)
+    }  
+
+    modal.modal('hide')
+    refreshTableRoundings()
+  }
+  refreshTableRoundings()
+ 
+</script>
+
+
+</body>
+</html>

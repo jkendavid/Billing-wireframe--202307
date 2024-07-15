@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Window Categories</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Window Categories</h2>      
+    <div class="form-row my-2">
+      <div class="form-group">
+        <select class="form-control" id="optWindowWindows" onchange="refreshTableWindows()"></select>
+      </div>
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateWindow()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableWindows">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+
+  var windowWindow = ''
+
+  function optWindowWindows(){
+    var opt =$('#optWindowWindows')
+    opt.empty()   
+    opt.append(`<option value='parties'>Parties</option>`)
+    opt.append(`<option value='contracts'>Contracts</option>`)
+    opt.append(`<option value='dynamics'>Dynamics</option>`)
+  }
+  optWindowWindows()
+  
+  const headers = [
+    {dynamics:false,...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+    {dynamics:false,row:true,selector:'form',code:'text',text:'Text',readonly:false,required:false,type:'text'},
+    {dynamics:false,row:true,selector:'form',code:'approval',view:'approval_text',text:'Approval Rule',readonly:false,required:false,type:'domain'},
+    {
+      dynamics:true,row:true,selector:'form',code:'filter',view:'filtertext',text:'Filter Field',readonly:false,required:false,type:'domain',
+      options:deepCopy(variables).filter(x=> x.category=="filters").map(x=>{return{value:x.code,text:x.text}})
+    },
+    {dynamics:true,row:false,selector:'form',code:'variables',view:'variablestext',text:'Variable Fields',readonly:false,required:false,type:'domain'},
+  ]
+
+  var fieldHeaders = [ 
+    {code:'code',text:'Variable',required:true,type:'domain',options:deepCopy(variables).filter(x=> x.category=='inputs').map(x=>{return{value:x.code,text:x.text}})},
+    {code:'required',text:'Required',required:true,type:'bool'},
+    {code:'active',text:'Active',required:true,type:'bool'}
+  ]
+
+  function getWindowData(){
+    return deepCopy(window_categories).filter(x=> x.window == windowWindow).map(x=> {
+      var approval = deepCopy(approval_rules).filter(y=> y.code == x.approval)[0]
+      x.approval_text =  approval?approval.text:'' 
+      if(x.filter) {
+        x.filtertext = deepCopy(getVariable(x.filter)).text
+        x.variablestext = x.variables.map(y=>{
+          return (deepCopy(getVariable(y.code)).text) + (y.required=='false'?' [o]':'') + (y.active=='false'?' [x]':'')
+        }).join('<br>')
+      }
+      return x
+    })
+  }
+  var vheaders =[]
+  function refreshTableWindows(){    
+    windowWindow = $('#optWindowWindows').val();
+    var table = $('#tableWindows');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    vheaders = headers.filter(x=> x.dynamics==false||windowWindow=="dynamics")
+    vheaders.filter(x=> x.dynamics==false||windowWindow=="dynamics").map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getWindowData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      vheaders.forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateWindow('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateWindow(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getWindowData().filter(x=> x.code == code)[0];  
+    deepCopy(vheaders).filter(x=> x.row==true).map(header=>{
+      if(header.code=='approval'){
+        header.options = approval_rules.map(x=>{
+          return {value: x.code,text:x.text}
+        })
+      }
+      if(code)header.value = rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');  
+    if(windowWindow=='dynamics'){
+      html.push('<div class="extFields">');  
+      html.push('<table class="table table-bordered">'); 
+      html.push('<tr>');  
+      fieldHeaders.map(header=>{
+        html.push(`<th>${header.text}</th>`); 
+      })
+      html.push(`<td><a href="#" class="mx-2" onclick="addWindowDetailRow(this)">Add</a></td>`); 
+      html.push('</tr>');  
+      if(rowData)rowData.variables.map(row=>{html.push(windowDetailRow(code,row))})
+      html.push('</table>');  
+      html.push('</div>');  
+    }
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveWindow('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Window',html.join(''))
+  }
+  
+  function addWindowDetailRow(ctrl,code){
+    $(ctrl.closest('tbody')).append(windowDetailRow(code))
+  }
+
+  function removeWindowDetailRow(ctrl,code){  
+    var confirmation = confirm("Are you sure you want to remove this entry?");
+    if (confirmation) { 
+      $(ctrl.closest('tr')).remove()
+    }
+  }
+
+  function windowDetailRow(code,row=''){
+    var html = []
+    html.push('<tr class="extRow">');  
+    deepCopy(fieldHeaders).map(header=>{
+      if(code)header.value = row[header.code]
+      html.push(`<td>${htmlControl(header,'')}</td>`); 
+    })
+    html.push( `<td><a href="#" class="mx-2" onclick="removeWindowDetailRow(this)">Remove</a></td>`)
+    html.push('</tr>');   
+    return html.join('')
+  }
+
+  function saveWindow(code=""){
+    var errFields = []
+    var newData = {window:windowWindow,variables:[]}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()
+      if ($(v).prop('required')&&!$(v).val()){
+        errFields.push(headers.filter(x=> x.code == field)[0].text)
+      }
+    })
+    var newFieldData = []
+    $.each(modal.find('.extRow'),function(i,row){
+      var newFieldRow ={}
+      $.each($(row).find('.form-control'),function(j,ctrl){
+        var field = $(ctrl).attr('val');
+        newFieldRow[field]=$(ctrl).val()
+        if ($(ctrl).prop('required')&&!$(ctrl).val()){
+          errFields.push(fieldHeaders.filter(x=> x.code == field)[0].text)
+        }
+      })
+      newData.variables.push(newFieldRow)
+    })
+
+    if (errFields.length>0){
+      alert('Required fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = window_categories.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      window_categories.push(newData)
+    }  
+   
+    window_fields = window_fields.filter(x => x.category !== newData.code);
+    newFieldData.map(x=>{
+      window_fields.push(x)
+    })
+
+    modal.modal('hide')
+    refreshTableWindows()
+  }
+
+  refreshTableWindows()
+ 
+</script>
+
+
+</body>
+</html>

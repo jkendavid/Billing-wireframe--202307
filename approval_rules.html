@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Approval Rules</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Approval Rules</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateApproval()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableApprovals">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+ 
+
+  const headers = [
+    {...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+    {row:true,selector:'form',code:'text',text:'Text',readonly:false,required:false,type:'text'},
+    {row:false,selector:'form',code:'steps',view:'steps_text',text:'Steps',readonly:false,required:false,type:'text'},
+  ]
+  
+  const fieldHeaders = [
+    {...getVariable('index'),selector:'table',readonly:false,required:true},
+    {...getVariable('code'),selector:'table',readonly:false,required:true},
+    {selector:'table',code:'text',text:'Text',readonly:false,required:true,type:'text'},
+    {selector:'table',code:'skipable',text:'Skipable',readonly:false,required:true,type:'bool'},
+    {selector:'table',code:'approver',view:'approver_text',text:'Approver',readonly:false,required:true,type:'text'},
+  ]
+ 
+  function getApprovalData(){
+    return approval_rules.map(x=> {
+      x.steps = deepCopy(approval_steps).filter(y=> y.rule == x.code).map(x=>{
+        return x
+      })
+      x.steps_text = x.steps.map(x=> {return `${x.text}<br><span class="mr-5"></span>${x.approver??[]} `}).join('<br>')
+      return x
+    })
+  }
+
+  function refreshTableApprovals(){    
+    var table = $('#tableApprovals');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getApprovalData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateApproval('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateApproval(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getApprovalData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).filter(x=> x.row==true).map(header=>{
+      if(header.code=='approval'){
+        header.options = approval_rules.map(x=>{
+          return {value: x.code,text:x.text}
+        })
+      }
+      if(code)header.value = rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');    
+    html.push('<div class="extFields">');  
+    html.push('<table class="table table-bordered">'); 
+    html.push('<tr>');  
+    fieldHeaders.map(header=>{
+      html.push(`<th>${header.text}</th>`); 
+    })
+    html.push(`<td><a href="#" class="mx-2" onclick="addApprovalDetailRow(this)">Add</a></td>`); 
+    html.push('</tr>');  
+    xx = rowData
+    if(rowData)rowData.steps.map(row=>{html.push(approvalDetailRow(code,row))})
+    html.push('</table>');  
+    html.push('</div>');  
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveApproval('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Approval',html.join(''))
+  }
+
+  function addApprovalDetailRow(ctrl,code){
+    $(ctrl.closest('tbody')).append(approvalDetailRow(code))
+  }
+
+  function removeApprovalDetailRow(ctrl,code){  
+    var confirmation = confirm("Are you sure you want to remove this entry?");
+    if (confirmation) { 
+      $(ctrl.closest('tr')).remove()
+    }
+  }
+
+  function approvalDetailRow(code,row=''){
+    var html = []
+    html.push('<tr class="extRow">');  
+    deepCopy(fieldHeaders).map(header=>{
+      if(code)header.value = row[header.code]
+      html.push(`<td>${htmlControl(header,'')}</td>`); 
+    })
+    html.push( `<td><a href="#" class="mx-2" onclick="removeWindowDetailRow(this)">Remove</a></td>`)
+    html.push('</tr>');   
+    return html.join('')
+  }
+
+  function saveApproval(code=""){
+    var errFields = []
+    var newData = {}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()
+
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })
+    var newFieldData = []
+    $.each(modal.find('.extRow'),function(i,row){
+      var newFieldRow ={rule:newData.code}
+      $.each($(row).find('.form-control'),function(j,ctrl){
+        var field = $(ctrl).attr('val');
+        newFieldRow[field]=$(ctrl).val()
+        
+        var validationResult = fieldValidation(fieldHeaders.filter(x=> x.code == field)[0],newFieldRow[field])
+        if (!validationResult.ok)errFields.push(validationResult.message)
+      })
+      newFieldData.push(newFieldRow)
+    })
+
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = approval_rules.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      approval_rules.push(newData)
+    }  
+   
+    approval_steps = approval_steps.filter(x => x.rule !== newData.code);
+    newFieldData.map(x=>{
+      approval_steps.push(x)
+    })
+
+    modal.modal('hide')
+    refreshTableApprovals()
+  }
+  refreshTableApprovals()
+ 
+</script>
+
+
+</body>
+</html>

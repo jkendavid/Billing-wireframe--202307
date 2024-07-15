@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+  <title>Billing Templates</title>
+  <style>
+
+    td .btn-sm{
+      width: 80px;
+      margin: 0px 2px;
+      height: 25px;
+      font-size: 12px;
+    }  
+    .table {
+        padding: 0;
+    }
+    .table th, .table td, .table tr {
+      padding-top: 2px;
+      padding-bottom: 5px;
+      font-size: 14px;
+    }
+    .colindex {
+      width: 3px;
+    }
+    td:last-child {
+      display: flex;      
+    }
+    .btnsubmit{
+      width: 120px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>  
+  <div class="container mt-4">
+    <div id="templateList">
+      <h2>Billing Templates</h2> <div class="row my-2">
+        <div class="mx-auto"></div>        
+        <button type="button" class="btn btn-primary btn-sm" onclick="newTemplate()">Create New Template</button>
+      </div>
+      <table class="table table-bordered" id="tableTemplates" style="width:100% ;">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th style="min-width: 200px;">Description</th>
+            <th>Status</th>
+            <th>Update By</th>
+            <th>Update Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="templateDetails" style="display: none; margin-bottom: 50px;">      
+      <a href="#" onclick="showDetails(false)">Template List</a>
+      <h2 id ='detailTitle'>New Template</h2>
+      <div class="form-row mt-4">
+        <div class="form-group col-md-3">
+          <div class="form-group" style="display: flex">
+            <label for="templateCode" class="mr-3">Code* </label>
+            <input type="text" class="form-control" id="templateCode" required>
+          </div>
+        </div>
+        <div class="form-group col-md-6">
+          <div class="form-group" style="display: flex">
+            <label for="templateDescription" class="mr-3">Description* </label>
+            <input type="text" class="form-control" id="templateDescription" required>
+          </div>
+        </div>
+        <div class="form-group col-md-3">
+          <div class="form-group" style="display: flex">
+            <label for="templateStatus" class="mr-3">Status* </label>
+            <input type="text" class="form-control" id="templateStatus" disabled>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h4>Variables</h4>
+        <table class="table table-bordered" id="tableVariables">
+          <thead>
+            <tr>
+              <th>Index</th>
+              <th>Variable</th>
+              <th>Formula</th>
+              <th>Result Type</th>
+              <th>
+                <button type="button" class="btn btn-primary btn-sm" onclick="modalVariableShow('#variableModal')">Add</button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>            
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h4>Charges</h4>
+        <table class="table table-bordered" id="tableCharges">
+          <thead> 
+            <tr>
+              <th class="colindex">Index</th>
+              <th>Charge</th>
+              <th><div>Base</div><div>[A]</div></th>
+              <th><div>Price</div><div>[B]</div></th>
+              <th><div>Amount</div><div>[C]</div></th>
+              <th><div>Vat</div><div>[D]</div></th>
+              <th>
+                <button type="button" class="btn btn-primary btn-sm" onclick="modalChargeShow('#chargeModal')">Add</button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>   
+              <tr>
+                <td>1</td>
+                <td>Fixed Charge</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>2</td>
+                <td>[CH_CRF]Capital Recovery Fee, PHP</td>
+                <td>[C_CC]*1000</td>
+                <td>[C_CRF]*[V_IX]</td>
+                <td>ROUND([A]*[B],2)</td>
+                <td>[C]*[VAT]</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>3</td>
+                <td>[CH_FOM]Fixed O&M Fee, PHP</td>
+                <td>[C_CC]*1000</td>
+                <td>[C_CRF]</td>
+                <td>ROUND([A]*[B],2)</td>
+                <td>[C]*[VAT]</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>4</td>
+                <td>Generation Charge</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>5</td>
+                <td>[CH_FUEL] Fuel Charge, Php</td>
+                <td>[V_EN]</td>
+                <td>[V_FUELR]</td>
+                <td>ROUND([A]*[B],2)</td>
+                <td>[C]*[VAT]</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>6</td>
+                <td>[CH_VOM]Variable O&M Fee, PHP</td>
+                <td>[V_EN]</td>
+                <td>[C_VOM]-[C_ER194]</td>
+                <td>ROUND([A]*[B],2)</td>
+                <td>[C]*[VAT]</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+              <tr>
+                <td>7</td>
+                <td>[CH_ER194]ER-194, PHP</td>
+                <td>[V_EN]</td>
+                <td>[C_ER194]</td>
+                <td>ROUND([A]*[B],2)</td>
+                <td>0</td>
+                <td>
+                  <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+                </td>
+              </tr> 
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal" id="variableModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add/Edit Variable</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="addEntryForm">
+                <input type="hidden" id="editRowIndex" value="">    
+                <div class="form-group">
+                  <label for="index">Index*</label>
+                  <input type="number" class="form-control" id="index" required min="1" max="1000">
+                </div>
+                <div class="form-group">
+                  <label for="variable">Variable*</label>
+                  <select class="form-control" id="variable" required></select>
+                </div>       
+                <div class="form-group">
+                  <label for="formula">Formula*</label>
+                  <textarea class="form-control" id="formula"></textarea>
+                </div>     
+                <div class="form-group">
+                  <label for="type">Result Type*</label>
+                  <select class="form-control" id="type" required>
+                    <option value="Print">Print</option>
+                    <option value="Save">Save</option>
+                    <option value="Dont Save">Dont Save</option>
+                  </select>
+                </div>   
+                <button type="button" class="btn btn-primary" onclick="addVariable(this)">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal" id="chargeModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add/Edit Charge</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="addEntryForm">
+                <input type="hidden" id="editRowIndex" value="">    
+                <div class="form-group">
+                  <label for="index">Index*</label>
+                  <input type="number" class="form-control" id="index" required min="1" max="1000">
+                </div>
+                <div class="form-group">
+                  <label for="charge">Charge*</label>
+                  <select class="form-control" id="charge" required> 
+                    <option class="optCHARGES" value="[CRF]Capital Recovery Fee, PHP">[CH_CRF]Capital Recovery Fee, PHP</option>
+                    <option class="optCHARGES" value="[FOM]Fixed O&M Fee, PHP">[CH_FOM]Fixed O&M Fee, PHP</option>
+                    <option class="optCHARGES" value="[VOM]Variable O&M Fee, PHP">[CH_VOM]Variable O&M Fee, PHP</option>
+                    <option class="optCHARGES" value="[ER194]ER-194, PHP">[CH_ER194]ER-194, PHP</option>
+                    <option class="optCHARGES" value="[FUEL] Fuel Charge, Php">[FUEL] Fuel Charge, Php</option>
+                    <option class="optText" value="---Indices---">---Indices---</option>
+                    <option class="optText" value="---Plant Data---">---Plant Data---</option>
+                    <option class="optText" value="---Quantities---">---Quantities---</option>
+                    <option class="optText" value="---Rates---">---Rates---</option>
+                    <option class="optText" value="---Fixed Charge---">---Fixed Charge---</option>
+                    <option class="optText" value="---Generation Charge---">---Generation Charge---</option>
+                  </select>
+                </div>       
+                <div class="form-group">
+                  <label for="formulab">Base Formula</label>
+                  <textarea class="form-control" id="formulab"></textarea>
+                </div> 
+                <div class="form-group">
+                  <label for="formulap">Price Formula</label>
+                  <textarea class="form-control" id="formulap"></textarea>
+                </div> 
+                <div class="form-group">
+                  <label for="formulaa">Amount Formula*</label>
+                  <textarea class="form-control" id="formulaa"></textarea>
+                </div> 
+                <div class="form-group">
+                  <label for="formulav">VAT Formula</label>
+                  <textarea class="form-control" id="formulav"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="addCharge(this)">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary btnsubmit" onclick="saveTemplate(true)">Save as Draft</button>
+          <button type="button" class="btn btn-primary btnsubmit" onclick="saveTemplate()">Save</button>
+      </div>
+    </div>
+  <div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+
+<script>  
+  var rowTemplateButtons =`<button class="btn btn-info btn-sm" onclick="viewTemplate(this,false)">Edit</button>
+              <button class="btn btn-info btn-sm" onclick="copyTemplate(this)">Copy</button>`
+
+  function templateCodeToALink(code){
+    return `<a onclick="viewTemplate(this,true)" href="#">${code}</a>`
+  }
+
+  function loadTemplateData(){
+    var data = []
+    $.each(dataTemplates, function(index, row) {
+      row[0]= templateCodeToALink(row[0])
+      row.push(getUser());
+      row.push(getCurrentTime());
+      row.push(rowTemplateButtons);
+      data.push(row)
+    });
+    return data;
+  }
+
+  var tableTemplates = $('#tableTemplates').DataTable({
+    scrollX:true,
+    data:loadTemplateData()
+  });  
+  var tableVariables = $('#tableVariables').DataTable({
+    paging: false, // Enable pagination
+    searching: false, 
+    "info": false
+  });   
+  var tableCharges = $('#tableCharges').DataTable({
+    paging: false, 
+    "info": false,
+    searching: false
+  });   
+
+  var templateEditRow = 0;
+
+  var pnlList = document.getElementById('templateList');
+  var pnlDetails = document.getElementById('templateDetails');
+  var detailTitle = document.getElementById('detailTitle');
+
+  var variableTableRowControl = 
+  `<button class="btn btn-info btn-sm" onclick="editVariable(this)">Edit</button>
+   <button class="btn btn-danger btn-sm" onclick="deleteVariable(this)">Delete</button>`
+  var chargeTableRowControl = 
+  `<button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+   <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>`
+
+  var dataTemplateDetails = {
+    'PSADU_V01.00':{
+      'variables':[
+        [1,'---Indices---','','Print',variableTableRowControl],
+        [2,'[IX_FOREX] FOREX, Usd/Php','','Print',variableTableRowControl],
+        [3,'[C_FOREXB] FOREX Base, Usd/Php','','Print',variableTableRowControl],
+        [4,'[IX_NCRCPI] NCR CPI','','Print',variableTableRowControl],
+        [5,'[C_NCRCPIB] NCR CPI Base,','','Print',variableTableRowControl],
+        [6,'[V_IX] Index,','ROUND([IX_NCRCPI]/[C_NCRCPIB]*[IX_FOREX]/[C_FOREXB],6)','Print',variableTableRowControl],
+        [7,'---Plant Data---','','Print',variableTableRowControl],
+        [8,'[PL_GEN] Plant Generation, kWh','','Print',variableTableRowControl],
+        [9,'[PL_COALMT] Coal Consumption, MT','','Print',variableTableRowControl],
+        [10,'[PL_DCP] Delivered Coal Price, Php/MT','','Print',variableTableRowControl],
+        [11,'---Quantities---','','',variableTableRowControl],
+        [12,'[C_CC] Contracted Capacity, MW','','Print',variableTableRowControl],
+        [13,'[STL_BCQ] Settlement Data BCQ, kWh','','Save',variableTableRowControl],
+        [14,'[V_EN] Energy Delivered, kWh','SUM([STL_BCQ])','Print',variableTableRowControl],
+        [15,'---Rates---','','',variableTableRowControl],
+        [16,'[C_CRF] Capital Recovery Fee, Php/kWh','','Print',variableTableRowControl],
+        [17,'[C_FOM] Fixed O&M Fee, Php/MW','','Print',variableTableRowControl],
+        [18,'[C_VOM] Variable O&M Fee, Php/kWh','','Print',variableTableRowControl],
+        [19,'[C_ER194] ER-194, Php/kWh','','Print',variableTableRowControl],
+        [20,'[V_FUELR] Fuel Rate, Php/kWh','[PL_DCP]*[PL_COALMT]/[PL_GEN]','Print',variableTableRowControl],
+      ],
+      'charges':[
+        [1,'---Fixed Charge---','','','','',chargeTableRowControl],
+        [2,'[CRF]Capital Recovery Fee, PHP','[C_CC]*1000','[C_CRF]*[V_IX]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [3,'[FOM]Fixed O&M Fee, PHP','[C_CC]*1000','[C_CRF]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [4,'---Generation Charge---','','','','',chargeTableRowControl],
+        [5,'[FUEL] Fuel Charge, Php','[V_EN]','[V_FUELR]','ROUND([A]*[B],2)	','[C]*[VAT]',chargeTableRowControl],
+        [6,'[VOM] Variable O&M Fee, PHP','[V_EN]','[C_VOM]-[C_ER194]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [7,'[ER194] ER-194, PHP','[V_EN]','[C_ER194]','ROUND([A]*[B],2)','0',chargeTableRowControl],
+      ],
+    },'PSARES_V01.00':{
+      'variables':[    
+        [1,'---Plant Data---','','Print',variableTableRowControl],
+        [2,'[PL_GEN] Plant Generation, kWh','','Print',variableTableRowControl],
+        [3,'[PL_COALMT] Coal Consumption, MT','','Print',variableTableRowControl],
+        [4,'[PL_DCP] Delivered Coal Price, Php/MT','','Print',variableTableRowControl],
+        [5,'---Quantities---','','',variableTableRowControl],
+        [6,'[STL_BCQ] Settlement Data BCQ, kWh','','Save',variableTableRowControl],
+        [7,'[V_EN] Energy Delivered, kWh','SUM([STL_BCQ])','Print',variableTableRowControl],
+        [8,'---Rates---','','',variableTableRowControl],
+        [9,'[C_VC] Variable Charge, Php/kWh','','Print',variableTableRowControl],
+        [10,'[C_ADMIN] Admin Charge, Php/kWh','','Print',variableTableRowControl],
+        [11,'[C_ER194] ER-194, Php/kWh','','Print',variableTableRowControl],
+        [12,'[V_FUELR] Fuel Rate, Php/kWh','[PL_DCP]*[PL_COALMT]/[PL_GEN]','Print',variableTableRowControl],
+      ],
+      'charges':[
+        [1,'---Generation Charge---','','','','',chargeTableRowControl],
+        [2,'[FUEL] Fuel Charge, Php','[V_EN]','[V_FUELR]','ROUND([A]*[B],2)	','[C]*[VAT]',chargeTableRowControl],
+        [3,'[VC] Variable Charge, PHP','[V_EN]','[C_VC]-[C_ER194]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [4,'[ADMIN] Admin Charge, PHP','[V_EN]','[C_ADMIN]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [5,'[ER194] ER-194, PHP','[V_EN]','[C_ER194]','ROUND([A]*[B],2)','0',chargeTableRowControl],
+      ],
+    },'RSC_V01.00':{
+      'variables':[    
+        [1,'---Plant Data---','','Print',variableTableRowControl],
+        [2,'[PL_GEN] Plant Generation, kWh','','Print',variableTableRowControl],
+        [3,'[PL_COALMT] Coal Consumption, MT','','Print',variableTableRowControl],
+        [4,'[PL_DCP] Delivered Coal Price, Php/MT','','Print',variableTableRowControl],
+        [5,'---Quantities---','','',variableTableRowControl],
+        [6,'[STL_MQ] Settlement MQ, kWh','','Save',variableTableRowControl],
+        [7,'[V_EN] Energy Delivered, kWh','SUM([STL_BCQ])','Print',variableTableRowControl],
+        [8,'---Rates---','','',variableTableRowControl],
+        [9,'[C_VC] Variable Charge, Php/kWh','','Print',variableTableRowControl],
+        [10,'[C_ADMIN] Admin Charge, Php/kWh','','Print',variableTableRowControl],
+        [11,'[V_FUELR] Fuel Rate, Php/kWh','[PL_DCP]*[PL_COALMT]/[PL_GEN]','Print',variableTableRowControl],
+      ],
+      'charges':[
+        [1,'---Generation Charge---','','','','',chargeTableRowControl],
+        [2,'[FUEL] Fuel Charge, Php','[V_EN]','[V_FUELR]','ROUND([A]*[B],2)	','[C]*[VAT]',chargeTableRowControl],
+        [3,'[VC] Variable Charge, PHP','[V_EN]','[C_VC]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [4,'[ADMIN] Admin Charge, PHP','[V_EN]','[C_ADMIN]','ROUND([A]*[B],2)','[C]*[VAT]',chargeTableRowControl],
+        [5,'---DWSA---','','','','',chargeTableRowControl],
+        [6,'[DWSA_TRANS] Transmission Charge, PHP','[DWSA_TRANS_B]','[DWSA_TRANS_R]','[DWSA_TRANS_A]','[DWSA_TRANS_V]',chargeTableRowControl],
+        [7,'[DWSA_SYSLOSS] System Loss Charge, PHP','[DWSA_SYSLOSS_B]','[DWSA_SYSLOSS_R]','[DWSA_SYSLOSS_A]','[DWSA_SYSLOSS_V]',chargeTableRowControl],
+        [8,'[DWSA_DEMAND] Demand Charge, PHP','[DWSA_DEMAND_B]','[DWSA_DEMAND_R]','[DWSA_DEMAND_A]','[DWSA_DEMAND_V]',chargeTableRowControl],
+        [9,'[DWSA_ENERGY] Energy Charge, PHP','[DWSA_ENERGY_B]','[DWSA_ENERGY_R]','[DWSA_ENERGY_A]','[DWSA_ENERGY_V]',chargeTableRowControl],
+        [10,'[DWSA_METERING] Metering Charge, PHP','[DWSA_METERING_B]','[DWSA_METERING_R]','[DWSA_METERING_A]','[DWSA_METERING_V]',chargeTableRowControl],
+        [11,'[DWSA_SUPPLY] Supply Charge, PHP','[DWSA_SUPPLY_B]','[DWSA_SUPPLY_R]','[DWSA_SUPPLY_A]','[DWSA_SUPPLY_V]',chargeTableRowControl],
+        [12,'[DWSA_PFADJ] Power Factor Adjustment, PHP','[DDWSA_PFADJ_B]','[DWSA_PFADJ_R]','[DWSA_PFADJ_A]','[DWSA_PFADJ_V]',chargeTableRowControl],
+        [13,'[DWSA_CURPT] Current RPT, PHP','[DWSA_CURPT_B]','[DWSA_CURPT_R]','[DWSA_CURPT_A]','[DWSA_CURPT_V]',chargeTableRowControl],
+        [14,'[DWSA_LOCFRTAX] Local Franchise Tax, PHP','[DWSA_LOCFRTAX_B]','[DWSA_LOCFRTAX_R]','[DWSA_LOCFRTAX_A]','[DWSA_LOCFRTAX_V]',chargeTableRowControl],
+        [15,'[DWSA_LIFELINE] Lifeline Rate Subsidy, PHP','[DWSA_LIFELINE_B]','[DWSA_LIFELINE_R]','[DWSA_LIFELINE_A]','[DWSA_LIFELINE_V]',chargeTableRowControl],
+        [16,'[DWSA_SENIORDC] Senior Subsidy/Discount, PHP','[DWSA_SENIORDC_B]','[DWSA_SENIORDC_R]','[DWSA_SENIORDC_A]','[DWSA_SENIORDC_V]',chargeTableRowControl],
+        [17,'[DWSA_TRAC] TRAC, PHP','[DWSA_TRAC_B]','[DWSA_TRAC_R]','[DWSA_TRAC_A]','[DWSA_TRAC_V]',chargeTableRowControl],
+        [18,'[DWSA_MISSIO] Missionary, PHP','[DWSA_MISSIO_B]','[DWSA_MISSIO_R]','[DWSA_MISSIO_A]','[DWSA_MISSIO_V]',chargeTableRowControl],
+        [19,'[DWSA_ENVIR] Environmental Fund, PHP','[DWSA_ENVIR_B]','[DWSA_ENVIR_R]','[DWSA_ENVIR_A]','[DWSA_ENVIR_V]',chargeTableRowControl],
+        [20,'[DWSA_NPCSCC] NPC Stranded Contract Costs, PHP','[DWSA_NPCSCC_B]','[DWSA_NPCSCC_R]','[DWSA_NPCSCC_A]','[DWSA_NPCSCC_V]',chargeTableRowControl],
+        [21,'[DWSA_NPCDEBT] NPC Stranded Debts, PHP','[DWSA_NPCDEBT_B]','[DWSA_NPCDEBT_R]','[DWSA_NPCDEBT_A]','[DWSA_NPCDEBT_V]',chargeTableRowControl],
+        [22,'[DWSA_DUSCC] DU Stranded Contract Costs, PHP','[DWSA_DUSCC_B]','[DWSA_DUSCC_R]','[DWSA_DUSCC_A]','[DWSA_DUSCC_V]',chargeTableRowControl],
+        [23,'[DWSA_EQTAXROY] Equalization of Taxes and Royalties, PHP','[DWSA_EQTAXROY_B]','[DWSA_EQTAXROY_R]','[DWSA_EQTAXROY_A]','[DWSA_EQTAXROY_V]',chargeTableRowControl],
+      ],
+    }
+  }
+
+  function showDetails(show){    
+    pnlList.style.display = show?'none':"block";
+    pnlDetails.style.display = show?"block":'none';
+  }
+
+  function viewOnly(b){
+    document.getElementById('templateCode').disabled = b;
+    document.getElementById('templateDescription').disabled = b;
+    var buttons = pnlDetails.querySelectorAll('.btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = b?'none':"block";
+    }  
+  }
+
+  function newTemplate(){    
+    tableVariables.clear().draw()
+    tableCharges.clear().draw()
+    document.getElementById('templateCode').value = "";
+    document.getElementById('templateDescription').value = "";
+    document.getElementById('templateStatus').value = "";
+    detailTitle.textContent = 'New Template'
+    viewOnly(false);
+    showDetails(true);
+  }
+
+  function copyTemplate(btn){
+    templateEditRow = btn.closest('tr');
+    var code = templateEditRow.cells[0].innerText;
+    var description = templateEditRow.cells[1].innerText;
+
+    document.getElementById('templateCode').value = code+'_copy';
+    document.getElementById('templateDescription').value = description+'_copy';
+    document.getElementById('templateStatus').value = "";
+    detailTitle.textContent = 'New Template'
+
+    loadDetails(code);
+    viewOnly(false);
+    showDetails(true);
+  }
+
+  function viewTemplate(btn, isDraft){
+    templateEditRow = btn.closest('tr');
+
+    var code = templateEditRow.cells[0].innerText;
+    var description = templateEditRow.cells[1].innerText;
+    var status = templateEditRow.cells[2].innerText;
+    document.getElementById('templateCode').value = code;
+    document.getElementById('templateDescription').value = description;
+    document.getElementById('templateStatus').value = status;
+
+    loadDetails(code);
+
+    viewOnly(isDraft);
+    detailTitle.textContent = isDraft?'View Template':'Edit Template'
+
+    showDetails(true);
+  }  
+
+  function saveTemplate(draft){ 
+    var code = document.getElementById('templateCode').value;
+    var description = document.getElementById('templateDescription').value;
+    var status = document.getElementById('templateStatus').value;
+
+    if (!code || !description) {
+      alert("Please enter valid data.");
+      return;
+    }
+
+    if(!draft){
+      var confirmation = confirm("Are you sure you want to save the template?");  
+      if (!confirmation) return;    
+    }    
+     
+    if (status == ''){    
+      if(doesValueExistInColumn(tableTemplates,0,code)){
+        alert("Tempalte code already exist.");
+        return;
+      }  
+      tableTemplates.row.add(
+            [templateCodeToALink(code), description, draft?'DRAFT':'ACTIVE', getUser(), getCurrentTime(),
+            rowTemplateButtons
+            ]).draw().node();      
+    } else {
+      var rowIndex = tableTemplates.row(templateEditRow).index();
+      var newData = tableTemplates.row(rowIndex).data();
+      newData[0] = `<a onclick="viewTemplate(this,true)" href ="#">${code}</a>`;
+      newData[1] = description;
+      newData[2] = draft?'DRAFT':'ACTIVE';
+      newData[3] = getUser();
+      newData[4] = getCurrentTime();
+      tableTemplates.row(rowIndex).data(newData).draw();
+    }    
+
+    dataTemplateDetails[code]={};
+    dataTemplateDetails[code].variables= tableVariables.rows().data().toArray({ 'array': true });
+    dataTemplateDetails[code].charges= tableCharges.rows().data().toArray({ 'array': true });
+
+    showDetails(false);
+    calculationControlsAuth();
+  }  
+     
+  function loadDetails(template){
+    tableVariables.clear()
+    dataTemplateDetails[template].variables.forEach((variable) => {
+      tableVariables.row.add(variable);
+    });
+    tableVariables.draw()
+    
+    tableCharges.clear()
+    dataTemplateDetails[template].charges.forEach((charge) => {
+      tableCharges.row.add(charge);
+    });
+    tableCharges.draw()
+  } 
+ 
+  function modalVariableShow(selector){
+    var modal = $(selector);
+    modal.modal('show');
+  
+    modal = modal[0]
+      modal.querySelectorAll('input').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('textarea').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('select').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('input[type="number"]').forEach(function(obj) {
+        obj.value = 1;
+    });
+
+    var ids = tableVariables.column(0).data().toArray()
+    modal.querySelector("#index").value =  ids.length > 0 ? parseInt(ids[ids.length - 1] )+ 1 : 1;
+    return modal;
+  }
+
+  function addVariable(button) {
+    var table = tableVariables;
+    var frm = button.closest('form');
+
+    var index = frm.querySelector("#index").value;
+    var variable = frm.querySelector("#variable").value;
+    var formula = frm.querySelector("#formula").value;
+    var type = frm.querySelector("#type").value;
+
+    if (!index ||!variable 
+      ||($('#variable').find("option:selected").hasClass("optFUNCTIONS") && !formula)
+      ||(!$('#variable').find("option:selected").hasClass("optTEXT") && !type)) {
+      alert("Please enter valid data.");
+      return;
+    }
+
+    var editing = frm.querySelector("#editRowIndex").value;
+    if (editing !== "") {
+      var rowIndex = parseInt(editing);
+      var newData = table.row(rowIndex).data();
+      newData[0] = index;
+      newData[1] = variable;
+      newData[2] = formula;
+      newData[3] = type;
+      table.row(rowIndex).data(newData).draw();
+    } else {    
+
+      if(doesValueExistInColumn(table,0,index)){
+        alert("Index already exist.");
+        return;
+      }
+
+      if(doesValueExistInColumn(table,1,variable)){
+        alert("Variable already exist.");
+        return;
+      }
+
+      var newRow = table.row.add(
+            [index, variable, formula, type,
+            `<td class="d-flex">
+                <button class="btn btn-info btn-sm" onclick="editVariable(this)">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteVariable(this)">Delete</button>
+              </td>`
+            ]).draw().node();
+    }
+    $('.modal').modal('hide');
+  }
+
+  function editVariable(button) {
+    var row = button.closest('tr');
+
+    var index = row.cells[0].innerText;
+    var variable = row.cells[1].innerText;
+    var formula = row.cells[2].innerText;
+    var type = row.cells[3].innerText;
+
+    var modal = modalVariableShow('#variableModal');
+
+    modal.querySelector("#index").value = index;
+    modal.querySelector("#variable").value = variable;
+    modal.querySelector("#formula").value = formula;
+    modal.querySelector("#type").value = type;
+    
+    modal.querySelector("#editRowIndex").value = tableVariables.row(row).index();
+    $("#variable").trigger("change");
+  }
+
+  function deleteVariable(button) {
+    var confirmation = confirm("Are you sure you want to delete this entry?");
+    if (confirmation) {      
+      var row = button.closest('tr');
+      tableVariables.row(row).remove().draw();
+    }
+  }
+     
+  function modalChargeShow(selector){
+      var modal = $(selector);
+      modal.modal('show');
+  
+      modal = modal[0]
+      modal.querySelectorAll('input').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('textarea').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('select').forEach(function(obj) {
+        obj.value = "";
+      });
+      modal.querySelectorAll('input[type="number"]').forEach(function(obj) {
+        obj.value = 1;
+      });
+
+      var ids = tableCharges.column(0).data().toArray()
+      modal.querySelector("#index").value =  ids.length > 0 ? parseInt(ids[ids.length - 1] )+ 1 : 1;
+      return modal;
+  }
+
+  function addCharge(button) {
+    var table = tableCharges;
+    var frm = button.closest('form');
+    
+    var index = frm.querySelector("#index").value;
+    var charge = frm.querySelector("#charge").value;
+    var formulab = frm.querySelector("#formulab").value;
+    var formulap = frm.querySelector("#formulap").value;
+    var formulaa = frm.querySelector("#formulaa").value;
+    var formulav = frm.querySelector("#formulav").value;
+
+    if (!index || (!formulaa && !$('#charge').find("option:selected").hasClass("optTEXT"))) {
+      alert("Please enter valid data.");
+      return;
+    }
+
+    var editing = frm.querySelector("#editRowIndex").value;
+    if (editing !== "") {
+      var rowIndex = parseInt(editing);
+      var newData = table.row(rowIndex).data();
+      newData[0] = index;
+      newData[1] = charge;
+      newData[2] = formulab;
+      newData[3] = formulap;
+      newData[4] = formulaa;
+      newData[5] = formulav;
+      table.row(rowIndex).data(newData).draw();
+    } else {
+      if(doesValueExistInColumn(table,0,index)){
+        alert("Index already exist.");
+        return;
+      }
+
+      if(doesValueExistInColumn(table,1,charge)){
+        alert("Charge already exist.");
+        return;
+      }
+      var newRow = tableCharges.row.add(
+            [index, charge, formulab, formulap, formulaa,formulav,
+            `<td class="d-flex">
+                <button class="btn btn-info btn-sm" onclick="editCharge(this)">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCharge(this)">Delete</button>
+              </td>`
+            ]).draw().node();
+    }
+    $('.modal').modal('hide');
+  }
+
+  function editCharge(button) {
+    var row = button.closest('tr');
+
+    var index = row.cells[0].innerText;
+    var charge = row.cells[1].innerText;
+    var formulab = row.cells[2].innerText;
+    var formulap = row.cells[3].innerText;
+    var formulaa = row.cells[4].innerText;
+    var formulav = row.cells[4].innerText;
+
+    var modal = modalChargeShow('#chargeModal');
+
+    modal.querySelector("#index").value = index;
+    modal.querySelector("#charge").value = charge;
+    modal.querySelector("#formulab").value = formulab;
+    modal.querySelector("#formulap").value = formulap;
+    modal.querySelector("#formulaa").value = formulaa;
+    modal.querySelector("#formulav").value = formulav;
+
+    modal.querySelector("#editRowIndex").value = tableCharges.row(row).index();
+    $("#charge").trigger("change");
+  }
+
+  function deleteCharge(button) {
+    var confirmation = confirm("Are you sure you want to delete this entry?");
+    if (confirmation) {      
+      var row = button.closest('tr');
+      tableCharges.row(row).remove().draw();
+    }
+  }
+
+  function calculationControlsAuth(){
+    var user = getUser();
+    var trs = $('#tableTemplates').find('tbody tr')
+    $.each(trs, function(i,tr){
+      var status = tr.cells[2].innerText;
+      var tdControls = tr.children[5]
+      tdControls.children[0].style.display = status=="ACTIVE"?"none":"block";
+    })
+    tableTemplates.columns.adjust().draw();
+  }
+
+  calculationControlsAuth();
+
+  function handleUserChange() {
+    calculationControlsAuth();
+  }
+  
+  $("#variable").change(function () {
+      isCalcVar = $(this).find("option:selected").hasClass("optFUNCTIONS");
+      isText = $(this).find("option:selected").hasClass("optTEXT");
+      $("#formula").prop("readonly", !isCalcVar);
+      $("#type").prop("disabled", isText);
+  });
+  
+  $("#charge").change(function () {
+      isText = $(this).find("option:selected").hasClass("optTEXT");
+      $("#formulab").prop("readonly", isText);
+      $("#formulap").prop("readonly", isText);
+      $("#formulaa").prop("readonly", isText);
+      $("#formulav").prop("readonly", isText);
+  });
+
+  function getVariableList(tables = [],include=true) {
+    var arr = [];    
+    $.each(dataVariables, function(index, row) {
+        var check =tables.includes(row[0])
+        if (!include) check=!check;
+        if (check||tables.length === 0) {
+            arr.push([`[${row[1]}] ${row[2]}, ${row[3]}`,'opt'+row[0]]);
+        }
+    });
+    return arr;
+  }
+
+
+  updateSelectOption($('#variable'),getVariableList(['**CHARGES','**FIELDS' ],false),'',1);
+  updateSelectOption($('#charge'),getVariableList(['**CHARGES','**TEXT']),'',1);
+</script>
+</body>
+</html>

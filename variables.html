@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Variables</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Variables</h2>      
+    <div class="form-row my-2">
+      <div class="form-group">
+        <select class="form-control" id="optVariableCategories" onchange="refreshTableVariables()"></select>
+      </div>
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateVariable()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableVariables">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+
+  var variableCategory = ''
+
+  function optVariableCategories(){
+    var opt =$('#optVariableCategories')
+    opt.empty()   
+    opt.append(`<option value='inputs'>Inputs</option>`)
+    opt.append(`<option value='filters'>Filters</option>`)
+    opt.append(`<option value='determinants'>Determinants</option>`)
+    opt.append(`<option value='charges'>Charges</option>`)
+
+    opt.append(`<option value='calculation'>Calculation</option>`)
+    opt.append(`<option value='tax'>Tax</option>`)
+    opt.append(`<option value='external'>External</option>`)
+    opt.append(`<option value='freecode'>Free Code</option>`)
+    opt.append(`<option value='system'>System</option>`)
+  }
+  optVariableCategories()
+
+  var headers = []
+  function updateHeaders(){
+    headers = [
+      {
+        row:true,selector:'form',code:'type',text:'Type',readonly:true,required:true,type:'domain',
+        options:[
+          {value:'text',text:'Text'},
+          {value:'number',text:'Number'},
+          {value:'period',text:'Period'},
+          {value:'date',text:'Date'},
+          {value:'code',text:'Code'},
+          {value:'domain',text:'Domain'},
+        ],
+        extension:`onchange="updateVariableType(this)"`
+      },
+      {...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+      {row:true,selector:'form',code:'text',text:'Text',readonly:false,required:false,type:'text'},
+      {row:true,selector:'form',code:'description',text:'Description',readonly:false,required:false,type:'text'},
+      {row:false,selector:'form',code:'unit',text:'Unit',readonly:false,required:false,type:'text'},
+      {row:false,selector:'form',code:'min',text:'Min',readonly:false,required:false,type:'text'},
+      {row:false,selector:'form',code:'max',text:'Max',readonly:false,required:false,type:'text'},
+      {row:false,selector:'form',code:'rounding',view:'rounding_text',text:'Rounding Rule',readonly:false,required:false,type:'domain'},
+      {row:false,selector:'form',code:'domain_values',text:'Domain Values',readonly:false,required:true,type:'text'},
+      {row:false,selector:'form',code:'regex',text:'Regex Validation',readonly:false,required:false,type:'domain'},
+      {row:false,selector:'form',code:'code_structure',text:'Code Structure',readonly:false,required:true,type:'domain'},
+      {row:false,selector:'form',code:'base_rounding',view:'rounding_text',text:'Base Rounding Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('rounding')},
+      {row:false,selector:'form',code:'price_rounding',view:'rounding_text',text:'Price Rounding Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('rounding')},
+      {row:false,selector:'form',code:'amount_rounding',view:'rounding_text',text:'Amount Rounding Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('rounding')},
+    ]
+
+    //number only for vat and charges
+    if(['charge','vat'].includes(variableCategory)){
+      var header= headers.filter(x=>x.code=='type')[0]
+      header.blank = false
+      header.options = [{value:'number',text:'Number'}]
+    }
+  }
+  function getVariableData(){
+    return variables.filter(x=> x.category == variableCategory).map(x=> {
+      var rule = deepCopy(rounding_rules).filter(y=> y.code = x.rounding)[0]
+      x.rounding_text =  rule?rule.text:''
+      x.domain_values = variable_domain_codes.filter(y=> y.variable == x.code).map(x=> {return x.code})
+      return x
+    })
+  }
+
+  function refreshTableVariables(){   
+    variableCategory = $('#optVariableCategories').val();
+    updateHeaders() 
+    var table = $('#tableVariables');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.filter(x=> x.row).map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getVariableData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.filter(x=> x.row).forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateVariable('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateVariable(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getVariableData().filter(x=> x.code == code)[0];
+    var datatype =''  
+    deepCopy(headers).filter(x=> x.row).map(header=>{
+      if(header.code=='type'){
+        switch (variableCategory) {
+          case 'inputs':
+            header.options = header.options.filter(x=>['text','number','domain'].includes(x.value))
+            break;
+          case 'filters':
+            header.value = 'domain'
+            header.options = header.options.filter(x=>['domain'].includes(x.value))
+            break;
+          case 'determinants':
+            header.options = header.options.filter(x=>['text','number'].includes(x.value))
+            break;
+          case 'charges':
+            header.value = 'number'
+            header.options = header.options.filter(x=>['number'].includes(x.value))
+            break;
+          case 'tax':
+            header.value = 'number'
+            header.options = header.options.filter(x=>['number'].includes(x.value))
+            break;
+        }
+        datatype = header.value
+      }
+      if(code)header.value = rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');    
+    html.push('<div class="extFields">');  
+    if(datatype){
+      html.push(variableExtControl(datatype,rowData))
+    }else{
+      html.push(variableExtControl('',{category:variableCategory}))
+    }
+    html.push('</div>');  
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveVariable('${code}')">Save</button>`)
+    modal = modalShow(code?'New':'Update' + ' Variable',html.join(''))
+  }
+
+  function updateVariableType(ctrl){
+    var type = ctrl.value
+    var divExt = $($(ctrl).closest('.modal')).find('.extFields')
+    divExt.empty();
+    divExt.append(variableExtControl(type));
+  } 
+
+  function variableExtControl(type,data=''){
+    var html = [];
+    var fields = []
+    switch (type) {
+        case 'number':  
+          fields = ['min','max','unit','rounding']
+          break;
+        case 'domain':  
+          fields = ['domain_values']
+          break;
+        case 'text':  
+          fields = ['regex']
+          break;
+        case 'code':  
+          fields = ['code_structure']
+          break;
+        default:
+          fields = []
+    }
+
+    switch (data.category) {
+      case 'inputs':
+        break;
+      case 'filters':
+        break;
+      case 'charges':
+        fields = ['base_rounding','price_rounding','amount_rounding']
+        break;
+      case 'tax':
+        fields = ['rounding']
+        break;
+    }
+
+    fields.map(field=>{
+      var header = deepCopy(headers.filter(x=> x.code==field)[0])
+      if(data)header.value = data[field]??''            
+      html.push(htmlControl(header,false))
+    })
+    return html.join('');
+  }
+
+  function saveVariable(code=""){
+    var errFields = []
+    var newData = {category:variableCategory}
+    var domainValues = []
+
+    $.each(modal.find('.form-control'),function(i,v){
+      var field = $(v).attr('val');      
+      if(field!='domain_values'){
+        newData[field]=$(v).val()
+      } else{
+        $(v).val().split(',').map(x=>{
+          domainValues.push({variable:newData.code,code:x})
+        })
+      }
+      if ($(v).prop('required')&&!$(v).val()){
+        var variable = variables.filter(x=> x.code == field)[0]
+        errFields.push(variable.text)
+      } 
+    })
+    if (errFields.length>0){
+      alert('Required fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(newData.reffields)newData.reffields = newData.reffields.split()
+    if(code){
+      var data = variables.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      variables.push(newData)
+    }
+    variable_domain_codes = variable_domain_codes.filter(x => x.variable !== newData.code);
+    domainValues.map(x=>{
+      variable_domain_codes.push(x)
+    })
+
+    modal.modal('hide')
+    refreshTableVariables()
+  }
+  refreshTableVariables()
+ 
+</script>
+
+
+</body>
+</html>

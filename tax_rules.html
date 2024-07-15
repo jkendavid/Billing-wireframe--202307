@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Tax Rules</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Tax Rules</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateTax()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableTaxs">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+ 
+
+  const headers = [
+    {...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+    {row:true,selector:'form',code:'text',text:'Text',readonly:false,required:true,type:'text'},
+  ]
+  
+  const subheaders = [
+    {row:false,code:'variable',text:'Variable',readonly:false,required:true,type:'domain',options:deepCopy(variables).filter(x=> x.category == 'tax').map(x=> { return {value:x.code,text:x.text}})},
+    {row:false,code:'formula',text:'Formula',readonly:false,required:true,type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`},
+    {row:false,code:'rounding',text:'Rounding Rule',readonly:false,required:true,type:'domain',options:getOptionDomain('rounding')},
+  ]
+
+  function getTaxData(){
+    return tax_rules
+  }
+
+  function refreshTableTaxs(){    
+    var table = $('#tableTaxs');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    subheaders.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getTaxData().map(data=>{
+      var first = true
+      var l = data.items.length
+      data.items.map(item=>{          
+        var strTr = [`<tr>`];  
+        if(first){    
+          headers.forEach(header => {  
+            strTr.push(`<td rowspan="${l}">${data[header.view??header.code] ?? ''}</td>`);     
+          });
+        }
+        subheaders.map(header => {
+          strTr.push(`<td>${item[header.view??header.code] ?? ''}</td>`); 
+        });
+        if(first)strTr.push(`<td rowspan="${l}"><a href="#" class="mx-2" onclick="updateTax('${data.code}')">Edit</a></td>`)
+        strTr.push('</tr>');
+        tbody.append(strTr.join(''));
+        first = false
+      })
+    })
+  }
+
+  function updateTax(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getTaxData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).map(header=>{
+      if(header.code=='tax'){
+        header.options = tax_rules.map(x=>{
+          return {value: x.code,text:x.text}
+        })
+      }
+      if(code)header.value = rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');  
+    
+    
+    html.push('<table class="table itemFields">');      
+    if(code)var rowData = getTaxData().filter(x=> x.code == code)[0]; 
+    html.push('<thead>');  
+    deepCopy(subheaders).map(header=>{
+      html.push(`<th>${header.text}</th>`)
+    }) 
+    html.push(`<th><button type="button" class="btn btn-primary" onclick="additem(this)">Add</button></th>`)
+    html.push('</thead>'); 
+    html.push('<tbody>');  
+    if(code){
+      rowData.items.map(item=>{        
+        html.push(additemhtml(item,code)); 
+      })      
+    }
+    html.push('</tbody>'); 
+    html.push('</table>'); 
+  
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveTax('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Tax',html.join(''))
+  }
+
+  
+  function additem(btn){
+    var tbody = $($(btn).closest('table')).find('tbody')
+    tbody.append(additemhtml())
+  }
+
+  function additemhtml(item='',code=''){
+    var html =[]
+    html.push('<tr>'); 
+    deepCopy(subheaders).map(subheader=>{
+      if(code)subheader.value = item[subheader.code]
+      html.push(`<td>${htmlControl(subheader)}</td>`)
+    })
+    html.push(`<th><button type="button" class="btn btn-primary" onclick="removeitem(this)">Remove</button></th>`)
+    html.push('</tr>'); 
+    return html.join('')
+  }
+
+  function removeitem(btn){
+    var tr = $($(btn).closest('tr'))
+    tr.remove()
+  }
+
+  function saveTax(code=""){
+    var errFields = []
+    var newData = {items:[]}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()      
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })   
+    $.each(modal.find('.itemFields tbody tr'),function(itr,vtr){      
+      var newItemData = {}
+      $.each($(vtr).find('.form-control'),function(i,v){
+        var field = $(v).attr('val');
+        newItemData[field]=$(v).val()    
+        var validationResult = fieldValidation(subheaders.filter(x=> x.code == field)[0],newItemData[field])
+        if (!validationResult.ok)errFields.push(validationResult.message)
+      }) 
+      newData.items.push(newItemData)
+    })   
+
+    if(newData.items.length==0)errFields.push('Required at least one Variables Row')
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = tax_rules.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      tax_rules.push(newData)
+    }  
+
+    modal.modal('hide')
+    refreshTableTaxs()
+  }
+  refreshTableTaxs()
+ 
+</script>
+
+
+</body>
+</html>

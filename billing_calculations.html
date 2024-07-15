@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+
+  <title>Billing Calculations</title>
+  <style>
+    .container{
+      margin: auto;
+    }
+
+    td .btn-sm{
+      min-width: 80px;
+      margin: 0px 2px;
+      height: 25px;
+      font-size: 12px;
+    }  
+    .table {
+        padding: 0;
+    }
+    .table th, .table td, .table tr {
+      padding-top: 2px;
+      padding-bottom: 5px;
+      font-size: 14px;
+    }
+    .colindex {
+      width: 3px;
+    }
+    #tableCalculations_wrapper td:last-child {
+      display: flex;      
+    }
+    .btnsubmit{
+      width: 120px;
+      margin: 10px;
+    }
+
+    #tblviewCalculation{
+      width: 90vw;
+    }
+
+    #tblviewCalculation td, #tblviewCalculation th{
+      text-align: right;
+    }
+    #tblviewCalculation td:first-child, #tblviewCalculation th:first-child{
+      text-align: left;
+    }
+
+    #tblviewCalculationCharges td{
+      min-width: 180px
+    }
+
+    .cellrev{
+      color: blue;
+      font-style: italic;
+    }
+    
+    .dataExport{
+      color: blue;
+      font-style: italic;
+    }
+
+    .sticky-column {
+      position: sticky;
+      right: 0;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>  
+
+  <div class="container mt-4">
+      <h2>Billing Calculations</h2>
+      <div class="row my-2">
+        <div class="mx-auto"></div>
+        <button type="button" class="btn btn-primary btn-sm mx-1" onclick="generateNew()" id="generateNewBtn">Create New</button>
+        <button type="button" class="btn btn-primary btn-sm mx-1" onclick="generateRev()" id="generateRevBtn">Create Revision</button>
+        <button type="button" class="btn btn-primary btn-sm mx-1" onclick="generateRelease()" id="generateReleaseBtn">Release</button>
+      </div>
+      <table class="table table-bordered" id="tableCalculations">
+        <thead>
+          <tr>
+            <th style="min-width: 120px;" class="sticky-column" >Reference</th>
+            <th>Period</th>
+            <th style="min-width: 150px;">Contract</th>
+            <th>Buyer</th>
+            <th>Seller</th>
+            <th>Template</th>
+            <th>Rev No.</th>
+            <th style="min-width: 80px;">Status</th>
+            <th>Release Period</th>
+            <th style="min-width: 80px;">Release Type</th>
+            <th style="min-width: 80px;">Offset Reference</th>
+            <th style="min-width: 100px;">Remarks</th>
+            <th>Created By</th>
+            <th style="min-width: 100px;">Created Time</th>
+            <th>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#" onclick="viewCalculation(this)">CALC202401-EH3580</a></td>
+            <td>2024-01</td>
+            <td>PSA-GENCO1-DU01-001</td>
+            <td>GENCO1</td>
+            <td>DU01</td>
+            <td>PSADU_V01.00</td>
+            <td>0</td>
+            <td>RELEASED</td>
+            <td>2024-01</td>
+            <td>BASE</td>
+            <td></td>
+            <td></td>
+            <td>MKTG</td>
+            <td>2024-01-01 11:32</td>
+            <td>
+              <button class="btn btn-info btn-sm" onclick="submitCalculation(this)">Submit</button>
+              <button class="btn btn-info btn-sm" onclick="approveCalculation(this)">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="returnCalculation(this)">Return</button>
+              <button class="btn btn-danger btn-sm" onclick="cancelCalculation(this)">Cancel</button>
+              <button class="btn btn-danger btn-sm" onclick="removeCalculation(this)">Remove</button>
+              <button class="btn btn-danger btn-sm" onclick="approveCancelCalculation(this)" style="display: block;width:120px">Approve Cancel</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectCancelCalculation(this)" style="display: block;width:120px">Reject Cancel</button>
+              <button class="btn btn-info btn-sm" onclick="offsetCalculation(this)" style="display: block;width:120px">Add offset</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>     
+
+      <div class="modal" id="newModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document"  style="min-width: max-content;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New Calculations</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="">
+                <div class="form-group" style="width: 200px;">
+                  <label for="newPeriod">Period</label>
+                  <input type="month" class="form-control" id="newPeriod" required onchange="newPeriodChange()">
+                </div>
+                <table class="table table-bordered" id="newTblContracts">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th style="min-width:220px;">Contract</th>
+                      <th>Type</th>
+                      <th>Buyer</th>
+                      <th>Seller</th>
+                      <th>Period From</th>
+                      <th>Period To</th>
+                      <th>Template</th>
+                    </tr>
+                  </thead>
+                  <tbody>                          
+                  </tbody>
+                </table>                
+                <button type="button" class="btn btn-info btn-sm" onclick="newGenerate()" id="newGenerateButton">Generate</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>     
+      
+      <div class="modal mx-auto" id="revModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document" style="min-width: max-content;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Calculation Revisions</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="">
+                <div class="form-group" style="width: 200px;">
+                  <label for="revPeriod">Period</label>
+                  <input type="month" class="form-control" id="revPeriod" required onchange="revPeriodChange()">
+                </div>
+                <table class="table table-bordered" id="revTblContracts">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th style="min-width:220px;">Contract</th>
+                      <th>Type</th>
+                      <th>Buyer</th>
+                      <th>Seller</th>
+                      <th>Period From</th>
+                      <th>Period To</th>
+                      <th>Template</th>
+                      <th>Rev No.</th>
+                      <th style="min-width:180px;"">Prev Calculation</th>
+                    </tr>
+                  </thead>
+                  <tbody>                          
+                  </tbody>
+                </table>                
+                <button type="button" class="btn btn-info btn-sm" onclick="revGenerate()" id="revGenerateButton">Generate</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>     
+
+      
+      <div class="modal mx-auto" id="releaseModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document" style="min-width: max-content;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Release Calculations</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="">
+                <div class="form-group" style="width: 200px;">
+                  <label for="releasePeriod">Release Period</label>
+                  <input type="month" class="form-control" id="releasePeriod" required onchange="releasePeriodChange()">
+                </div>
+                <table class="table table-bordered" id="releaseTblContracts">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th style="min-width:220px;">Reference</th>
+                      <th>Period</th>
+                      <th style="min-width:220px;">Contract</th>
+                      <th>Buyer</th>
+                      <th>Seller</th>
+                      <th>Rev No.</th>
+                      <th>Release Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>                          
+                  </tbody>
+                </table>                
+                <button type="button" class="btn btn-info btn-sm" onclick="releaseGenerate()" id="releaseGenerateButton">Generate</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>    
+
+      
+      <div class="modal mx-auto" id="offsetModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document" style="min-width: max-content;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Offset Calculations</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="">
+                <table class="table table-bordered" id="offsetTblContracts">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th style="min-width:220px;">Reference</th>
+                      <th>Period</th>
+                      <th style="min-width:220px;">Contract</th>
+                      <th>Buyer</th>
+                      <th>Seller</th>
+                      <th>Rev No.</th>
+                    </tr>
+                  </thead>
+                  <tbody>                          
+                  </tbody>
+                </table>                
+                <button type="button" class="btn btn-info btn-sm" onclick="offsetGenerate()" id="offsetGenerateButton">Generate</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>    
+
+      <div class="modal" id="messageModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document"   style="min-width: max-content;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="messageModalTitle"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p id="messageModalText"></p>  
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+
+<script>  
+
+  const iRevno = 6
+  const iStatus = 7
+  const iReleasePeriod = 8
+  const iReleaseType = 9
+  const iOffsetRef = 10
+  const iRemarks = 11
+  const iBtn = 14
+
+  var calculationBtns = 
+    `<button class="btn btn-info btn-sm" onclick="submitCalculation(this)">Submit</button>
+     <button class="btn btn-info btn-sm" onclick="approveCalculation(this)">Approve</button>
+     <button class="btn btn-danger btn-sm" onclick="returnCalculation(this)">Return</button>
+     <button class="btn btn-danger btn-sm" onclick="cancelCalculation(this)">Cancel</button>
+     <button class="btn btn-danger btn-sm" onclick="removeCalculation(this)">Remove</button>
+     <button class="btn btn-danger btn-sm" onclick="approveCancelCalculation(this)" style="display: block;width:120px">Approve Cancel</button>
+     <button class="btn btn-danger btn-sm" onclick="rejectCancelCalculation(this)" style="display: block;width:120px">Reject Cancel</button>
+     <button class="btn btn-info btn-sm" onclick="offsetCalculation(this)" style="display: block;width:120px">Add offset</button>`
+
+
+  var tableCalculations = $('#tableCalculations').DataTable({  
+    paging: true, // Enable pagination
+    searching: true, 
+    scrollX:true,
+  });  
+
+
+  var dataCalculationBase = {
+    'PSA-GENCO1-DU01-001':{
+      'Variables':[
+        [,'Indices','','',false],
+        [,'FOREX','56.8','Usd/Php',true],
+        [,'FOREX Base','56','Usd/Php',true],
+        [,'NCR CPI','3.5','',true],
+        [,'NCR CPI Base','4.6','',true],
+        [,'Index','0.9922','',true],
+        [,'Plant Data','','',false],
+        [,'Plant Generation','54272071.8','kWh',true],
+        [,'Coal Consumption','29107.8','MT',true],
+        [,'Delivered Coal Price','7400','Php/MT',true],
+        [,'Quantities','','',false],
+        [,'Contracted Capacity','15','MW',true],
+        [,'Settlement Data BCQ','{STL_BCQ.csv}','kWh',true],
+        [true,'Energy Delivered','61320000','kWh',true],
+        [,'Rates','','',false],
+        [,'Capital Recovery Fee','2000','Php/kW',true],
+        [,'Fixed O&M Fee','300','Php/kW',true],
+        [,'Variable O&M Fee','0.3','Php/kWh',true],
+        [,'ER-194','0.01','Php/kWh',true],
+        [,'Fuel Rate','3.9689','Php/kWh',true],
+      ],
+      'Charges':[
+        [,'Fixed Charge','','','','','','',false],
+        [,'Capital Recovery Fee','15000','kW','2000','Php/kW','29766000.00','3571920.00',true],
+        [,'Fixed O&M Fee','15000','kW','300','Php/kW','4500000.00','540000.00',true],
+        [,'Generation Charge','','','','','','',false],
+        [true,'Fuel Charge','61320000','kWh','3.968','Php/kWh','243372948.00','3720605.61',true],
+        [true,'Variable O&M Fee','61320000','kWh','0.29','Php/kWh','17782800.00','271857.60',true],
+        [true,'ER-194','61320000','kWh','0.01','Php/kWh','613200.00','0.00',true],
+      ],    
+    }
+  }
+
+  var dataCalculation = {
+    'CALC202401-EH3580':{
+      'Variables':[
+        [,'Indices','','',false],
+        [,'FOREX','56.8','Usd/Php',true],
+        [,'FOREX Base','56','Usd/Php',true],
+        [,'NCR CPI','3.5','',true],
+        [,'NCR CPI Base','4.6','',true],
+        [,'Index','0.9922','',true],
+        [,'Plant Data','','',false],
+        [,'Plant Generation','54272071.8','kWh',true],
+        [,'Coal Consumption','29107.8','MT',true],
+        [,'Delivered Coal Price','7400','Php/MT',true],
+        [,'Quantities','','',false],
+        [,'Contracted Capacity','15','MW',true],
+        [,'Settlement Data BCQ','{STL_BCQ.csv}','kWh',true],
+        [,'Energy Delivered','61320000','kWh',true],
+        [,'Rates','','',false],
+        [,'Capital Recovery Fee','2000','Php/kW',true],
+        [,'Fixed O&M Fee','300','Php/kW',true],
+        [,'Variable O&M Fee','0.3','Php/kWh',true],
+        [,'ER-194','0.01','Php/kWh',true],
+        [,'Fuel Rate','3.9689','Php/kWh',true],
+      ],
+      'Charges':[
+        [,'Fixed Charge','','','','','','',false],
+        [,'Capital Recovery Fee','15000','kW','2000','Php/kW','29766000.00','3571920.00',true],
+        [,'Fixed O&M Fee','15000','kW','300','Php/kW','4500000.00','540000.00',true],
+        [,'Generation Charge','','','','','','',false],
+        [,'Fuel Charge','61320000','kWh','3.968','Php/kWh','243372948.00','3720605.61',true],
+        [,'Variable O&M Fee','61320000','kWh','0.29','Php/kWh','17782800.00','271857.60',true],
+        [,'ER-194','61320000','kWh','0.01','Php/kWh','613200.00','0.00',true],
+      ],    
+    }
+  }
+
+
+  var msgModal = $('#messageModal');
+  var msgModalTitle = $('#messageModalTitle');
+  var msgModalText = $('#messageModalText');
+
+  function getContractRow(contract) {
+    for (var i = 0; i < dataContract.length; i++) {
+      if (dataContract[i][0] == contract) {
+        return dataContract[i];
+      }
+    }
+  }
+
+  function getContractTemplate(contract) {
+    for (var i = 0; i < dataContractTemplates.length; i++) {
+      if (dataContractTemplates[i][0] == contract) {
+        return dataContractTemplates[i][3];
+      }
+    }
+  }
+  
+  function formatReference(ref){
+    return `<a href="#" onclick="viewCalculation(this)">${ref}</a>`
+  }
+
+
+  function generateNew(){
+    newPeriodChange();
+    $('#newModal').modal('show');    
+  }
+  
+  function newPeriodChange() {
+    var period_text = document.getElementById('newPeriod').value;
+    var period = periodVal(period_text);
+    var tbody = document.querySelector('#newTblContracts tbody');
+    tbody.innerHTML = '';
+    dataContract.forEach((contract) => {
+        if (period >= periodVal(contract[5]) && period <= periodVal(contract[6])) {
+          var calculationExist = false;
+          for (var i = 0; i < tableCalculations.rows().count(); i++) {
+            var rows = tableCalculations.rows().data()[i]
+            if(rows[1]==period_text && rows[2]==contract[0] 
+              && rows[iStatus]!='REMOVED' && rows[iStatus]!='CANCELED') {
+                calculationExist = true;
+              }
+          }
+          if(!calculationExist){
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><input type="checkbox" onclick="newGenerateButtonDisable();"></td>
+                    <td>${contract[0]}</td>
+                    <td>${contract[1]}</td>
+                    <td>${contract[2]}</td>
+                    <td>${contract[3]}</td>
+                    <td>${contract[5]}</td>
+                    <td>${contract[6]}</td>
+                    <td>${getContractTemplate(contract[0])}</td>
+                </tr>`
+            );
+          }
+        }
+    });
+    newGenerateButtonDisable();
+  }
+
+  async function newGenerate() {
+    $('#newModal').modal('hide');
+    msgModalTitle.text('New Calculation');
+    msgModalText.empty();
+    msgModal.modal('show');
+
+    var period = document.getElementById('newPeriod').value;
+
+    var trs = $('#newTblContracts tbody tr')
+    var checkboxes = trs.find('input[type="checkbox"]');
+    var contracts = []    
+    
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        contracts.push(trs[i].children[1].textContent);
+      }
+    }
+
+    msgModalText.append(`<div>Calculation for ${contracts.length} contracts started...</div>`);
+    await pause(800);  
+    for (var i = 0; i < contracts.length; i++) {
+      var contract = contracts[i];
+      msgModalText.append(`<div>Calculating ${contract}...</div>`);
+      await pause(1500);  
+      var ref = RefCode('CALC' + periodVal(period)+'-');
+      var status = 'NEW'
+      try {
+        generateRandomCalculation(contract,ref); 
+      }catch (error) {
+        status = 'ERROR'
+      }              
+      msgModalText.append(`<div>Calculate ${contract} ${status=='ERROR'?'Failed':'Success'}.</div>`);
+      await pause(200);  
+      var contractRow = getContractRow(contract);
+      tableCalculations.row.add(
+            [formatReference(ref),
+             period,
+             contract,
+             contractRow[2], 
+             contractRow[3], 
+             getContractTemplate(contract),
+             status=='ERROR'?'NA':0,
+             status,'', '','','',
+             getUser(), getCurrentTime(),calculationBtns]);    
+    }
+    await pause(200);  
+    msgModalText.append(`<div>Calculation finish.</div>`);
+    tableCalculations.draw();
+    calculationControlsAuth();
+  }
+
+  function newGenerateButtonDisable() {
+    var btn = document.getElementById('newGenerateButton'); 
+    var period = document.getElementById('newPeriod').value;
+    if(period=='') {
+      btn.disabled = true;
+      return;
+    }
+    var trs = $('#newTblContracts tbody tr')
+    var checkboxes = trs.find('input[type="checkbox"]');
+    var contracts = []        
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        btn.disabled = false;
+        return;
+      }
+    }    
+    btn.disabled = true;
+  }
+  
+  function generateRev(){
+    revPeriodChange();
+    $('#revModal').modal('show');    
+  }
+
+  function revPeriodChange() {
+    var period_text = document.getElementById('revPeriod').value;
+    var period = periodVal(period_text);
+    var tbody = document.querySelector('#revTblContracts tbody');
+    tbody.innerHTML = '';
+
+    dataContract.forEach((contract) => {
+        if (period >= periodVal(contract[5]) && period <= periodVal(contract[6])) {
+          var revno = 0;
+          var ref = '';
+          for (var i = 0; i < tableCalculations.rows().count(); i++) {
+            var row = tableCalculations.rows().data()[i];
+            if(row[1]== period_text && row[2] == contract[0] && row[iStatus] != "CANCELED" && row[iStatus] != "ERROR"){
+              if (row[iStatus] != "RELEASED"){
+                revno = 0;
+                break;
+              }else if(row[iRevno] >=revno){
+                revno = parseInt(row[iRevno])  + 1;
+                ref = row[0];
+              }
+            }
+          }
+          if(revno>0){
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><input type="checkbox" onclick="revGenerateButtonDisable();"></td>
+                    <td>${contract[0]}</td>
+                    <td>${contract[1]}</td>
+                    <td>${contract[2]}</td>
+                    <td>${contract[3]}</td>
+                    <td>${contract[5]}</td>
+                    <td>${contract[6]}</td>
+                    <td>${getContractTemplate(contract[0])}</td>
+                    <td>${revno}</td>
+                    <td>${ref}</td>
+                </tr>`
+            );
+          }
+        }
+    });
+    revGenerateButtonDisable();
+  }
+
+  async function revGenerate() {
+    $('#revModal').modal('hide');
+    msgModalTitle.text('Revise Calculation');
+    msgModalText.empty();
+    msgModal.modal('show');
+
+    var period = document.getElementById('revPeriod').value;
+
+    var trs = $('#revTblContracts tbody tr')
+    var checkboxes = trs.find('input[type="checkbox"]');
+    var contracts = []    
+    
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        contracts.push({
+          code:trs[i].children[1].textContent,
+          revno:trs[i].children[8].textContent,
+          prev:trs[i].children[9].textContent
+        });
+      }
+    }
+
+    msgModalText.append(`<div>Calculation for ${contracts.length} contracts started...</div>`);
+    await pause(800);  
+    for (var i = 0; i < contracts.length; i++) {
+      var contract = contracts[i];
+      msgModalText.append(`<div>Calculating ${contract.code} rev ${contract.revno}...</div>`);
+      await pause(1500);  
+      var ref = RefCode('CALC' + periodVal(period)+'-');
+      var contractRow = getContractRow(contract.code);
+      tableCalculations.row.add(
+            [formatReference(ref),
+             period,
+             contract.code,
+             contractRow[2], 
+             contractRow[3], 
+             getContractTemplate(contract.code),
+             contract.revno,'NEW', '', '','', '',
+             getUser(), getCurrentTime(),calculationBtns
+            ]);    
+      try {
+        generateRandomCalculation(contract.code,ref,contract.prev); 
+      }catch (error) {
+        status = 'ERROR'
+      }  
+      msgModalText.append(`<div>Calculate ${contract.code} ${status=='ERROR'?'Failed':'Success'}.</div>`);
+      await pause(200);        
+    }
+    await pause(200);  
+    msgModalText.append(`<div>Calculation finish.</div>`);
+    tableCalculations.draw();
+    calculationControlsAuth();
+  }
+
+  function revGenerateButtonDisable() {
+    var btn = document.getElementById('revGenerateButton'); 
+    var period = document.getElementById('revPeriod').value;
+    if(period=='') {
+      btn.disabled = true;
+      return;
+    }
+    var trs = $('#revTblContracts tbody tr')
+    var checkboxes = trs.find('input[type="checkbox"]');
+    var contracts = []        
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        btn.disabled = false;
+        return;
+      }
+    }    
+    btn.disabled = true;
+  }
+
+  function viewCalculation(btn){
+    var tr = btn.closest('tr')
+    var reference = tr.cells[0].innerText
+    var contract = tr.cells[2].innerText
+    var isRev = parseInt(tr.cells[3].innerText)>0
+    var calculation = dataCalculation[reference]
+    
+    msgModalTitle.text(`Billing Calculation [${reference}]`);
+    msgModalText.empty();
+
+    var htmltext = []
+    htmltext.push('<div id="tblviewCalculation" class="row">')
+    htmltext.push('<div class="col-md-4">')
+    htmltext.push('<table class="table table-bordered">')
+    htmltext.push('<thead>')
+    htmltext.push('<tr><th>Variables</th></th><th>Value</th></tr>')
+    htmltext.push('</thead>')
+    htmltext.push('<tbody>')
+    $.each(calculation.Variables,function(i,v){ 
+      htmltext.push('<tr>')
+      var isScalar = v[2][0]!='{';
+      if(v[4]==false){
+        htmltext.push(`<tr><td colspan="3"></td></tr>`) 
+        htmltext.push(`<th colspan="3">${v[1]}</th>`)
+      }else{
+        var htmlRev = ''
+        if(isRev&&isScalar){
+          var variance = nFormat(getFloat(v[5]) - getFloat(v[2]))
+          if(variance!='0')htmlRev=`<div class="cellrev">${variance} ${v[3]}</div>`
+      }
+        var htmlVal = isScalar?`${nFormat(v[2])} ${v[3]}${htmlRev}`:`<a class="dataExport" href="#" onclick="exportArrayData()">${v[2]}</a>`
+        htmltext.push(`<td>${v[1]}</td><td>${htmlVal}</td>`)        
+      }
+      htmltext.push('</tr>')  
+    })
+    htmltext.push('</tbody>')
+    htmltext.push('</table>')
+    htmltext.push('</div>')
+
+    htmltext.push('<div class="col-md-4">')
+    htmltext.push('<table id="tblviewCalculationCharges" class="table table-bordered col-md-8">')
+    htmltext.push('<thead>')
+    htmltext.push('<tr><th>Charges</th></th><th>Base</th><th>Rate</th><th>Base Amount</th><th>VAT Amount</th><th>Total Amount</th></tr>')
+    htmltext.push('</thead>')
+    htmltext.push('<tbody>')
+    
+    var grandtotals = [0,0,0,0]
+    var subtotals = [0,0,0,0]
+    var sindex = 0;
+    $.each(calculation.Charges,function(i,v){ 
+      htmltext.push('<tr>')
+      if(v[8]==false){
+        if (i>0) {          
+          var htmlRevST =['','','']
+          if(isRev){
+            var varianceST = [
+                  nFormat(getFloat(subtotals[2]) - getFloat(subtotals[0]),2),
+                  nFormat(getFloat(subtotals[3]) - getFloat(subtotals[1]),2),
+                  nFormat(getFloat(subtotals[2])+getFloat(subtotals[3])
+                          - getFloat(subtotals[0])-getFloat(subtotals[1]),2),
+                ]
+            if(getFloat(varianceST[0])!=0)htmlRevST[0]=`<div class="cellrev">${varianceST[0]} Php</div>`
+            if(getFloat(varianceST[1])!=0)htmlRevST[1]=`<div class="cellrev">${varianceST[1]} Php</div>`
+            if(getFloat(varianceST[2])!=0)htmlRevST[2]=`<div class="cellrev">${varianceST[2]} Php</div>`
+          }
+          htmltext[sindex] += `${nFormat(subtotals[0],2)} Php${htmlRevST[0]}</th>
+                      <th>${nFormat(subtotals[1],2)} Php${htmlRevST[1]}</th>
+                      <th>${nFormat(subtotals[0]+subtotals[1],2)} Php${htmlRevST[2]}</th></th>`
+        }
+        subtotals = [0,0,0,0]
+        htmltext.push(`<tr><td colspan="6"></td></tr>`) 
+        sindex = htmltext.length;
+        htmltext.push(`<th colspan="3">${v[1]}<th>`)
+      }else{
+        var htmlRev = ['','','','',''];
+        if(isRev){
+          var variance = [
+            nFormat(getFloat(v[9]) - getFloat(v[2])),
+            nFormat(getFloat(v[10]) - getFloat(v[4])),
+            nFormat(getFloat(v[11]) - getFloat(v[6]),2),
+            nFormat(getFloat(v[12]) - getFloat(v[7]),2),
+            nFormat(getFloat(v[11]) + getFloat(v[12]) - getFloat(v[6])-getFloat(v[7]),2)
+          ]
+          if(getFloat(variance[0])!=0)htmlRev[0]=`<div class="cellrev">${variance[0]} ${v[3]}</div>`
+          if(getFloat(variance[1])!=0)htmlRev[1]=`<div class="cellrev">${variance[1]} ${v[5]}</div>`
+          if(getFloat(variance[2])!=0)htmlRev[2]=`<div class="cellrev">${variance[2]} Php</div>`
+          if(getFloat(variance[3])!=0)htmlRev[3]=`<div class="cellrev">${variance[3]} Php</div>`
+          if(getFloat(variance[4])!=0)htmlRev[4]=`<div class="cellrev">${variance[4]} Php</div>`
+        }
+        htmltext.push(`<td>${v[1]}</td>
+        <td>${nFormat(v[2])} ${v[3]}${htmlRev[0]}</td>
+        <td>${nFormat(v[4])} ${v[5]}${htmlRev[1]}</td>
+        <td>${nFormat(v[6],2)} Php${htmlRev[2]}</td>
+        <td>${nFormat(v[7],2)} Php${htmlRev[3]}</td>
+        <td>${nFormat(getFloat(v[6])+getFloat(v[7]),2)} Php${htmlRev[4]}</td>`)        
+        subtotals[0] += getFloat(v[6]);
+        subtotals[1] += getFloat(v[7]);
+        grandtotals[0] += getFloat(v[6]);
+        grandtotals[1] += getFloat(v[7]);
+        if(isRev){
+          subtotals[2] += getFloat(v[11]);
+          subtotals[3] += getFloat(v[12]);
+          grandtotals[2] += getFloat(v[11]);
+          grandtotals[3] += getFloat(v[12]);
+        }
+      }
+      htmltext.push('</tr>')  
+    })
+    var htmlRevST =['','','']
+    if(isRev){
+      var varianceST = [
+            nFormat(getFloat(subtotals[2]) - getFloat(subtotals[0]),2),
+            nFormat(getFloat(subtotals[3]) - getFloat(subtotals[1]),2),
+            nFormat(getFloat(subtotals[2])+getFloat(subtotals[3])
+                    - getFloat(subtotals[0])-getFloat(subtotals[1]),2),
+          ]
+      if(getFloat(varianceST[0])!=0)htmlRevST[0]=`<div class="cellrev">${varianceST[0]} Php</div>`
+      if(getFloat(varianceST[1])!=0)htmlRevST[1]=`<div class="cellrev">${varianceST[1]} Php</div>`
+      if(getFloat(varianceST[2])!=0)htmlRevST[2]=`<div class="cellrev">${varianceST[2]} Php</div>`
+    }
+    htmltext[sindex] += `${nFormat(subtotals[0],2)} Php${htmlRevST[0]}</th>
+                <th>${nFormat(subtotals[1],2)} Php${htmlRevST[1]}</th>
+                <th>${nFormat(subtotals[0]+subtotals[1],2)} Php${htmlRevST[2]}</th></th>`
+
+    htmltext.push(`<tr><td colspan="6"></td></tr>`) 
+    var htmlRevGT =['','','']
+    if(isRev){
+      var varianceGT = [
+            nFormat(getFloat(grandtotals[2]) - getFloat(grandtotals[0]),2),
+            nFormat(getFloat(grandtotals[3]) - getFloat(grandtotals[1]),2),
+            nFormat(getFloat(grandtotals[2])+getFloat(grandtotals[3])
+                    - getFloat(grandtotals[0])-getFloat(grandtotals[1]),2),
+          ]
+      if(getFloat(varianceGT[0])!=0)htmlRevGT[0]=`<div class="cellrev">${varianceGT[0]} Php</div>`
+      if(getFloat(varianceGT[1])!=0)htmlRevGT[1]=`<div class="cellrev">${varianceGT[1]} Php</div>`
+      if(getFloat(varianceGT[2])!=0)htmlRevGT[2]=`<div class="cellrev">${varianceGT[2]} Php</div>`
+    }
+    htmltext.push(`<tr><th colspan="3">Grand Total</th><th>${nFormat(grandtotals[0],2)} Php${htmlRevGT[0]}</th>
+                  <th>${nFormat(grandtotals[1],2)} Php${htmlRevGT[1]}</th>
+                  <th>${nFormat(grandtotals[0]+grandtotals[1],2)} Php${htmlRevGT[0]}</th></tr>`) 
+
+    htmltext.push('</tbody>')
+    htmltext.push('</table>')
+    htmltext.push('</div>')
+
+    htmltext.push('</div>')
+
+    msgModalText.append(htmltext.join(''))
+    msgModal.modal('show');
+
+
+  }
+
+  function generateRandomCalculation(contract, reference,prevref=null){
+    var base = deepCopy(dataCalculationBase[contract]);
+    if(prevref!=null)var prev = deepCopy(dataCalculation[prevref]);
+    var mult = 0.8 + Math.random() * 0.4;
+    $.each(base.Variables, function(i,v){ 
+      if(v[0]==true){
+        v[2]=(v[2]*mult).toFixed(0)
+      }
+      if(prevref!=null){
+        $.each(prev.Variables, function(ip,vp){ 
+          if(v[1]==vp[1]){
+            v[5] = vp[2];
+            return false;
+          }
+        })
+      }
+    })  
+
+    $.each(base.Charges, function(i,v){ 
+      if(v[0]==true){
+        v[2]=(v[2]*mult).toFixed(0)
+        v[6]=(v[6]*mult).toFixed(2)
+        v[7]=(v[7]*mult).toFixed(2)
+      }
+      if(prevref!=null){
+        $.each(prev.Charges, function(ip,vp){ 
+          if(v[1]==vp[1]){
+            v[9] = vp[2];
+            v[10] = vp[4];
+            v[11] = vp[6];
+            v[12] = vp[7];
+            return false;
+          }
+        })
+      }
+    })
+    dataCalculation[reference] = base
+  }
+
+  function submitCalculation(btn){    
+    var remarks = prompt("Please provide remarks for submitting this entry:");
+    if (remarks !== null && remarks.trim() !== "") {      
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calculation ${row.cells[0].innerText} submitted.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iRemarks] += '<div>Submit: ' + remarks + '</div>';
+        newData[iStatus] = 'FOR APPROVAL';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();
+    } else {
+        alert("You must provide remarks for submitting this entry.");
+    }
+  }
+
+  function approveCalculation(btn){  
+    var confirmation = confirm("Are you sure you want to approve this entry?");
+    if (confirmation) {
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calcualtion ${row.cells[0].innerText } approved.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iStatus] = 'APPROVED';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();   
+    }
+  }
+
+  function returnCalculation(btn){    
+    var remarks = prompt("Please provide remarks for returning this entry:");
+    if (remarks !== null && remarks.trim() !== "") {        
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calculation ${row.cells[0].innerText} returned.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iRemarks] += '<div>Return: ' + remarks + '</div>';
+        newData[iStatus] = 'RETURNED';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();
+    } else {
+        alert("You must provide remarks for returning this entry.");
+    }
+  }
+
+  function cancelCalculation(btn){      
+    var remarks = prompt("Please provide remarks for requesting cancelling this entry:");
+    if (remarks !== null && remarks.trim() !== "") { 
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calculation ${row.cells[0].innerText} for cancellation approval.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iRemarks] += '<div>Cancel: ' + remarks + '</div>';
+        newData[iStatus] = 'FOR CANCEL APPROVAL';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();
+    } else {
+        alert("You must provide remarks for requesting cancelling this entry.");
+    }
+  }
+
+  function approveCancelCalculation(btn){    
+    var confirmation = confirm("Are you sure you want to approve cancelling this entry?");  
+    if (confirmation) {
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calcualtion ${row.cells[0].innerText } removed.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iStatus] = 'CANCELED';
+        newData[iReleasePeriod] = '';
+        newData[iReleaseType] = '';
+        newData[iOffsetRef] = '';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();   
+    }
+  }
+
+  function rejectCancelCalculation(btn){    
+    var remarks = prompt("Please provide remarks for rejecting cancelling this entry:");
+    if (remarks !== null && remarks.trim() !== "") { 
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calculation ${row.cells[0].innerText} for cancellation rejected.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iRemarks] += '<div>Reject Cancel: ' + remarks + '</div>';
+        newData[iStatus] = !newData[iStatus]?'APPROVED':'RELEASED';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();
+    } else {
+        alert("You must provide remarks for requesting cancelling this entry.");
+    }
+  }
+
+  function removeCalculation(btn){    
+    var confirmation = confirm("Are you sure you want to remove this entry?");
+    if (confirmation) {
+        var dataTable = tableCalculations   
+        var row = btn.closest('tr');
+        alert(`Calcualtion ${row.cells[0].innerText } removed.`);
+        var rowIndex = dataTable.row(row).index();
+        var newData = dataTable.row(rowIndex).data();
+        newData[iStatus] = 'REMOVED';
+        dataTable.row(rowIndex).data(newData).draw();
+        calculationControlsAuth();   
+    }
+  }
+
+  function generateRelease(){
+    releasePeriodChange();
+    $('#releaseModal').modal('show');    
+  }
+
+  function releasePeriodChange() {
+    var period_text = document.getElementById('releasePeriod').value;
+    var period = periodVal(period_text);
+    var tbody = document.querySelector('#releaseTblContracts tbody');
+    tbody.innerHTML = '';
+
+    for (var i = 0; i < tableCalculations.rows().count(); i++) {
+      var row = tableCalculations.rows().data()[i];
+      if(periodVal(row[1])<= period && row[iStatus] == "APPROVED" ){
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+              <td><input type="checkbox" onclick="revGenerateButtonDisable();"></td>
+              <td>${row[0]}</td>
+              <td>${row[1]}</td>
+              <td>${row[2]}</td>
+              <td>${row[3]}</td>
+              <td>${row[4]}</td>
+              <td>${row[6]}</td>
+              <td>${row[6]=='0'?'BASE':'MEMO'}</td>
+          </tr>`)
+      }
+    }
+
+    revGenerateButtonDisable();
+  }
+ 
+  function releaseGenerate() {
+    var confirmation = confirm("Are you sure you want to release the selected entry?");
+    if (!confirmation) return;
+
+    var period_text = document.getElementById('releasePeriod').value;
+    $('#releaseModal').modal('hide');    
+
+    var trs = $('#releaseTblContracts tbody tr')
+    var checkboxes = trs.find('input[type="checkbox"]');
+    
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) {
+        var selRow = trs[i];
+        var ref = selRow.children[1].textContent;
+        var releaseType = selRow.children[7].textContent;
+        for (var j = 0; j < tableCalculations.rows().count(); j++) {
+          var newData = tableCalculations.row(j).data();
+          if(htmlText(newData[0]) == ref||htmlText(newData[iOffsetRef])  == ref){
+            newData[iStatus] = 'RELEASED';
+            newData[iReleasePeriod] = period_text;
+            newData[iReleaseType] = releaseType;
+            tableCalculations.row(j).data(newData).draw();
+            calculationControlsAuth(); 
+          }
+        }
+      }
+    }
+    calculationControlsAuth();
+  }
+
+  function calculationControlsAuth(){
+    var user = getUser();
+    var generateButton = document.getElementById("generateButton");
+    var trs = $('#tableCalculations').find('tbody tr')
+    $.each(trs, function(i,tr){
+      var status = tr.cells[iStatus].innerText;
+      var revno = tr.cells[iRevno].innerText;
+      var tdControls = tr.children[iBtn]
+      tdControls.children[0].style.display = (status=="NEW"||status=="RETURNED")&&user=="MKTG"?"block":"none";
+      tdControls.children[1].style.display = status=="FOR APPROVAL"&&user=="MKTGMNGR"?"block":"none";
+      tdControls.children[2].style.display = status=="FOR APPROVAL"&&user=="MKTGMNGR"?"block":"none";
+      tdControls.children[3].style.display = (status=="APPROVED"||status=="RELEASED")&&user=="MKTG"?"block":"none";
+      tdControls.children[4].style.display = (status=="NEW"||status=="RETURNED")&&user=="MKTG"?"block":"none";
+      tdControls.children[5].style.display = (status=="FOR CANCEL APPROVAL")&&user=="MKTGMNGR"?"block":"none";
+      tdControls.children[6].style.display = (status=="FOR CANCEL APPROVAL")&&user=="MKTGMNGR"?"block":"none";
+      tdControls.children[7].style.display = (revno!="0"&&status=="APPROVED")&&user=="MKTG"?"block":"none";
+    })
+
+    $('#generateNewBtn')[0].style.display = user=="MKTG"?"block":"none";
+    $('#generateRevBtn')[0].style.display = user=="MKTG"?"block":"none";
+    $('#generateReleaseBtn')[0].style.display = user=="MKTG"?"block":"none";
+    tableCalculations.columns.adjust().draw();
+  }
+
+  calculationControlsAuth();
+  function handleUserChange(){
+    calculationControlsAuth();
+  }
+
+  function exportArrayData(){
+    var dataArray = [
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+        ['This is just a sample csv data'],
+      ];
+      
+    var csvContent = dataArray.map(row => row.join(',')).join('\n');
+
+    var blob = new Blob([csvContent], { type: 'text/csv' });
+    var url = URL.createObjectURL(blob);
+
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'exported_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+  }
+
+</script>
+</body>
+</html>

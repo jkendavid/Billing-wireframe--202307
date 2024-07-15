@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Templates</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Templates</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="editTemplate()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableTemplates">
+      <thead>
+        <tr><th>Code</th><th>Description</th><th>Version No.</th><th>Status</th><th>Remarks</th><th>Create By</th><th>Create Time</th><th></th></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+
+  var contractCategory = ''
+
+  function templateRowButtons (arg,draft){
+    var btns = []
+    btns.push(`<a href="#" class="mx-2" onclick='editTemplate(${arg},true,false)'>View</a>`)
+    if(draft){
+      btns.push(`<a href="#" class="mx-2" onclick='editTemplate(${arg},false,false)'>Edit</a>`)
+      btns.push(`<a href="#" class="mx-2" onclick='activateVersion(${arg})'>Activate</a>`)
+      btns.push(`<a href="#" class="mx-2" onclick='removeVersion(${arg})'>Remove</a>`)
+    }else{
+      btns.push(`<a href="#" class="mx-2" onclick='editTemplate(${arg},false,true)'>Create_Version</a>`)
+    }
+    return btns.join('')
+  }
+
+  const defaultHeader = [
+    {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    {...getVariable('buyer'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    {...getVariable('seller'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+  ]
+
+
+
+  function refreshTemplateTable(){   
+    var table = $('#tableTemplates');
+    var tbody = table.find('tbody');
+    tbody.empty();    
+    billing_templates.map(template=>{
+      var spanflag = true;
+      template.versions.map(version=>{
+        var strTr = [`<tr>`];
+        if(spanflag){
+          strTr.push(`<td rowspan="${template.versions.length}">${template.code}</td>`)
+          strTr.push(`<td rowspan="${template.versions.length}">${template.description}</td>`)
+          spanflag = false
+        }
+        strTr.push(`<td>${version.version_number}</td>`)
+        strTr.push(`<td>${version.status}</td>`)
+        strTr.push(`<td>${version.remarks}</td>`)
+        strTr.push(`<td>${version.create_by}</td>`)
+        strTr.push(`<td>${version.create_time}</td>`)
+        strTr.push(`<td>${templateRowButtons(JSON.stringify({code:template.code,version_number:version.version_number}),version.status=='draft')}</td>`)
+        strTr.push('</tr>');
+        tbody.append(strTr.join(''));
+      })
+    })
+  }
+  
+  const groupHeaders = [
+    {selector:'form',code:'text',text:'Group Text',required:true,type:'text'},
+    {selector:'form',code:'internal',text:'Internal',required:true,type:'bool'},
+  ]
+     
+
+  function itemHeaders(type){
+    var headers = []
+    switch (type){
+      case 'determinant': 
+        headers.push(
+          {code:'variable',text:'Variable',type:'domain', options:deepCopy(variables).filter(x=> x.category == 'determinants').map(x=> { return {value:x.code,text:x.text}}),required:true},
+          {code:'determinant_formula',text:'Determinant Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+        )
+        break;
+      case 'amount':
+        headers.push(
+          {code:'variable',text:'Variable',type:'domain', options:deepCopy(variables).filter(x=> x.category == 'charges').map(x=> { return {value:x.code,text:x.text}}),required:true},
+          {code:'amount_formula',text:'Amount Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+          {code:'tax_rule',view:'rounding_text',text:'Tax Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('tax_rules')},
+        )
+        break;
+      case 'baseprice':
+        headers.push(
+          {code:'variable',text:'Variable',type:'domain', options:deepCopy(variables).filter(x=> x.category == 'charges').map(x=> { return {value:x.code,text:x.text}}),required:true},
+          {code:'base_formula',text:'Base Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+          {code:'price_formula',text:'Price Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+          {code:'tax_rule',view:'rounding_text',text:'Tax Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('tax_rules')},
+        )
+        break;
+    }  
+    
+    headers.push(
+      {code:'null_handling_rules',text:'Null Handling Rule',type:'domain',options:getOptionDomain('billing_null_handling_rules'),required:true},
+      {code:'comment',text:'Comment',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`}
+    )
+    return headers
+  }
+
+
+  function editTemplate(arg='',viewonly=false, newversion = false){ 
+    if(arg!=''){
+      var template = deepCopy(billing_templates.filter(x=> x.code == arg.code)[0])
+      var version = deepCopy(template.versions.filter(x=> x.version_number == arg.version_number)[0])    
+      if(newversion){ 
+        var lastversion = getLast(template.versions).version_number
+        version.version_number = lastversion + 1
+      }  
+    }else{
+      var template = {code:'',description:''}
+      var version = {status:'',item_groups:[]}
+    }
+    var update = arg!=''
+    var html = []    
+    html.push(`<td>${htmlControl({...getVariable('code'),value:template.code,selector:'form',field_locs:'row',required:true,readonly:true,main:true},update)}</td>`) 
+    html.push(`<td>${htmlControl({code:'description',text:'Description',type:'text',value:template.description,selector:'form',field_locs:'row',required:true,readonly:true,main:true},update)}</td>`) 
+    html.push(`<td>${htmlControl({code:'version_number',text:'Version',type:'number',value:version.version_number,selector:'form',field_locs:'row',required:true,readonly:true,main:true},true)}</td>`) 
+  
+    version.item_groups.map(group=>{  
+      html.push(editTemplateNewGroup(group,viewonly))  
+    }) 
+
+    if(!viewonly){
+      html.push(`<div class="form-row my-2">
+        <div class="mx-auto"></div>        
+        <div>
+          <button type="button" class="btn btn-primary" onclick="editTemplateAddNewGroup(this,'determinant')">New Determinants Group</button>
+          <button type="button" class="btn btn-primary" onclick="editTemplateAddNewGroup(this,'baseprice')">New Base Price Group</button>
+          <button type="button" class="btn btn-primary" onclick="editTemplateAddNewGroup(this,'amount')">New Amount Group</button>
+        </div>
+      </div>`)
+      
+      html.push(`<div class="form-row my-2">
+        <div class="mx-auto"></div>        
+        <div>
+          <button type="button" class="btn btn-primary" onclick="editTemplateSave()">Save Template</button>
+        </div>
+      </div>`)
+    }
+    
+    modal = modalShow(arg==''?'New Template':`View Template [${arg.code} V${arg.version_number}]`,html.join(''))
+  }  
+
+  
+  function editTemplateDeleteGroup(ctrl){ 
+    $(ctrl.closest('table')).empty()
+  }
+
+
+  function editTemplateAddNewGroup(ctrl,type){  
+    var group = {type:type,text:'',items:[{}]}
+    var html= editTemplateNewGroup(group)
+    $(ctrl.closest('.form-row')).before(html);  
+  }
+
+  
+  function editTemplateUpGroup(ctrl){ 
+    var row = $(ctrl  ).closest('.card');
+    if (row.index() !== 0) {
+        row.prev().before(row);
+    }
+  }
+
+  
+  function editTemplateDownGroup(ctrl){ 
+    var row = $(ctrl).closest('.card');
+    if (row.index() !== row.siblings().length) {
+        row.next().after(row);
+    }
+  } 
+
+
+  function editTemplateNewGroup(group,viewonly){   
+    var html = []    
+    var headers = itemHeaders(group.type)
+
+    if(!viewonly){
+      html.push(`<div class="item-group card p-3 mb-3" type="${group.type}">`)  
+      headers.filter(x=> x.code=='variable')[0].text = toProperCase(group.type)
+      html.push(`<div class="form-row my-2 group-data">`)        
+      groupHeaders.map(header=>{
+        header.value=group[header.code]
+        html.push('<div style="min-width:400px;padding-right:100px">' + htmlControl(header,'')+'</div>')    
+      })   
+      html.push(`<div class="mx-auto"></div>`) 
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateUpGroup(this)'>up</a>`) 
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateUpGroup(this)'>down</a>`)
+      html.push(`</div>`)
+    }else{      
+      headers.filter(x=> x.code=='variable')[0].text = group.text     
+    }
+
+    html.push('<table class="table table-sm table-condensed table-bordered">')
+    html.push(`<thead><tr>`)
+    headers.map(header=>{
+      html.push(`<th>${header.text}</th>`)        
+    })       
+    if(!viewonly){  
+      html.push(`<th>`) 
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateAddNewRow(this,${JSON.stringify(headers)})'>add</a>`)  
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateDeleteGroup(this)'>remove</a>`)      
+      html.push(`</th>`) 
+    }
+    html.push(`</thead></tr>`)
+    html.push(`<tbody>`)
+    group.items.map(item=>{
+      html.push(editTemplateNewRow(headers,item,viewonly))
+    })      
+    html.push(`</tbody>`)
+    html.push(`</table>`) 
+    if(!viewonly)html.push(`</div>`) 
+    return html.join('')
+  }
+
+  function editTemplateAddNewRow(ctrl,headers){  
+    var html= editTemplateNewRow(headers)
+    $(ctrl.closest('tbody')).append(html);  
+  }
+
+  
+  function editTemplateDeleteRow(ctrl){ 
+    $(ctrl.closest('tr')).empty()
+  }
+
+  
+  function editTemplateUpRow(ctrl){ 
+    var row = $(ctrl).closest('tr');
+    if (row.index() !== 0) {
+        row.prev().before(row);
+    }
+  }
+
+  
+  function editTemplateDownRow(ctrl){ 
+    var row = $(ctrl).closest('tr');
+    if (row.index() !== row.siblings().length) {
+        row.next().after(row);
+    }
+  }
+  
+  function editTemplateNewRow(headers,data='',viewonly){    
+    var html = []
+    html.push(`<tr>`)
+    headers.map(header=>{
+      header.value = ''
+      if(data!='') header.value = data[header.code]
+      
+      html.push(`<td>${viewonly?header.value:htmlControl(header,'')}</td>`) 
+    })        
+    if(!viewonly){
+      html.push(`<th><a href="#" class="mx-2" onclick='editTemplateDeleteRow(this)'>remove</a>`)        
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateUpRow(this)'>up</a>`) 
+      html.push(`<a href="#" class="mx-2" onclick='editTemplateDownRow(this)'>down</a></th>`)      
+    }
+    html.push(`</tr>`)
+    return html.join('')
+  }
+ 
+  function formvalidation(control,headers,errFields,data){
+      var field = $(control).attr('val');
+      var value = $(control).val()  
+      data[field]=value     
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],value)
+      if (!validationResult.ok)errFields.push(validationResult.message)
+  }
+
+  function editTemplateSave(){
+    var errFields = []
+    var newData = []
+    $.each(modal.find('.item-group'),function(ig,vg){ 
+      var type = $(vg).attr('type')     
+      var itemGroupData = {items:[],index:ig+1,type:type}
+      $.each($(vg).find('.group-data .form-control'),function(igc,vgc){  
+        formvalidation(vgc,groupHeaders,errFields,itemGroupData)
+      })
+      var headers = itemHeaders(type)
+      $.each($(vg).find('tbody tr'),function(ir,vr){  
+        var itemData = {index:ir+1}
+        $.each($(vr).find('.form-control'),function(irc,vrc){  
+          formvalidation(vrc,headers,errFields,itemData)
+        })
+        itemGroupData.items.push(itemData)
+      })
+      newData.push(itemGroupData)  
+    })  
+
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+    
+    var code=$('input[val="code"]').val()
+    var template = billing_templates.filter(x=> x.code == code)[0]    
+
+    if (template==null){      
+      var description=$('input[val="description"]').val()
+      template={code:code,description:description,versions:[]}
+      billing_templates.push(template)
+    }
+
+    var version_number= $('input[val="version_number"]').val()
+    var template_version = template.versions.filter(x=> x.version_number==version_number)[0]
+
+    if (template_version==null){    
+      template.versions.push({version_number:version_number,status:'draft',remarks:'',create_by:getUser(),create_time:getCurrentTime(),item_groups:newData})
+    }else{
+      template_version.status = 'draft';
+      template_version.remarks = '';
+      template_version.create_by = getUser();
+      template_version.create_time = getCurrentTime();
+      template_version.item_groups = newData;
+    }
+    modal.modal('hide')
+    refreshTemplateTable();
+  }
+
+  function activateVersion(arg){
+    var remarks = showPromptRemarks(false);
+    if(remarks.ok){    
+      var template = billing_templates.filter(x=> x.code == arg.code)[0]
+      var version = template.versions.filter(x=> x.version_number == arg.version_number)[0]
+      version.status = 'active'
+      version.remarks = remarks.text
+      refreshTemplateTable()
+    }
+  }
+
+  function removeVersion(arg){
+    var confirmation = confirm(`Are you sure you want to remove this version?`);
+    if (!confirmation) return
+    
+    var template = billing_templates.filter(x=> x.code == arg.code)[0]
+    var index = template.versions.findIndex(x => x.version_number == arg.version_number);
+    if (index !== -1) {
+      template.versions.splice(index, 1);
+    }
+    refreshTemplateTable()
+  }
+  refreshTemplateTable();
+</script>
+
+
+</body>
+</html>

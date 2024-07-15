@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Billing Generation</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Billing Generation</h2>     
+
+    
+    <div class="my-2" id="pnlFilter"></div>
+
+    <table class="table table-bordered" id="tblMain">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+ 
+  function updatePanelFilter(){
+    var pnlFilterFields = [
+      {row:true,selector:'form',code:'period',text:'Period',required:true,type:'period'},
+    ]
+    var html = []
+    pnlFilterFields.map(field=>{
+      html.push(htmlControl(field))
+    })
+
+    html.push(`<button type="button" class="btn btn-primary" id="btnLoad" onclick="load()">Load</button>`)
+    $('#pnlFilter').html(html.join(''))
+  }
+  updatePanelFilter()
+
+  function load(){
+    $('#pnlFilter').find('form-control')
+
+    var filterData = []
+    $.each( $('#pnlFilter').find('.form-control'),function(i,v){
+      filterData.push({field:$(v).attr('val'),data:$(v).val()})
+    })   
+
+    var loadData = getLatestContractData(true)
+    filterData.map(x=>{
+      switch (obj.type) {
+        case 'period':    
+          loadData = loadData
+          break;
+        default:
+      }
+    })
+
+
+  }
+
+
+
+  function getLatestContractData(final=false){ 
+    const checkStatus = (status) => final ? status === 'approved' : status !== 'canceled';
+    const contractRowHeaders = [ 
+      {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+      {...getVariable('buyer'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+      {...getVariable('seller'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+      {...getVariable('period_from'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+      {...getVariable('period_to'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    ]
+
+    var query = deepCopy(window_update_trans)
+    .filter(x=> checkStatus(getLast(x.status).status) && x.window == 'contracts')
+    .map(tran=>{
+      var contract = contracts.filter(x=> x.code == tran.contract)[0]
+      contractRowHeaders.filter(x=> !x.main).map(field=>{
+        var data = (tran.fields.filter(x=> x.field == field.code)[0]??{}).data
+        contract[field.code] = data?getLast(data).value:''
+      })
+      //get last status of the transaction
+      tran.statuslog = tran.status
+      var stat = getLast(tran.status)
+      ;tran = {...tran,...stat, ...contract}
+      var sub_status = approval_steps.filter(x=> x.code == tran.sub_status)[0]
+      tran.sub_status_text = sub_status?sub_status.text:''
+      tran.remarks = tran.statuslog.filter(x=> x.remarks).map(x=> `${x.update_by}: ${x.remarks}`).join('</br>')
+      return tran
+    })
+    return getGroupLast(query,['category','code'])
+  }
+
+  const headers = [
+    {...getVariable('code'),row:true,selector:'form',readonly:true,required:true},
+    {row:true,selector:'form',code:'text',text:'Text',readonly:false,required:true,type:'text'},
+  ]
+ 
+</script>
+
+
+</body>
+</html>

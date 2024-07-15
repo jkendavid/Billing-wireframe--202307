@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+  <title>Billing Invoices</title>
+  <style>
+    .container{
+      margin: auto;
+    }
+
+    td .btn-sm{
+      width: 80px;
+      margin: 2px;
+      height: 30px;
+    }  
+    .table {
+        padding: 0;
+    }
+    .table th, .table td, .table tr {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+    .colindex {
+      width: 3px;
+    }
+    #tableCalculations_wrapper td:last-child {
+      display: flex;      
+    }
+    .btnsubmit{
+      width: 120px;
+      margin: 10px;
+    }
+
+    #tblviewCalculation{
+      width: 90vw;
+    }
+
+    #tblviewCalculation td, #tblviewCalculation th{
+      text-align: right;
+    }
+    #tblviewCalculation td:first-child, #tblviewCalculation th:first-child{
+      text-align: left;
+    }
+
+    #tblviewCalculationCharges td{
+      min-width: 180px
+    }
+
+    .cellrev{
+      color: blue;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>  
+
+  <div class="container mt-4">
+      <h2>Billing Invoices</h2>
+      <div class="row my-2">
+        <div class="mx-auto"></div>
+        <button type="button" class="btn btn-primary btn-sm mx-1" onclick="New()" id="generateNewBtn">New</button>
+      </div>
+      <table class="table table-bordered" id="tableInvoice">
+        <thead>
+          <tr>
+            <th style="min-width: 180px;">Reference</th>
+            <th>Period</th>
+            <th style="min-width: 180px;">Contract</th>
+            <th>Rev No.</th>
+            <th>Status</th>
+            <th style="min-width: 220px;">Remarks</th>
+            <th>Created By</th>
+            <th>Created Time</th>
+            <th>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#" onclick="viewCalculation(this)">CALC202401-EH3580</a></td>
+            <td>2024-01</td>
+            <td>PSA-GENCO1-DU01-001</td>
+            <td>0</td>
+            <td>RELEASED</td>
+            <td></td>
+            <td>MKTG</td>
+            <td>2024-01-01 11:32</td>
+            <td>
+              <button class="btn btn-info btn-sm" onclick="submitCalculation(this)">Submit</button>
+              <button class="btn btn-info btn-sm" onclick="approveCalculation(this)">Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="returnCalculation(this)">Return</button>
+              <button class="btn btn-danger btn-sm" onclick="cancelCalculation(this)">Cancel</button>
+              <button class="btn btn-danger btn-sm" onclick="removeCalculation(this)">Remove</button>
+              <button class="btn btn-danger btn-sm" onclick="approveCancelCalculation(this)">Approve</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>     
+  <div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+
+<script>  
+  var tableInvoice = $('#tableInvoice').DataTable({    
+    "scrollX": true
+  });  
+  
+  function handleUserChange(){
+  }
+
+</script>
+</body>
+</html>
