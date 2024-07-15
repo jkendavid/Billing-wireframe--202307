@@ -132,6 +132,11 @@ function htmlControl_Period(obj,readonly=false){
 
 
 function htmlControl_Option(obj,readonly=false){
+    var htmlOption = htmlControl_Option_Options(obj)
+    return htmlControlFormat(obj.selector,`<select ${obj.extension} class="form-control" prevval="${obj.value}" val="${obj.code}" ${obj.required?'required':''}  ${obj.readonly&&readonly?'readonly':''} ${obj.multiple?'multiple':''}>${htmlOption}</select>`,obj.text,obj.required) 
+}
+
+function htmlControl_Option_Options(obj){
     var htmlOption = []
     if(obj.blank??true)htmlOption.push(`<option value=""></option>`);
     if(!obj.options)obj.options = getOptionDomain(obj.code)
@@ -139,7 +144,7 @@ function htmlControl_Option(obj,readonly=false){
         var selected = obj.value==option.value?'selected':''
         htmlOption.push(`<option value="${option.value}" ${selected}>${option.text}</option>`)
     })  
-    return htmlControlFormat(obj.selector,`<select ${obj.extension} class="form-control" prevval="${obj.value}" val="${obj.code}" ${obj.required?'required':''}  ${obj.readonly&&readonly?'readonly':''} ${obj.multiple?'multiple':''}>${htmlOption}</select>`,obj.text,obj.required) 
+    return htmlOption.join('')
 }
 
 function getUser(){
@@ -191,6 +196,9 @@ function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
+function getPeriod(str){
+    return Number(str.replace(/-/g, ''));
+}
 
 function getVariable(code){
    return deepCopy(variables).filter(x=> x.code == code)[0]

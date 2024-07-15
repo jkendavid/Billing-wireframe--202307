@@ -48,31 +48,24 @@
 
 <script>
   const headers = [
-    {row:true,selector:'',code:'id',text:'id',readonly:false,required:true,type:'number',extension:'hidden'},
-    {row:true,selector:'form',code:'index',text:'Index',readonly:false,required:true,type:'number'},
+    {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
     {row:true,selector:'form',code:'template',text:'Billing Template',readonly:false,required:true,type:'domain',options:getOptionDomain('billing_template')},
     {
       row:true,selector:'form',code:'default_version',text:'Default Version',readonly:false,required:true,type:'domain',
       options:[{value:'latest',text:'Latest'},{value:'previous',text:'Previous'}]
-    },
-    {row:true,selector:'form',code:'filter_text',text:'Filter',readonly:false,required:true,type:'domain'},
-    {row:true,selector:'form',code:'filter_variable',text:'Filter Variable',readonly:false,required:true,type:'domain'},
-    {row:true,selector:'form',code:'filter_value',text:'Filter Value',readonly:false,required:true,type:'domain'},
+    }
   ] 
 
-  function getTemplateDefaultData(){
-    return template_default.map(x=>{
-      x.filter_text = '['+ getVariable(x.filter_variable).text +']="' + x.filter_value+'"'
-      return x
-    })
+  function getTemplateDefaultData() {
+    return deepCopy(template_default)
   }
 
-  var
+
   function refreshTableTemplateDefault(){    
     var table = $('#tableTemplateDefault');
     var trHead = table.find('thead tr');
     trHead.empty();
-    headers.filter(x=> !['id','filter_variable','filter_value'].includes(x.code)).map(header => {
+    headers.map(header => {
       trHead.append(`<th>${header.text}</th>`);
     });
     trHead.append(`<th></th>`);
@@ -86,39 +79,33 @@
       headers.filter(x=> x.code != 'id').forEach(header => {  
         strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
       });
-      strTr.push(`<td><a href="#" class="mx-2" onclick="updateTemplateDefault('${data.id}')">Edit</a></td>`)
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateTemplateDefault('${data.code}')">Edit</a></td>`)
       strTr.push('</tr>');
       tbody.append(strTr.join(''));
     })
   }
 
-  function updateTemplateDefault(id=''){
+  function updateTemplateDefault(code=''){
     var html = [];
     html.push('<div>');
     html.push('<div class="rowFields">');      
-    if(id)var rowData = getTemplateDefaultData().filter(x=> x.id == id)[0];  
-    deepCopy(headers).filter(x=> x.row==true).map(header=>{
-      if(id){
-        header.value = rowData[header.code]
-      }else{
-        if(header.code=='id')header.value = getLast(getTemplateDefaultData()).id + 1
-        if(header.code=='index')header.value = getLast(getTemplateDefaultData()).index + 5
-      }
-      html.push(htmlControl(header,id))
+    if(code)var rowData = getTemplateDefaultData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).map(header=>{
+      if(code)header.value=rowData[header.code]
+      html.push(htmlControl(header,code))
     })
     html.push('</div>');      
     html.push('</div>');
-    html.push(`<button type="button" class="btn btn-primary" onclick="saveTemplateDefault('${id}')">Save</button>`)
-    modal = modalShow((id?'New':'Update') + ' Template Default',html.join(''))
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveTemplateDefault('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Template Default',html.join(''))
   }
 
-  function saveTemplateDefault(id=""){
+  function saveTemplateDefault(code=""){
     var errFields = []
     var newData = {}
     $.each(modal.find('.rowFields .form-control'),function(i,v){
       var field = $(v).attr('val');
-      newData[field]=$(v).val()
-      
+      newData[field]=$(v).val()      
       var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
       if (!validationResult.ok)errFields.push(validationResult.message)
     })   
@@ -128,8 +115,8 @@
       return
     }
 
-    if(id){
-      var data = template_default.filter(x=> x.id == id)[0]
+    if(code){
+      var data = template_default.filter(x=> x.code == code)[0]
       Object.assign(data, newData);      
     }else{
       template_default.push(newData)

@@ -94,8 +94,7 @@ var variables = [
     {category:'filters',code:'plant_sources',type:'domain',text:'Plant Source',description:'',active:'active'}, 
     {category:'filters',code:'finconst',type:'domain',text:'Finance Constants',description:'',active:'active'}, 
     {category:'filters',code:'wesm_bid',type:'domain',text:'WESM Billing ID',description:'',active:'active'}, 
-    {category:'filters',code:'billing_calc',type:'domain',text:'Billing Calculation',description:'',active:'active'}, 
-   
+    
    
     {category:'dynamic',code:'constype',type:'domain',text:'Constant Type',description:'',active:'active'},  
     {category:'dynamic',code:'value',type:'number',text:'Value',description:'',active:'active',rounding:'general',unit:''},
@@ -159,9 +158,7 @@ var variable_domain_codes = [
     {variable:'wesm_bid',code:'GEN02'},
     {variable:'wesm_bid',code:'DU01'},
     {variable:'wesm_bid',code:'DU02'},
-    {variable:'wesm_bid',code:'RES01'},
-    {variable:'billing_calc',code:'COALFIRM'},
-    {variable:'billing_calc',code:'COALNONFIRM'},    
+    {variable:'wesm_bid',code:'RES01'},  
 ]
 
 var rounding_rules =[
@@ -273,7 +270,9 @@ contract_update_trans = [
         ],
         filters:[
             {variable:'plant_sources',period_start:'2024-01',value:'PLANT01'},
-            {variable:'billing_calc',period_start:'2024-01',value:'COALFIRM'},
+        ],
+        templates:[
+            {period_start:'2024-01',value:'COALFIRM'},
         ],
     },     
     {
@@ -296,7 +295,9 @@ contract_update_trans = [
         ],
         filters:[
             {variable:'plant_sources',period_start:'2023-01',value:'PLANT01'},
-            {variable:'billing_calc',period_start:'2024-01',value:'COALFIRM'},
+        ],
+        templates:[
+            {period_start:'2024-01',value:'COALFIRM'},
         ],
     },
     {
@@ -320,7 +321,9 @@ contract_update_trans = [
         ],
         filters:[
             {variable:'plant_sources',period_start:'2024-01',value:'PLANT01'},
-            {variable:'billing_calc',period_start:'2024-01',value:'COALFIRM'},
+        ],
+        templates:[
+            {period_start:'2024-01',value:'COALFIRM'},
         ],
     }
 ]
@@ -545,7 +548,7 @@ var billing_templates =[
 ]
 
 
-var template_default = [{id:1,index:5,filter_variable:'billing_calc',filter_value:'COALFIRM',template:'COALFIRM',default_version:'latest'}]
+var template_default = [{code:'COALFIRM',template:'COALFIRM',default_version:'latest'}]
 
 
 

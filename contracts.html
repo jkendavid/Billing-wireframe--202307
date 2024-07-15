@@ -143,12 +143,17 @@
       {code:'texts',text:'Text'},
       {code:'codes',text:'Code'},
       {code:'filters',text:'Filter'},
+      {code:'templates',text:'Template'},
     ]
     vartypes.map(type=>{      
       html.push(`<table class="table table-bordered tblVarInput" type="${type.code}">`);
       var btnAddNewLine = `<a href="#" class="mx-2" onclick='contractAddNewVariableLine(this,"${type.code}")'>Add</a>`
-      html.push(`<thead><tr><th>${type.text}</th><th>Period Start</th><th>Value</th><th>${btnAddNewLine}</th></tr></thead>`)
-      html.push(`<tbody>`)    
+      if(type.code == 'templates'){
+        html.push(`<thead><tr><th>Period Start</th><th>${type.text}</th><th>${btnAddNewLine}</th></tr></thead>`)
+      }else{
+        html.push(`<thead><tr><th>${type.text}</th><th>Period Start</th><th>Value</th><th>${btnAddNewLine}</th></tr></thead>`)
+      }
+       html.push(`<tbody>`)    
       if (item){
         item[type.code].map(line=>{
           html.push(contractNewVariableLineHtml(type.code,line))
@@ -168,6 +173,11 @@
     $($(btn).closest('table')).find('tbody').append(contractNewVariableLineHtml(type))
   }
 
+  var templateVariable = {
+        code:'template',text:'Templates',type:'domain',required:true,
+        options:template_default.map(x=>{return{value:x.code,text:x.code}})
+      }
+
   function contractNewVariableLineHtml (type,line=null){
     var varType = 'domain'
     switch (type){
@@ -178,21 +188,28 @@
         varType = 'text'
         break;
     }
-
-    var htmlVariable =  htmlControl({code:'variable',text:'Variable',type:'domain',required:true,
-      options:deepCopy(variables)
-          .filter(x=> (x.category == ((type=='filters')?'filters':'inputs'))&&(x.type==varType))
-          .map(x=> { return {value:x.code,text:x.text}}),
-      extension:`onchange="updateVariableValueField(this)"`,
-      value:line?line.variable:null,
-    })
     var htmlPeriod = htmlControl({...getVariable('period_from'),value:line?line.period_start:null,required:true})
-    var htmlValue = ''
-    if(line){
-      htmlValue = contractNewVariableLineValueHtml(line.variable,line.value)
-    }    
+    var htmlValue = ''   
     var htmlbtn = `<button type="button" class="btn btn-primary" onclick="contractRemoveNewVariableLine(this)">Remove</button>`
-    return `<tr><td>${htmlVariable}</td><td>${htmlPeriod}</td><td>${htmlValue}</td><td>${htmlbtn}</td></tr>`
+    
+    if(type == 'templates'){
+      var variable = deepCopy(templateVariable)
+      if(line)variable.value=line.value
+      htmlValue = htmlControl(variable)
+      return `<tr type="${type}"><td>${htmlPeriod}</td><td>${htmlValue}</td><td>${htmlbtn}</td></tr>`
+    }else{
+      var htmlVariable =  htmlControl({code:'variable',text:'Variable',type:'domain',required:true,
+        options:deepCopy(variables)
+            .filter(x=> (x.category == ((type=='filters')?'filters':'inputs'))&&(x.type==varType))
+            .map(x=> { return {value:x.code,text:x.text}}),
+        extension:`onchange="updateVariableValueField(this)"`,
+        value:line?line.variable:null,
+      })
+      if(line){
+        htmlValue = contractNewVariableLineValueHtml(line.variable,line.value)
+      } 
+      return `<tr type="${type}"><td>${htmlVariable}</td><td>${htmlPeriod}</td><td>${htmlValue}</td><td>${htmlbtn}</td></tr>`
+    }
   }
 
   function contractNewVariableLineValueHtml(variable,value = null){
@@ -240,6 +257,7 @@
       numbers:[],
       codes:[],
       filters:[],
+      templates:[],
     }
     var modalBody = $(ctrl).closest('.modal-body') 
     var contractData = {category:contractCategory}
@@ -258,14 +276,23 @@
 
     var contractVariables = deepCopy(variables).filter(x=> x.category == 'inputs')
     $.each($(modalBody).find('.tblVarInput tbody tr'),function(i,tr){
+      var type = $(tr).attr('type');
       var inputs = $(tr).find('td .form-control')
-      var field = inputs[0].value
-      var period_start = inputs[1].value
-      var value = inputs[2].value
-      var variable = getVariable(field)
-      var validationResult = fieldValidation(variable,value)
-      if (!validationResult.ok)errFields.push(validationResult.message) 
-      newTransData[getcontractDataType(variable.type)].push({variable:field,period_start:period_start,value:value})
+      if(type=="templates"){
+        var period_start = inputs[0].value
+        var value = inputs[1].value
+        var validationResult = fieldValidation(templateVariable,value)
+        if (!validationResult.ok)errFields.push(validationResult.message) 
+        newTransData[type].push({period_start:period_start,value:value})
+      }else{
+        var field = inputs[0].value
+        var period_start = inputs[1].value
+        var value = inputs[2].value
+        var variable = getVariable(field)
+        var validationResult = fieldValidation(variable,value)
+        if (!validationResult.ok)errFields.push(validationResult.message) 
+        newTransData[type].push({variable:field,period_start:period_start,value:value})
+      }
     })
     
     if (errFields.length>0){
@@ -370,7 +397,7 @@
       mainFields.map(field=>{
         newVals[field]= tran[field]
       });
-      [...tran.numbers,...tran.texts,...tran.codes,...tran.filters].map(item=>{
+      [...tran.numbers,...tran.texts,...tran.codes,...tran.filters,...tran.templates].map(item=>{
         var newVal = `${item.value} [${item.period_start}]`
         newVals[item.variable]=newVals[item.variable]?newVals[item.variable] +'; '+newVal:newVal
       })
