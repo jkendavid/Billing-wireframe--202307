@@ -23,7 +23,7 @@ $('body').prepend(
               </a>
               <div class="dropdown-menu" aria-labelledby="servicesDropdown">
                   <a class="dropdown-item" href="billing_templates.html">Billing Templates</a>
-                  <a class="dropdown-item" href="billing_generation.html">Billing Generation</a>
+                  <a class="dropdown-item" href="billing_calculation.html">Billing Calculation</a>
                   <a class="dropdown-item" href="template_default.html">Template Default</a>
               </div>
           </li>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Billing Generation</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+    .panel {
+        border: 1px solid #ddd; 
+        border-radius: 4px; 
+        padding: 10px;
+        margin: 10px;
+    }
+
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Billing Calculation</h2>    
+    <div class="form-group row">
+      <label for="newCode" class="col-md-4 col-form-label">Report Period<span class="required">*</span></label>
+      <div class="col-md-8"><input type="month" value="2024-05" class="form-control" val="reportperiod"></div>
+    </div>
+
+    <div class="panel panel-default">
+      <h5>Filters</h5> 
+      <div class="panel-body">
+        <div class="my-2" id="pnlFilter"></div>
+      </div>
+      <button type="button" class="btn btn-primary" id="btnLoad" onclick="load()">Load</button>
+    </div>
+    
+    <div class="panel panel-default">
+      <h5>New</h5> 
+      <div class="panel-body">
+        <table class="table table-bordered" id="tblLoad"><thead></thead><tbody></tbody></table>  
+        <button type="button" class="btn btn-primary" id="btnCalculate" onclick="calculate()" disabled>Calculate</button>
+      </div>
+    </div>
+    
+    <div class="panel panel-default">
+      <h5>Calculated</h5> 
+      <div class="panel-body">
+        <table class="table table-bordered" id="tblCalculate"><thead></thead><tbody></tbody></table>  
+        <button type="button" class="btn btn-primary" id="btnGenerate" onclick="release()" disabled>Release</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+ 
+  const loadheader =[
+    {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+    {code:'contract',text:'Contract'},
+    {code:'buyer',text:'Buyer'},
+    {code:'seller',text:'Seller'},
+    {code:'prevgeneration',text:'Prev. Generation'},
+    {code:'template',text:'Template'},
+  ]
+ 
+ const calculateheader =[
+   {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+   {code:'contract',text:'Contract'},
+   {code:'buyer',text:'Buyer'},
+   {code:'seller',text:'Seller'},
+   {code:'prevgeneration',text:'Prev. Generation'},
+   {code:'template',text:'Template'},
+ ]
+
+  function selectAllToggle(ctrl){
+    var status = ctrl.checked
+    $('.inputselected').each(function() {
+        $(this).prop('checked', status);
+    });
+    inputselected_Change()
+  }
+
+  function getinputselected() {
+    var selected = [];
+    var trs = $('.inputselected:checked').closest('tr');
+    trs.each(function() {
+        var item = {};
+        loadheader.forEach(header => {
+            var td = $(this).find(`td[data="${header.code}"]`)[0];
+            item[header.code] = td ? $(td).text() : ''; 
+        });
+        selected.push(item);
+    });
+    return selected;
+  }
+
+  function inputselected_Change(){    
+    $('#btnCalculate').prop('disabled', getinputselected().length === 0);
+  }
+
+  function initialize(){
+    //filters
+    var pnlFilterFields = [
+      {row:true,selector:'form',code:'period',text:'Period',type:'period',value:'2024-05'},
+    ]
+    var html = []
+    pnlFilterFields.map(field=>{
+      html.push(htmlControl(field))
+    })
+    $('#pnlFilter').html(html.join(''))
+
+    //main table header
+    html=[]
+    html.push('<tr>')
+    loadheader.map(header=>{
+      html.push(`<th>${header.text}</th>`)
+    })
+    html.push('</tr>')
+    $('#tblLoad thead').html(html.join(''))
+    $('#tblCalculate thead').html(html.join(''))
+  }
+  initialize()
+
+  var period
+  var report_period
+
+  function load(){
+    report_period = getPeriod($('input[val="reportperiod"]').val())
+    var filterData = []
+    $.each( $('#pnlFilter').find('.form-control'),function(i,v){
+      filterData.push({field:$(v).attr('val'),data:$(v).val()})
+    })   
+
+    var calculateddata = deepCopy(billing_calculations).filter(x=> getPeriod(x.report_period) == report_period)
+
+    var loadData = deepCopy(getLatestContractData(true)).filter(
+      x=> calculateddata.filter(y=> x.contract==y.contract).length==0
+    )
+
+
+    filterData.map(filter=>{
+      switch (filter.field) {
+        case 'period':   
+          period = getPeriod(filter.data)
+          loadData = loadData.filter(x=>(getPeriod(x.period_from)<=period)&&(getPeriod(x.period_to)>=period))
+          break;
+        default:
+      }
+    })
+    loadData.map(x=>{
+      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
+      x['prevgeneration'] = ''
+      var template = getLast(x.templates.filter(x=> getPeriod(x.period_start)<period)).value
+      var templateversion = deepCopy(getLast(billing_templates.filter(x=>x.code == template)[0].versions.filter(x=> x.status=='active')))
+      x['template'] = `${template} V.${templateversion.version_number}`
+    })
+
+    
+    var html=[]
+    loadData.map(rowdata=>{
+      html.push(`<tr>`)
+      loadheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblLoad tbody').html(html.join(''))
+
+
+    calculateddata.map(x=>{
+      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
+    })
+
+    html=[]
+    calculateddata.map(rowdata=>{
+      html.push(`<tr>`)
+      loadheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblCalculate tbody').html(html.join(''))
+
+
+
+  }
+
+  function getBillingGenerationData(){
+    var period = getPeriod($('#pnlFilter input[val="period"]').val())
+    return deepCopy(getLatestContractData()).filter(x=>(getPeriod(x.period_from)<=period)&&(getPeriod(x.period_to)>=period))
+  }  
+
+  const headers = [
+    {selector:'form',code:'contract',text:'Contract',readonly:false,required:true,type:'text'},
+  ]
+ 
+  function calculate(){
+
+  }
+
+</script>
+
+
+</body>
+</html>

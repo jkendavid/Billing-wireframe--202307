@@ -552,7 +552,16 @@ var template_default = [{code:'COALFIRM',template:'COALFIRM',default_version:'la
 
 
 
-
+var billing_calculations = [{
+    report_period:'2024-05',
+    period:'2024-05',
+    contract:'PSA-GEN01-00002',
+    template:'COALFIRM V.0',
+    status:[],
+    determinants:[],
+    amounts:[],
+    },
+]
 
 
 
