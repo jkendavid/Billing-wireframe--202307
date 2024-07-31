@@ -22,7 +22,7 @@ var window_categories =[
     },
     {
         window:'dynamics',code:'MBCQ', text:'Monthly BCQ', approval:'ONESTEP',
-        filter:'wesm_bid',variables:[{code:'bcq',required:'true',active:'true'},{code:'mq',required:'true',active:'true'},{code:'lr',required:'true',active:'true'},]
+        filter:'wesm_buyer_bid',variables:[{code:'bcq',required:'true',active:'true'},{code:'mq',required:'true',active:'true'},{code:'lr',required:'true',active:'true'},]
     },
 ]
 
@@ -93,7 +93,7 @@ var variables = [
 
     {category:'filters',code:'plant_sources',type:'domain',text:'Plant Source',description:'',active:'active'}, 
     {category:'filters',code:'finconst',type:'domain',text:'Finance Constants',description:'',active:'active'}, 
-    {category:'filters',code:'wesm_bid',type:'domain',text:'WESM Billing ID',description:'',active:'active'}, 
+    {category:'filters',code:'wesm_buyer_bid',type:'domain',text:'WESM Buyer Billing ID',description:'',active:'active'}, 
     
    
     {category:'dynamic',code:'constype',type:'domain',text:'Constant Type',description:'',active:'active'},  
@@ -154,11 +154,8 @@ var variable_domain_codes = [
     {variable:'plant_sources',code:'PLANT01'},
     {variable:'plant_sources',code:'PLANT02'},
     {variable:'finconst',code:'General'},
-    {variable:'wesm_bid',code:'GEN01'},
-    {variable:'wesm_bid',code:'GEN02'},
-    {variable:'wesm_bid',code:'DU01'},
-    {variable:'wesm_bid',code:'DU02'},
-    {variable:'wesm_bid',code:'RES01'},  
+    {variable:'wesm_buyer_bid',code:'WESMBIDDU01'},
+    {variable:'wesm_buyer_bid',code:'WESMBIDDU02'},
 ]
 
 var rounding_rules =[
@@ -178,25 +175,25 @@ var window_fields = [
     {field:'name',category:'GEN',field_locs:'row' ,instance:'single',required:true},    
     {field:'addr',category:'GEN',field_locs:'row' ,instance:'single',required:true},
     {field:'tin',category:'GEN',field_locs:'row' ,instance:'single',required:true},
-    {field:'wesm_bid',category:'GEN',field_locs:'detail' ,instance:'single',required:true},
+    {field:'wesm_buyer_bid',category:'GEN',field_locs:'detail' ,instance:'single',required:true},
     {field:'plant_sources',category:'GEN',field_locs:'detail' ,instance:'single',required:true},    
     {field:'name',category:'DU',field_locs:'row' ,instance:'single',required:true},   
     {field:'addr',category:'DU',field_locs:'row' ,instance:'single',required:true},
     {field:'tin',category:'DU',field_locs:'row' ,instance:'single',required:true},
-    {field:'wesm_bid',category:'DU',field_locs:'row' ,instance:'single',required:true},
+    {field:'wesm_buyer_bid',category:'DU',field_locs:'row' ,instance:'single',required:true},
     {field:'creditrating',category:'DU',field_locs:'row' ,instance:'single',required:true},
     {field:'name',category:'RES',field_locs:'row' ,instance:'single',required:true},   
-    {field:'wesm_bid',category:'RES',field_locs:'row' ,instance:'single',required:true},
+    {field:'wesm_buyer_bid',category:'RES',field_locs:'row' ,instance:'single',required:true},
     {field:'addr',category:'RES',field_locs:'row' ,instance:'single',required:false},
     {field:'tin',category:'RES',field_locs:'row' ,instance:'single',required:true},
     {field:'name',category:'DCC',field_locs:'row' ,instance:'single',required:true},   
     {field:'addr',category:'DCC',field_locs:'row' ,instance:'single',required:false},
     {field:'tin',category:'DCC',field_locs:'row' ,instance:'single',required:true},
-    {field:'wesm_bid',category:'DCC',field_locs:'row' ,instance:'single',required:true},
+    {field:'wesm_buyer_bid',category:'DCC',field_locs:'row' ,instance:'single',required:true},
     {field:'name',category:'CC',field_locs:'row' ,instance:'single',required:true},   
     {field:'addr',category:'CC',field_locs:'row' ,instance:'single',required:false},
     {field:'tin',category:'CC',field_locs:'row' ,instance:'single',required:true},
-    {field:'wesm_bid',category:'CC',field_locs:'row' ,instance:'single',required:true},
+    {field:'wesm_buyer_bid',category:'CC',field_locs:'row' ,instance:'single',required:true},
     {field:'delivery_sein',category:'CC',field_locs:'row' ,instance:'multiple',required:true},
     {field:'msp',category:'CC',field_locs:'row' ,instance:'single',required:true},
     
@@ -265,11 +262,15 @@ contract_update_trans = [
             {variable:'fomr',period_start:'2023-01',value:4000},
             {variable:'vomr',period_start:'2023-01',value:500},
             {variable:'er194r',period_start:'2023-01',value:100},
+            {variable:'forexb',period_start:'2023-01',value:55},
+            {variable:'ncrcpib',period_start:'2023-01',value:3},
         ],
         codes:[
         ],
         filters:[
+            {variable:'finconst',period_start:'2024-01',value:'General'},
             {variable:'plant_sources',period_start:'2024-01',value:'PLANT01'},
+            {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU01'},
         ],
         templates:[
             {period_start:'2024-01',value:'COALFIRM'},
@@ -290,11 +291,16 @@ contract_update_trans = [
             {variable:'crfr',period_start:'2023-01',value:1000},
             {variable:'fomr',period_start:'2023-01',value:4000},
             {variable:'vomr',period_start:'2023-01',value:600},
+            {variable:'forexb',period_start:'2023-01',value:55},
+            {variable:'ncrcpib',period_start:'2023-01',value:3},
+            {variable:'er194r',period_start:'2023-01',value:100},
         ],
         codes:[
         ],
         filters:[
+            {variable:'finconst',period_start:'2024-01',value:'General'},
             {variable:'plant_sources',period_start:'2023-01',value:'PLANT01'},
+            {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU02'},
         ],
         templates:[
             {period_start:'2024-01',value:'COALFIRM'},
@@ -316,11 +322,15 @@ contract_update_trans = [
             {variable:'fomr',period_start:'2024-01',value:4000},
             {variable:'vomr',period_start:'2024-01',value:500},
             {variable:'er194r',period_start:'2024-01',value:100},
+            {variable:'forexb',period_start:'2023-01',value:55},
+            {variable:'ncrcpib',period_start:'2023-01',value:3},
         ],
         codes:[
         ],
         filters:[
+            {variable:'finconst',period_start:'2024-01',value:'General'},
             {variable:'plant_sources',period_start:'2024-01',value:'PLANT01'},
+            {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU02'},
         ],
         templates:[
             {period_start:'2024-01',value:'COALFIRM'},
@@ -373,21 +383,21 @@ party_update_trans = [
 
 
 dynamic_update_trans = [
-    {category:'FINCONST',period_from:'2023-01',period_to:'',
+    {category:'FINCONST',period_from:'2024-01',period_to:'2099-12',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'General',
+            filter:{variable:'finconst',value:'General'},
             texts:[],
             numbers:[
                 {variable:'vatrate',value:0.12},
         ]}
     ]},
-    {category:'INDEX',period_from:'2023-01',period_to:'',
+    {category:'INDEX',period_from:'2024-01',period_to:'2024-01',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'General',
+            filter:{variable:'finconst',value:'General'},
             texts:[],
             numbers:[
                 {variable:'forex',value:60},
@@ -395,11 +405,11 @@ dynamic_update_trans = [
                 {variable:'phpcpi',value:4.2},
         ]}
     ]},
-    {category:'INDEX',period_from:'2023-02',period_to:'',
+    {category:'INDEX',period_from:'2024-02',period_to:'2024-02',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-02-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'General',
+            filter:{variable:'finconst',value:'General'},
             texts:[],
             numbers:[
                 {variable:'forex',value:50},
@@ -407,11 +417,11 @@ dynamic_update_trans = [
                 {variable:'phpcpi',value:3.2},
         ]}
     ]},
-    {category:'INDEX',period_from:'2023-03',period_to:'',
+    {category:'INDEX',period_from:'2024-03',period_to:'2024-03',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'General',
+            filter:{variable:'finconst',value:'General'},
             texts:[],
             numbers:[
                 {variable:'forex',value:54},
@@ -419,48 +429,71 @@ dynamic_update_trans = [
                 {variable:'phpcpi',value:3.5},
         ]}
     ]},
-    {category:'PLANT',period_from:'2023-01',period_to:'',
+    {category:'INDEX',period_from:'2024-04',period_to:'2024-04',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'PLANT01',
+            filter:{variable:'finconst',value:'General'},
             texts:[],
             numbers:[
-                {variable:'pmq',value:60000},
+                {variable:'forex',value:54},
+                {variable:'ncrcpi',value:3.5},
+                {variable:'phpcpi',value:3.5},
+        ]}
+    ]},
+    {category:'INDEX',period_from:'2024-05',period_to:'2024-05',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'finconst',value:'General'},
+            texts:[],
+            numbers:[
+                {variable:'forex',value:58.2},
+                {variable:'ncrcpi',value:3.3},
+                {variable:'phpcpi',value:3.7},
+        ]}
+    ]},
+    {category:'PLANT',period_from:'2024-05',period_to:'2024-05',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'plant_sources',value:'PLANT01'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:8000},
                 {variable:'coalmt',value:900000},
                 {variable:'coalcost',value:3000},
         ]},
         {
-            filter:'PLANT02',
+            filter:{variable:'plant_sources',value:'PLANT02'},
             texts:[],
             numbers:[
-                {variable:'pmq',value:70000},
+                {variable:'pmq',value:7000},
                 {variable:'coalmt',value:1200000},
                 {variable:'coalcost',value:2800},
         ]}
     ]},
-    {category:'MBCQ',period_from:'2023-01',period_to:'',
+    {category:'MBCQ',period_from:'2024-05',period_to:'2024-05',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
-            filter:'DU01',
+            filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU01'},
             texts:[],
             numbers:[
-                {variable:'bcq',value:30000},
-                {variable:'mq',value:33000},
+                {variable:'bcq',value:1752},
+                {variable:'mq',value:2355},
                 {variable:'lr',value:28000},
         ]},
         {
-            filter:'DU02',
+            filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU02'},
             texts:[],
             numbers:[
-                {variable:'bcq',value:40000},
-                {variable:'mq',value:33000},
+                {variable:'bcq',value:1254},
+                {variable:'mq',value:1954},
                 {variable:'lr',value:48000},
         ]}
     ]},
 ]
-
 
 
 var billing_null_handling_rules =[    
@@ -476,71 +509,71 @@ var billing_templates =[
         {version_number:0,status:'active',remarks:'',create_by:'user',create_time:'2024-01-01 00:00',
             item_groups:[
                 {index:1,type:'determinant',text:'Indices',internal:'false',items:[
-                    {index:1,variable:'forexb',determinant_formula:'[CONTRACT.forexb]',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'forexb',determinant_formula:'[CONTRACT.forexb]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                     {index:2,variable:'forexc',determinant_formula:'[INDEX.forex]',null_handling_rules:'general',comment:'[INDEX.comment]'},
-                    {index:3,variable:'ncrcpib',determinant_formula:'[CONTRACT.ncrcpib]',null_handling_rules:'general',comment:''},
+                    {index:3,variable:'ncrcpib',determinant_formula:'[CONTRACT.ncrcpib]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                     {index:4,variable:'ncrcpic',determinant_formula:'[INDEX.ncrcpi]',null_handling_rules:'general',comment:'[INDEX.comment]'},
-                    {index:5,variable:'rateindex',determinant_formula:'[forexc]/[forexb]*[ncrcpic]/[ncrcpib]',null_handling_rules:'general',comment:''},
+                    {index:5,variable:'rateindex',determinant_formula:'[forexc]/[forexb]*[ncrcpic]/[ncrcpib]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
                 {index:2,type:'determinant',text:'Plant Data',internal:'false',items:[
-                    {index:1,variable:'pmq',determinant_formula:'[PLANT.pmq]',null_handling_rules:'general',comment:''},
-                    {index:2,variable:'coalmt',determinant_formula:'[PLANT.coalmt]',null_handling_rules:'general',comment:''},
-                    {index:3,variable:'coalcost',determinant_formula:'[PLANT.coalcost]',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'pmq',determinant_formula:'[PLANT.pmq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:2,variable:'coalmt',determinant_formula:'[PLANT.coalmt]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:3,variable:'coalcost',determinant_formula:'[PLANT.coalcost]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
                 {index:3,type:'determinant',text:'Quantities',internal:'false',items:[
-                    {index:1,variable:'cc',determinant_formula:'[CONTRACT.cc]',null_handling_rules:'general',comment:''},
-                    {index:2,variable:'energy',determinant_formula:'[MBCQ.bcq]',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'cc',determinant_formula:'[CONTRACT.cc]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:2,variable:'energy',determinant_formula:'[MBCQ.bcq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
                 {index:4,type:'determinant',text:'Rates',internal:'false',items:[
-                    {index:1,variable:'crfr',determinant_formula:'[CONTRACT.crfr]',null_handling_rules:'general',comment:''},
-                    {index:1,variable:'fomr',determinant_formula:'[CONTRACT.fomr]',null_handling_rules:'general',comment:''},
-                    {index:1,variable:'vomr',determinant_formula:'[CONTRACT.vomr]',null_handling_rules:'general',comment:''},
-                    {index:1,variable:'er194r',determinant_formula:'[CONTRACT.er194r]',null_handling_rules:'general',comment:''},
-                    {index:1,variable:'fuelr',determinant_formula:'[coalcost]*[coalmt]/[pmq]',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'crfr',determinant_formula:'[CONTRACT.crfr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:1,variable:'fomr',determinant_formula:'[CONTRACT.fomr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:1,variable:'vomr',determinant_formula:'[CONTRACT.vomr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:1,variable:'er194r',determinant_formula:'[CONTRACT.er194r]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:1,variable:'fuelr',determinant_formula:'[coalcost]*[coalmt]/[pmq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
                 {index:5,type:'baseprice',text:'Fixed Charge',internal:'false',items:[
-                    {index:1,variable:'crf',base_formula:'[cc]*1000',price_formula:'[crfr]*[rateindex]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
-                    {index:2,variable:'fom',base_formula:'[cc]*1000',price_formula:'[fomr]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'crf',base_formula:'[cc]*1000',price_formula:'[crfr]*[rateindex]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:2,variable:'fom',base_formula:'[cc]*1000',price_formula:'[fomr]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
                 {index:6,type:'baseprice',text:'Variable Charge',internal:'false',items:[
-                    {index:1,variable:'vom',base_formula:'[energy]',price_formula:'[vomr]-[er194r]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
-                    {index:2,variable:'er194',base_formula:'[energy]',price_formula:'[er194r]',amount_formula:'[base]*[price]',vat_formula:'0',null_handling_rules:'general',comment:''},
-                    {index:3,variable:'fuel',base_formula:'[energy]',price_formula:'[fuelr]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
+                    {index:1,variable:'vom',base_formula:'[energy]',price_formula:'[vomr]-[er194r]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:2,variable:'er194',base_formula:'[energy]',price_formula:'[er194r]',amount_formula:'[base]*[price]',vat_formula:'0',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                    {index:3,variable:'fuel',base_formula:'[energy]',price_formula:'[fuelr]',amount_formula:'[base]*[price]',vat_formula:'[amount]*[vatr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 ]},
             ]
         },
         {version_number:1,status:'draft',remarks:'',create_by:'user',create_time:'2024-02-02 00:00',
         item_groups:[
             {index:1,type:'determinant',text:'Indices',internal:'false',items:[
-                {index:1,variable:'forexb',determinant_formula:'[CONTRACT.forexb]',null_handling_rules:'general',comment:''},
+                {index:1,variable:'forexb',determinant_formula:'[CONTRACT.forexb]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 {index:2,variable:'forexc',determinant_formula:'[INDEX.forex]',null_handling_rules:'general',comment:'[INDEX.comment]'},
-                {index:3,variable:'ncrcpib',determinant_formula:'[CONTRACT.ncrcpib]',null_handling_rules:'general',comment:''},
+                {index:3,variable:'ncrcpib',determinant_formula:'[CONTRACT.ncrcpib]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
                 {index:4,variable:'ncrcpic',determinant_formula:'[INDEX.ncrcpi]',null_handling_rules:'general',comment:'[INDEX.comment]'},
             ]},
             {index:2,type:'determinant',text:'Plant Data',internal:'false',items:[
-                {index:1,variable:'pmq',determinant_formula:'[PLANT.pmq]',null_handling_rules:'general',comment:''},
-                {index:2,variable:'coalmt',determinant_formula:'[PLANT.coalmt]',null_handling_rules:'general',comment:''},
-                {index:3,variable:'coalcost',determinant_formula:'[PLANT.coalcost]',null_handling_rules:'general',comment:''},
+                {index:1,variable:'pmq',determinant_formula:'[PLANT.pmq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:2,variable:'coalmt',determinant_formula:'[PLANT.coalmt]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:3,variable:'coalcost',determinant_formula:'[PLANT.coalcost]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
             ]},
             {index:3,type:'determinant',text:'Quantities',internal:'false',items:[
-                {index:1,variable:'cc',determinant_formula:'[CONTRACT.cc]',null_handling_rules:'general',comment:''},
-                {index:2,variable:'energy',determinant_formula:'[MBCQ.bcq]',null_handling_rules:'general',comment:''},
+                {index:1,variable:'cc',determinant_formula:'[CONTRACT.cc]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:2,variable:'energy',determinant_formula:'[MBCQ.bcq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
             ]},
             {index:4,type:'determinant',text:'Rates',internal:'false',items:[
-                {index:1,variable:'crfr',determinant_formula:'[CONTRACT.crfr]',null_handling_rules:'general',comment:''},
-                {index:1,variable:'fomr',determinant_formula:'[CONTRACT.fomr]',null_handling_rules:'general',comment:''},
-                {index:1,variable:'vomr',determinant_formula:'[CONTRACT.vomr]',null_handling_rules:'general',comment:''},
-                {index:1,variable:'er194r',determinant_formula:'[CONTRACT.er194r]',null_handling_rules:'general',comment:''},
-                {index:1,variable:'fuelr',determinant_formula:'[coalcost]*[coalmt]/[pmq]',null_handling_rules:'general',comment:''},
+                {index:1,variable:'crfr',determinant_formula:'[CONTRACT.crfr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:1,variable:'fomr',determinant_formula:'[CONTRACT.fomr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:1,variable:'vomr',determinant_formula:'[CONTRACT.vomr]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:1,variable:'er194r',determinant_formula:'[CONTRACT.er194r]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:1,variable:'fuelr',determinant_formula:'[coalcost]*[coalmt]/[pmq]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
             ]},
             {index:5,type:'baseprice',text:'Fixed Charge',internal:'false',items:[
-                {index:1,variable:'crf',base_formula:'[cc]*1000',price_formula:'[crfr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
-                {index:2,variable:'fom',base_formula:'[cc]*1000',price_formula:'[fomr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
+                {index:1,variable:'crf',base_formula:'[cc]*1000',price_formula:'[crfr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:2,variable:'fom',base_formula:'[cc]*1000',price_formula:'[fomr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
             ]},
             {index:6,type:'baseprice',text:'Variable Charge',internal:'false',items:[
-                {index:1,variable:'vom',base_formula:'[energy]',price_formula:'[vomr]-[er194r]',tax_rule:'vat',null_handling_rules:'general',comment:''},
-                {index:2,variable:'er194',base_formula:'[energy]',price_formula:'[er194r]',null_handling_rules:'general',comment:''},
-                {index:3,variable:'fuel',base_formula:'[energy]',price_formula:'[fuelr]',tax_rule:'vat',null_handling_rules:'general',comment:''},
+                {index:1,variable:'vom',base_formula:'[energy]',price_formula:'[vomr]-[er194r]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:2,variable:'er194',base_formula:'[energy]',price_formula:'[er194r]',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+                {index:3,variable:'fuel',base_formula:'[energy]',price_formula:'[fuelr]',tax_rule:'vat',null_handling_rules:'general',net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
             ]},
         ]
     },
@@ -556,10 +589,44 @@ var billing_calculations = [{
     report_period:'2024-05',
     period:'2024-05',
     contract:'PSA-GEN01-00002',
-    template:'COALFIRM V.0',
-    status:[],
-    determinants:[],
-    amounts:[],
+    revision_number:0,
+    template:'COALFIRM',
+    version_number:0,
+    status:[{code:'generated',update_by:'MKTG',update_time:'2024-05-05 12:31'}],
+    values:[
+        {index:1,type:'determinant',text:'Indices',internal:'false',items:[
+            {index:1,variable:'forexb',base:55,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'forexc',base:58.2,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:'Based on previous month'},
+            {index:3,variable:'ncrcpib',base:3,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:4,variable:'ncrcpic',base:3.3,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:'Based on previous month'},
+            {index:5,variable:'rateindex',base:1.164,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+        {index:2,type:'determinant',text:'Plant Data',internal:'false',items:[
+            {index:1,variable:'pmq',base:8000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'coalmt',base:900000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:3,variable:'coalcost',base:3000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+        {index:3,type:'determinant',text:'Quantities',internal:'false',items:[
+            {index:1,variable:'cc',base:5000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'energy',base:1254,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+        {index:4,type:'determinant',text:'Rates',internal:'false',items:[
+            {index:1,variable:'crfr',base:1000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'fomr',base:4000,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:3,variable:'vomr',base:500,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:4,variable:'er194r',base:100,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:5,variable:'fuelr',base:3375,price:0,net_amount:0,tax_amount:0,gross_amount:0,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+        {index:5,type:'baseprice',text:'Fixed Charge',internal:'false',items:[
+            {index:1,variable:'crf',base:5000,price:1164,net_amount:5820000,tax_amount:698400,gross_amount:6518400,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'fom',base:5000,price:4000,net_amount:20000000,tax_amount:2400000,gross_amount:22400000,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+        {index:6,type:'baseprice',text:'Variable Charge',internal:'false',items:[
+            {index:1,variable:'vom',base:1254,price:400,net_amount:501600,tax_amount:60192,gross_amount:561792,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:2,variable:'er194',base:1254,price:100,net_amount:125400,tax_amount:0,gross_amount:125400,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+            {index:3,variable:'fuel',base:1254,price:3375,net_amount:4232250,tax_amount:507870,gross_amount:4740120,net_amount_diff:0,tax_amount_diff:0,gross_amount_diff:0,comment:''},
+        ]},
+    ],
     },
 ]
 

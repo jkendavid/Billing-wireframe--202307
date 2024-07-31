@@ -200,6 +200,13 @@ function getPeriod(str){
     return Number(str.replace(/-/g, ''));
 }
 
+function toPeriod(num){
+    var str = num.toString()
+    var year = str.slice(0, 4);
+    var month = str.slice(4, 6);
+    return `${year}-${month}`;
+}
+
 function getVariable(code){
    return deepCopy(variables).filter(x=> x.code == code)[0]
 }

@@ -93,8 +93,9 @@
 
   function refreshDynamicTable(){    
     dynamicCategory = $('#optDynamicCategories').val();
-    windowCategory = deepCopy(window_categories).filter(x=> x.window =='dynamics' && x.code == dynamicCategory)[0]
+    windowCategory = deepCopy(window_categories).filter(x=> x.window =='dynamics' && x.code == dynamicCategory)[0]    
     filterHeader.options = getOptionDomain(windowCategory.filter)
+    filterHeader.text = ''
     var table = $('#tableDynamics');
     var trHead = table.find('thead tr');
     trHead.empty();    
@@ -139,7 +140,7 @@
     html.push('</div>');
     html.push(`<table class="table table-bordered" id="tblVarInput">`);
     var btnAddNewLine = `<a href="#" class="mx-2" onclick='dynamicAddNewVariableLine(this)'>Add</a>`
-    html.push(`<thead><tr><th>Filter</th>`)    
+    html.push(`<thead><tr><th>${getVariable(windowCategory.filter).text}</th>`)    
     deepCopy(windowCategory.variables).map(variable=>{  
       html.push(`<th>${getVariable(variable.code).text}</th>`)   
     })    
@@ -163,7 +164,7 @@
     var html = []
     html.push(`<tr>`)
     var header = deepCopy(filterHeader)
-    if(line)header.value = line.filter
+    if(line)header.value = line.filter.value
     html.push(`<td>${htmlControl(header)}</td>`)
     deepCopy(windowCategory.variables).map(variable=>{   
       var variable = deepCopy(getVariable(variable.code));
@@ -245,7 +246,7 @@
         var field = $(v).attr('val');
         var value = $(v).val()  
         if(field=='filter'){
-          newTransFilterData.filter = value
+          newTransFilterData.filter= {variable:windowCategory.filter,value:value}
         }else{
           var variable = dynamicVariables.filter(x=> x.code == field)[0]
           var validationResult = fieldValidation(variable,value)

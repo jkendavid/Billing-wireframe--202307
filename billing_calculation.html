@@ -17,6 +17,7 @@
         margin: 10px;
     }
 
+
   </style>
 </head>
 <body>  
@@ -74,8 +75,8 @@
     {code:'contract',text:'Contract'},
     {code:'buyer',text:'Buyer'},
     {code:'seller',text:'Seller'},
-    {code:'prevgeneration',text:'Prev. Generation'},
     {code:'template',text:'Template'},
+    {code:'version_number',text:'Template Version'},
   ]
  
  const calculateheader =[
@@ -83,8 +84,10 @@
    {code:'contract',text:'Contract'},
    {code:'buyer',text:'Buyer'},
    {code:'seller',text:'Seller'},
-   {code:'prevgeneration',text:'Prev. Generation'},
+   {code:'revision_number',text:'Rev. No.'},
    {code:'template',text:'Template'},
+   {code:'version_number',text:'Template Version'},
+   {code:'control',text:''},
  ]
 
   function selectAllToggle(ctrl){
@@ -132,6 +135,14 @@
     })
     html.push('</tr>')
     $('#tblLoad thead').html(html.join(''))
+
+
+    html=[]
+    html.push('<tr>')
+    calculateheader.map(header=>{
+      html.push(`<th>${header.text}</th>`)
+    })
+    html.push('</tr>')
     $('#tblCalculate thead').html(html.join(''))
   }
   initialize()
@@ -167,7 +178,8 @@
       x['prevgeneration'] = ''
       var template = getLast(x.templates.filter(x=> getPeriod(x.period_start)<period)).value
       var templateversion = deepCopy(getLast(billing_templates.filter(x=>x.code == template)[0].versions.filter(x=> x.status=='active')))
-      x['template'] = `${template} V.${templateversion.version_number}`
+      x['template'] = template
+      x['version_number'] = templateversion.version_number
     })
 
     
@@ -184,12 +196,13 @@
 
     calculateddata.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
+      x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a><a href="#" class="mx-2" onclick="removeCalculated(this)">Remove</a>'
     })
 
     html=[]
     calculateddata.map(rowdata=>{
       html.push(`<tr>`)
-      loadheader.map(header=>{
+      calculateheader.map(header=>{
         html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
       })
       html.push(`</tr>`)
@@ -209,9 +222,148 @@
     {selector:'form',code:'contract',text:'Contract',readonly:false,required:true,type:'text'},
   ]
  
-  function calculate(){
+  var modal
 
+  function calculate(){
+    var contractData = deepCopy(getLatestContractData(true))
+    var partyData = deepCopy(getLatestPartyData(true))
+    var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
+
+    getinputselected().map(selected=>{
+      var inputs = {}
+      var contractRowData = contractData.filter(x=> x.contract == selected.contract)[0];
+      [...contractRowData.numbers,...contractRowData.texts,...contractRowData.codes].filter(x=>
+        getPeriod(x.period_start) <= period
+      ).map(x=>{
+        inputs['CONTRACT.'+x.variable]=x.value
+      })
+      
+      var sellerRowData = partyData.filter(x=> x.party == contractRowData.seller)[0];
+      [...sellerRowData.numbers,...sellerRowData.texts,...sellerRowData.codes].filter(x=>
+        getPeriod(x.period_start) <= period
+      ).map(x=>{
+        inputs['SELLER.'+x.variable]=x.value
+      })
+      
+      var buyerRowData = partyData.filter(x=> x.party == contractRowData.buyer)[0];
+      [...buyerRowData.numbers,...buyerRowData.texts,...buyerRowData.codes].filter(x=>
+        getPeriod(x.period_start) <= period
+      ).map(x=>{
+        inputs['BUYER.'+x.variable]=x.value
+      })
+
+      var contractfilters = {}      
+      contractRowData.filters.map(x=>{
+        contractfilters[x.variable]=x.value
+      });
+
+      dynamicData.map(dynamicRowData=>{
+        var dynamicFilterRowData = dynamicRowData.filters.filter(x=>
+          contractfilters[x.filter.variable]?contractfilters[x.filter.variable].includes(x.filter.value):false
+        )[0];
+        if(dynamicFilterRowData){
+          [...dynamicFilterRowData.numbers,...dynamicFilterRowData.texts].map(x=>{
+            inputs[dynamicRowData.category + '.'+x.variable]=x.value
+          }) 
+        } 
+      });
+
+
+      var billingcalculation = {
+        report_period:toPeriod(report_period),
+        period:toPeriod(period),
+        contract:selected.contract,
+        revision_number:0,
+        template:selected.template,
+        version_number:selected.version_number,
+        status:[],
+        values:[]
+      }
+
+      var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
+      template.item_groups.map(group=>{
+        var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
+        var valueheaders = getValueHeader(group.type)
+        group.items.map(item=>{
+          var itemvalue = {index:item.index,variable:item.variable}
+          valueheaders.map(header=>{
+            var executionstring = item[header.formula]
+            if(header.formula){
+              executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
+                return inputs[key] !== undefined ? inputs[key] : match;
+              });
+              var calculatedvalue = eval(executionstring)
+              itemvalue[header.code]=calculatedvalue
+              inputs[itemvalue.variable + (header.noref?'':('.'+header.code))]=calculatedvalue
+            }
+          })
+
+          value.items.push(itemvalue)
+        })
+        billingcalculation.values.push(value)
+      })
+      billingcalculation.status.push({code:'generated',update_by:getUser(),update_time:getCurrentTime()})
+      billing_calculations.push(billingcalculation)
+      load()
+    })
   }
+
+
+  function getValueHeader(type){
+    switch (type) {
+      case 'determinant':
+        return [{code:"base",text:"Value",class:'colcomment',formula:'determinant_formula',noref:true},{code:"comment",text:"Comment",width:'400px'}]
+      case 'amount':
+        return [{code:"net_amount",text:"Net Amount",formula:'amount_formula'},{code:"tax_amount",text:"Tax Amount"},{code:"gross_amount",text:"Gross Amount"}]
+      case 'baseprice':
+        return [{code:"base",text:"Base",formula:'base_formula'},{code:"price",text:"Price",formula:'price_formula'},{code:"net_amount",text:"Net Amount"},{code:"tax_amount",text:"Tax Amount"},{code:"gross_amount",text:"Gross Amount"}]
+      default:
+        return []
+    }
+  }
+
+
+  function viewCalculated(ctrl){
+    var tr = $(ctrl).closest('tr')
+    var contract = $(tr.find('td[data="contract"]')[0]).text()
+    var revision_number = $(tr.find('td[data="revision_number"]')[0]).text()
+    var html = []
+    
+    var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && getPeriod(x.report_period)==report_period && x.contract==contract && x.revision_number == revision_number)[0] 
+    calculation.values.map(group=>{
+      var headers = getValueHeader(group.type)
+      html.push('<table class="table table-sm table-condensed table-bordered">')
+      html.push(`<tr><th style="width:300px">${group.text}</th>${headers.map(x=>`<th style="width:${x.width??'100px'}">${x.text}</th>`).join('')}</tr>`)
+      group.items.map(item=>{
+        var variable = deepCopy(variables.filter(x=> x.code == item.variable))[0]
+        html.push(`<tr><td>${variable.text}</td>${headers.map(x=>`<td>${item[x.code]}</td>`).join('')}</tr>`)
+      })
+      html.push('</table>')    
+    })
+
+    modal = modalShow(`Calculation Result`,html.join(''))
+  }
+
+  function removeCalculated(ctrl){ var tr = $(ctrl).closest('tr')
+    var contract = $(tr.find('td[data="contract"]')[0]).text()
+    var revision_number = $(tr.find('td[data="revision_number"]')[0]).text()
+    var filteredItems = billing_calculations.filter(x => 
+      getPeriod(x.period) == period &&
+      getPeriod(x.report_period) == report_period &&
+      x.contract == contract &&
+      x.revision_number == revision_number
+    );
+
+    if (filteredItems.length > 0) {
+      const index = billing_calculations.indexOf(filteredItems[0]);
+      if (index > -1) {
+          billing_calculations.splice(index, 1);
+      }
+    }
+    load()
+  }
+
+
 
 </script>
 
