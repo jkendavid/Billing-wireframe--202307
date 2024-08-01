@@ -266,7 +266,6 @@ function fieldValidation(variable, value){
         const isRegexPattern = str => { try { new RegExp(str); return true; } catch (error) { return false; } };
         if(!isRegexPattern(value)) return({ok:false, message:`${variable.text} [Error on ${value}, invalid regex pattern]`})
     }
-
     return {ok:true}
 }
 
