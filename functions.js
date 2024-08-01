@@ -333,6 +333,8 @@ function getLatestContractData(final=false){
     return  value?value.toLocaleString('en-US', { minimumFractionDigits: decimalmin, maximumFractionDigits: decimalmax }):''
   }
 
+  
+
 
 
 function p(item){
