@@ -330,6 +330,11 @@ function getLatestContractData(final=false){
   }
 
 
+  function formatNumber(value,decimalmin,decimalmax){
+    return  value?value.toLocaleString('en-US', { minimumFractionDigits: decimalmin, maximumFractionDigits: decimalmax }):''
+  }
+
+
 
 function p(item){
     console.log(item)
