@@ -9,12 +9,12 @@ $('body').prepend(
       <ul class="navbar-nav">
           <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Contract
+                  Data
               </a>
               <div class="dropdown-menu" aria-labelledby="servicesDropdown">
                 <a class="dropdown-item" href="parties.html">Parties</a>
                 <a class="dropdown-item" href="contracts.html">Contracts</a>
-                <a class="dropdown-item" href="dynamics.html">Dynamics</a>
+                <a class="dropdown-item" href="dynamics.html">Period Data</a>
               </div>
           </li>
           <li class="nav-item dropdown">

@@ -117,7 +117,7 @@
   ]
  
  const calculateheader =[
-   {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+   {code:'selected',text:'<input type="checkbox" id="inputselectall">'},
    {code:'period',text:'Period'},
    {code:'contract',text:'Contract'},
    {code:'buyer',text:'Buyer'},
@@ -190,7 +190,6 @@
   }
   initialize()
 
-  var period
   var report_period
 
   function load(){
@@ -230,6 +229,7 @@
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
       x['prevgeneration'] = ''
       var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
+      template = template_default.filter(x=> x.code == template)[0].template
       var templateversion = deepCopy(getLast(billing_templates.filter(y=>y.code == template)[0].versions.filter(y=> y.status=='active')))
       x['template'] = template
       x['version_number'] = templateversion.version_number
@@ -284,9 +284,11 @@
   function calculate(){
     var contractData = deepCopy(getLatestContractData(true))
     var partyData = deepCopy(getLatestPartyData(true))
-    var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
 
     getinputselected().map(selected=>{
+      var period = getPeriod(selected.period)     
+      var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
+
       var inputs = {}
       var contractRowData = contractData.filter(x=> x.contract == selected.contract)[0];
       [...contractRowData.numbers,...contractRowData.texts,...contractRowData.codes].filter(x=>

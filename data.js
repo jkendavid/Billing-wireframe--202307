@@ -271,7 +271,7 @@ contract_update_trans = [
             {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU01'},
         ],
         templates:[
-            {period_start:'2024-01',value:'COALFIRM'},
+            {period_start:'2024-01',value:'TEMPL_DEF_COAL'},
         ],
     },     
     {
@@ -301,7 +301,7 @@ contract_update_trans = [
             {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU02'},
         ],
         templates:[
-            {period_start:'2024-01',value:'COALFIRM'},
+            {period_start:'2024-01',value:'TEMPL_DEF_COAL'},
         ],
     },
     {
@@ -331,7 +331,7 @@ contract_update_trans = [
             {variable:'wesm_buyer_bid',period_start:'2024-01',value:'WESMBIDDU02'},
         ],
         templates:[
-            {period_start:'2024-01',value:'COALFIRM'},
+            {period_start:'2024-01',value:'TEMPL_DEF_COAL'},
         ],
     }
 ]
@@ -584,7 +584,7 @@ var billing_templates =[
 ]
 
 
-var template_default = [{code:'COALFIRM',template:'COALFIRM',default_version:'latest'}]
+var template_default = [{code:'TEMPL_DEF_COAL',template:'COALFIRM',default_version:'latest'}]
 
 
 
