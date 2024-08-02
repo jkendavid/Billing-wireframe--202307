@@ -14,11 +14,11 @@ var window_categories =[
     },
     {
         window:'dynamics',code:'INDEX', text:'Monthly Index', approval:'ONESTEP',
-        filter:'finconst',variables:[{code:'forex',required:'true',active:'true'},{code:'ncrcpi',required:'true',active:'true'},{code:'phpcpi',required:'true',active:'true'},{code:'remarks',required:'false',active:'true'},]
+        filter:'finconst',variables:[{code:'forex',required:'true',active:'true'},{code:'ncrcpi',required:'true',active:'true'},{code:'phpcpi',required:'true',active:'true'},{code:'comment',required:'false',active:'true'},]
     },
     {
         window:'dynamics',code:'PLANT', text:'Monthly Plant Data', approval:'ONESTEP',
-        filter:'plant_sources',variables:[{code:'pmq',required:'true',active:'true'},{code:'coalmt',required:'true',active:'true'},{code:'coalcost',required:'true',active:'true'},{code:'remarks',required:'false',active:'true'},]
+        filter:'plant_sources',variables:[{code:'pmq',required:'true',active:'true'},{code:'coalmt',required:'true',active:'true'},{code:'coalcost',required:'true',active:'true'},{code:'comment',required:'false',active:'true'},]
     },
     {
         window:'dynamics',code:'MBCQ', text:'Monthly BCQ', approval:'ONESTEP',
@@ -216,11 +216,13 @@ var window_fields = [
     {field:'pmq',category:'PLANT',field_locs:'detail' ,instance:'single',required:true},
     {field:'coalmt',category:'PLANT',field_locs:'detail' ,instance:'single',required:true},
     {field:'coalcost',category:'PLANT',field_locs:'detail' ,instance:'single',required:true},
+    {field:'comment',category:'INDEX',field_locs:'row' ,instance:'single',required:true},
     
     {field:'period',category:'MBCQ',field_locs:'key' ,instance:'single',required:true},
     {field:'release',category:'MBCQ',field_locs:'row' ,instance:'single',required:true},
     {field:'contract',category:'MBCQ',field_locs:'detail' ,instance:'single',required:true},
     {field:'bcq',category:'MBCQ',field_locs:'detail' ,instance:'single',required:true},
+    {field:'comment',category:'INDEX',field_locs:'row' ,instance:'single',required:true},
     
     {field:'constype',category:'CONS',field_locs:'key' ,instance:'single',required:true},
     {field:'value',category:'CONS',field_locs:'row' ,instance:'single',required:true},

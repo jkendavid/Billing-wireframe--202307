@@ -292,7 +292,6 @@
       x['update_by'] = status.update_by
       x['update_time'] = status.update_time
     })
-xx=(calculateddata)
     html=[]
     calculateddata.filter(x=> x.status =='calculated').map(rowdata=>{
       html.push(`<tr>`)
@@ -393,6 +392,8 @@ xx=(calculateddata)
       var status = {code:'calculated',update_by:getUser(),update_time:getCurrentTime()}
 
       var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
+      
+      xx = template
       template.item_groups.map(group=>{
         var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
         var valueheaders = getValueHeader(group.type)
