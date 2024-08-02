@@ -60,10 +60,6 @@
   <div id="container" class="container mt-4">
   <div>
     <h2>Billing Calculation</h2>    
-    <div class="form-group row">
-      <label for="newCode" class="col-md-4 col-form-label">Report Period<span class="required">*</span></label>
-      <div class="col-md-8"><input type="month" value="2024-05" class="form-control" val="reportperiod"></div>
-    </div>
 
     <div class="panel panel-default">
       <h5>Filters</h5> 
@@ -93,7 +89,16 @@
       <h5>Calculated</h5> 
       <div class="panel-body">
         <table class="table table-bordered" id="tblCalculate"><thead></thead><tbody></tbody></table>  
-        <button type="button" class="btn btn-primary btnExecute" id="btnGenerate" onclick="release()" disabled>Release</button>
+        
+        <div class="panel panel-default" style="width: 400px;">
+          <div class="row" >
+            <label for="newCode" class="col-md-4 col-form-label">Report Period<span class="required">*</span></label>
+            <div class="col-md-8"><input type="month" value="2024-05" class="form-control" val="reportperiod"></div>
+          </div>
+          <div class="row ml-auto mt-3 ">
+            <button type="button" class="btn btn-primary btnExecute ml-auto mx-5" id="btnGenerate" onclick="release()" disabled>Release</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -238,10 +243,8 @@
   }
   initialize()
 
-  var report_period
 
   function load(){
-    report_period = getPeriod($('input[val="reportperiod"]').val())
     var filterData = []
     $.each( $('#pnlFilter').find('.form-control'),function(i,v){
       filterData.push({field:$(v).attr('val'),data:$(v).val()})
@@ -391,7 +394,6 @@
 
 
       var billingcalculation = {
-        report_period:toPeriod(report_period),
         period:toPeriod(period),
         contract:selected.contract,
         revision_number:0,
@@ -513,7 +515,7 @@
     var period = getPeriod($(tr.find('td[data="period"]')[0]).text())
     var html = []
     
-    var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && getPeriod(x.report_period)==report_period && x.contract==contract && x.revision_number == revision_number)[0] 
+    var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && x.contract==contract && x.revision_number == revision_number)[0] 
     calculation.values.map(group=>{
       var headers = getValueHeader(group.type)
       var ischarge = group.type!='determinant'
@@ -562,6 +564,20 @@
   function clearerror(){
     getinputselected('tblError').map(selected=>{removeCalculation(selected)})  
     load()
+  }
+
+  function release(){    
+    var report_period = getPeriod($('input[val="reportperiod"]').val())
+    getinputselected('tblCalculate').map(selected=>{
+      var calculation = billing_calculations.filter(x => 
+        getPeriod(x.period) == getPeriod(selected.period) &&
+        x.contract == selected.contract &&
+        x.revision_number == selected.revision_number
+      )[0]
+      calculation.report_period = report_period
+      calculation.status.push({code:'released',update_by:getUser(),update_time:getCurrentTime()})
+      load()
+    })  
   }
 
 
