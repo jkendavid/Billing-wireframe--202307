@@ -198,7 +198,7 @@
 
 
   function editTemplateAddNewGroup(ctrl,type){  
-    var group = {type:type,text:'',items:[{}]}
+    var group = {type:type,text:'',items:[]}
     var html= editTemplateNewGroup(group)
     $(ctrl.closest('.form-row')).before(html);  
   }
@@ -244,7 +244,6 @@
     html.push(`<thead><tr>`)
     headers.map(header=>{ 
       var thClass = ''
-      p(header.code)
       switch (header.code){
         case 'variable':
         thClass = 'thVariable'
@@ -271,7 +270,7 @@
     html.push(`<tbody>`)
     group.items.map(item=>{
       html.push(editTemplateNewRow(headers,item,viewonly))
-    })      
+    })   
     html.push(`</tbody>`)
     html.push(`</table>`) 
     if(!viewonly)html.push(`</div>`) 
@@ -280,7 +279,7 @@
 
   function editTemplateAddNewRow(ctrl,headers){  
     var html= editTemplateNewRow(headers)
-    $(ctrl.closest('tbody')).append(html);  
+    $(ctrl.closest('table')).find('tbody').append(html);  
   }
 
   
@@ -309,13 +308,14 @@
     html.push(`<tr>`)
     headers.map(header=>{
       header.value = ''
-      if(data!='') header.value=data[header.code]
-      if(header.code=='variable')      
-      {    
+      if(data!='') header.value=data[header.code]      
+      var valueText = header.value
+      if(header.code=='variable' && viewonly)      
+      {   
         var variable = getVariable(header.value)
-        header.value =`${variable.text} [${header.value}]`
+        valueText =`${variable.text} [${header.value}]`
       }
-      html.push(`<td>${(viewonly?header.value:htmlControl(header,''))??''}</td>`) 
+      html.push(`<td>${(viewonly?valueText:htmlControl(header,''))??''}</td>`) 
     })        
     if(!viewonly){
       html.push(`<th><a href="#" class="mx-2" onclick='editTemplateDeleteRow(this)'>remove</a>`)        

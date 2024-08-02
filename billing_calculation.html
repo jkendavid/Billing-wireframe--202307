@@ -77,15 +77,23 @@
       <h5>New</h5> 
       <div class="panel-body">
         <table class="table table-bordered" id="tblLoad"><thead></thead><tbody></tbody></table>  
-        <button type="button" class="btn btn-primary" id="btnCalculate" onclick="calculate()" disabled>Calculate</button>
+        <button type="button" class="btn btn-primary btnExecute" id="btnCalculate" onclick="calculate()" disabled>Calculate</button>
       </div>
     </div>
     
     <div class="panel panel-default">
+      <h5 style="color: red;">Error</h5> 
+      <div class="panel-body">
+        <table class="table table-bordered" id="tblError"><thead></thead><tbody></tbody></table>  
+        <button type="button" class="btn btn-primary btnExecute" id="btnRemove" onclick="clearerror()" disabled>Clear</button>
+      </div>
+    </div>
+
+    <div class="panel panel-default">
       <h5>Calculated</h5> 
       <div class="panel-body">
         <table class="table table-bordered" id="tblCalculate"><thead></thead><tbody></tbody></table>  
-        <button type="button" class="btn btn-primary" id="btnGenerate" onclick="release()" disabled>Release</button>
+        <button type="button" class="btn btn-primary btnExecute" id="btnGenerate" onclick="release()" disabled>Release</button>
       </div>
     </div>
 
@@ -116,8 +124,8 @@
     {code:'version_number',text:'Template Version'},
   ]
  
- const calculateheader =[
-   {code:'selected',text:'<input type="checkbox" id="inputselectall">'},
+ const errorheader =[
+   {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
    {code:'period',text:'Period'},
    {code:'contract',text:'Contract'},
    {code:'buyer',text:'Buyer'},
@@ -125,20 +133,39 @@
    {code:'revision_number',text:'Rev. No.'},
    {code:'template',text:'Template'},
    {code:'version_number',text:'Template Version'},
+   {code:'status',text:'Status'},
+   {code:'update_by',text:'Update By'},
+   {code:'update_time',text:'Update Time'},
+   {code:'control',text:''},
+ ]
+ 
+ const calculateheader =[
+   {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+   {code:'period',text:'Period'},
+   {code:'contract',text:'Contract'},
+   {code:'buyer',text:'Buyer'},
+   {code:'seller',text:'Seller'},
+   {code:'revision_number',text:'Rev. No.'},
+   {code:'template',text:'Template'},
+   {code:'version_number',text:'Template Version'},
+   {code:'status',text:'Status'},
+   {code:'update_by',text:'Update By'},
+   {code:'update_time',text:'Update Time'},
    {code:'control',text:''},
  ]
 
   function selectAllToggle(ctrl){
     var status = ctrl.checked
-    $('.inputselected').each(function() {
+    
+    $($(ctrl).closest('table').find('.inputselected')).each(function() {
         $(this).prop('checked', status);
     });
-    inputselected_Change()
+    inputselected_Change(ctrl)
   }
 
-  function getinputselected() {
+  function getinputselected(tableid) {
     var selected = [];
-    var trs = $('.inputselected:checked').closest('tr');
+    var trs = $(`#${tableid} .inputselected:checked`).closest('tr');
     trs.each(function() {
         var item = {};
         loadheader.forEach(header => {
@@ -150,8 +177,9 @@
     return selected;
   }
 
-  function inputselected_Change(){    
-    $('#btnCalculate').prop('disabled', getinputselected().length === 0);
+  function inputselected_Change(ctrl){ 
+    var pnl = $($(ctrl).closest('.panel'))
+    pnl.find('.btnExecute').prop('disabled', getinputselected(pnl.find('table').attr('id')).length === 0);
   }
 
   function initialize(){
@@ -179,6 +207,14 @@
     html.push('</tr>')
     $('#tblLoad thead').html(html.join(''))
 
+
+    html=[]
+    html.push('<tr>')
+    errorheader.map(header=>{
+      html.push(`<th>${header.text}</th>`)
+    })
+    html.push('</tr>')
+    $('#tblError thead').html(html.join(''))
 
     html=[]
     html.push('<tr>')
@@ -221,12 +257,10 @@
     var periods = getPeriodBetWeen(period_from,period_to)
     loadData = crossJoin(periods.map(x=>{return{period:toPeriod(x)}}),loadData)
     var calculateddata = deepCopy(billing_calculations).filter(x=>(getPeriod(x.period)>=period_from)&&(getPeriod(x.period)<=period_to))
-    loadData =  loadData.filter(
-      x=> calculateddata.filter(y=>(x.contract==y.contract)&&(x.period==y.period)).length==0
-    )
+    loadData =  loadData.filter(x=> calculateddata.filter(y=>(x.contract==y.contract)&&(x.period==y.period)).length==0)
 
     loadData.map(x=>{
-      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
+      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
       x['prevgeneration'] = ''
       var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
       template = template_default.filter(x=> x.code == template)[0].template
@@ -248,18 +282,21 @@
 
 
     calculateddata.map(x=>{
-      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
+      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
       x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a><a href="#" class="mx-2" onclick="removeCalculated(this)">Remove</a>'
       var contract = contracts.filter(c=> c.code == x['contract'])[0]
-      xx = x
       x['buyer']=contract['buyer']
       x['seller']=contract['seller']
+      var status =  getLast(x.status)
+      x['status'] = status.code
+      x['update_by'] = status.update_by
+      x['update_time'] = status.update_time
     })
-
+xx=(calculateddata)
     html=[]
-    calculateddata.map(rowdata=>{
+    calculateddata.filter(x=> x.status =='calculated').map(rowdata=>{
       html.push(`<tr>`)
-      calculateheader.map(header=>{
+      errorheader.map(header=>{
         html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
       })
       html.push(`</tr>`)
@@ -267,6 +304,15 @@
     $('#tblCalculate tbody').html(html.join(''))
 
 
+    html=[]
+    calculateddata.filter(x=> x.status =='error').map(rowdata=>{
+      html.push(`<tr>`)
+      calculateheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblError tbody').html(html.join(''))
 
   }
 
@@ -285,7 +331,7 @@
     var contractData = deepCopy(getLatestContractData(true))
     var partyData = deepCopy(getLatestPartyData(true))
 
-    getinputselected().map(selected=>{
+    getinputselected('tblLoad').map(selected=>{
       var period = getPeriod(selected.period)     
       var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
 
@@ -344,6 +390,8 @@
         values:[]
       }
 
+      var status = {code:'calculated',update_by:getUser(),update_time:getCurrentTime()}
+
       var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
       template.item_groups.map(group=>{
         var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
@@ -368,6 +416,7 @@
             try {
               calculatedvalue = eval(executionstring)
             } catch (error) {
+              status.code ='error'
             }
             itemvalue[header.code]= calculatedvalue
             inputs[itemvalue.variable + (header.noref?'':('.'+header.code))]=calculatedvalue
@@ -377,7 +426,7 @@
         })
         billingcalculation.values.push(value)
       })
-      billingcalculation.status.push({code:'generated',update_by:getUser(),update_time:getCurrentTime()})
+      billingcalculation.status.push(status)
       billing_calculations.push(billingcalculation)
       load()
     })
@@ -479,6 +528,8 @@
     var tr = $(ctrl).closest('tr')
     var contract = $(tr.find('td[data="contract"]')[0]).text()
     var revision_number = $(tr.find('td[data="revision_number"]')[0]).text()
+    var period = getPeriod($(tr.find('td[data="period"]')[0]).text())
+    p(period)
     var filteredItems = billing_calculations.filter(x => 
       getPeriod(x.period) == period &&
       getPeriod(x.report_period) == report_period &&
@@ -495,6 +546,10 @@
     load()
   }
 
+
+  function clearerror(){
+
+  }
 
 
 </script>
