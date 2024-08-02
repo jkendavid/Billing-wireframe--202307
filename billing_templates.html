@@ -10,6 +10,18 @@
     .form-group.row{
       max-width: 800px;
     }
+    .thVariable{
+      min-width: 200px;
+      width: 250px;
+    }
+    .thFormula{
+      min-width: 250px;
+      width: 250px;
+    }
+    .thOthers{
+      min-width: 80px;
+      width: 80px;
+    }
   </style>
 </head>
 <body>  
@@ -109,6 +121,7 @@
         headers.push(
           {code:'variable',text:'Variable',type:'domain', options:deepCopy(variables).filter(x=> x.category == 'determinants').map(x=> { return {value:x.code,text:x.text}}),required:true},
           {code:'determinant_formula',text:'Determinant Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+          {code:'comment',text:'Comment',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`}
         )
         break;
       case 'amount':
@@ -129,8 +142,7 @@
     }  
     
     headers.push(
-      {code:'null_handling_rules',text:'Null Handling Rule',type:'domain',options:getOptionDomain('billing_null_handling_rules'),required:true},
-      {code:'comment',text:'Comment',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`}
+      {code:'null_handling_rules',text:'Null Rule',type:'domain',options:getOptionDomain('billing_null_handling_rules'),required:true},
     )
     return headers
   }
@@ -230,8 +242,24 @@
 
     html.push('<table class="table table-sm table-condensed table-bordered">')
     html.push(`<thead><tr>`)
-    headers.map(header=>{
-      html.push(`<th>${header.text}</th>`)        
+    headers.map(header=>{ 
+      var thClass = ''
+      p(header.code)
+      switch (header.code){
+        case 'variable':
+        thClass = 'thVariable'
+        break;
+        case 'determinant_formula':
+        case 'base_formula':
+        case 'price_formula':
+        case 'amount_formula':
+        case 'comment':
+        thClass = 'thFormula'
+        break;
+        default:
+        thClass = 'thOthers'
+      }     
+      html.push(`<th class="${thClass}">${header.text}</th>`)        
     })       
     if(!viewonly){  
       html.push(`<th>`) 
@@ -281,9 +309,13 @@
     html.push(`<tr>`)
     headers.map(header=>{
       header.value = ''
-      if(data!='') header.value = data[header.code]
-      
-      html.push(`<td>${viewonly?header.value:htmlControl(header,'')}</td>`) 
+      if(data!='') header.value=data[header.code]
+      if(header.code=='variable')      
+      {    
+        var variable = getVariable(header.value)
+        header.value =`${variable.text} [${header.value}]`
+      }
+      html.push(`<td>${(viewonly?header.value:htmlControl(header,''))??''}</td>`) 
     })        
     if(!viewonly){
       html.push(`<th><a href="#" class="mx-2" onclick='editTemplateDeleteRow(this)'>remove</a>`)        
