@@ -393,20 +393,24 @@
       html.push('<table class="table table-sm table-condensed table-bordered">')
       html.push(`<tr><th></th><th>Old</th><th>New</th></tr>`)
 
-      var newVals = {}      
+      var newVals = {}    
       mainFields.map(field=>{
         newVals[field]= tran[field]
       });
-      [...tran.numbers,...tran.texts,...tran.codes,...tran.filters,...tran.templates].map(item=>{
+      [...tran.numbers,...tran.texts,...tran.codes,...tran.filters].map(item=>{
         var newVal = `${item.value} [${item.period_start}]`
         newVals[item.variable]=newVals[item.variable]?newVals[item.variable] +'; '+newVal:newVal
-      })
+      }) 
+      tran.templates.map(item=>{
+        var newVal = `${item.value} [${item.period_start}]`
+        newVals['__Template']=newVals[item.variable]?newVals[item.variable] +'; '+newVal:newVal
+      }) 
 
       Object.keys(newVals).forEach(field => {
         var prevVal = prevVals[field]??''
         var newVal = newVals[field]
         if(prevVal!=newVal&&newstat){
-          html.push(`<tr><td>${getVariable(field).text}</td><td>${prevVal}</td><td>${newVal}</td></tr>`)
+          html.push(`<tr><td>${field=='__Template'?'Template':getVariable(field).text??field}</td><td>${prevVal}</td><td>${newVal}</td></tr>`)
           if(newstat=='approved')prevVals[field]=newVal
         }
       });
