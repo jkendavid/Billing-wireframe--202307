@@ -108,6 +108,7 @@
  
   const loadheader =[
     {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+    {code:'period',text:'Period'},
     {code:'contract',text:'Contract'},
     {code:'buyer',text:'Buyer'},
     {code:'seller',text:'Seller'},
@@ -117,6 +118,7 @@
  
  const calculateheader =[
    {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+   {code:'period',text:'Period'},
    {code:'contract',text:'Contract'},
    {code:'buyer',text:'Buyer'},
    {code:'seller',text:'Seller'},
@@ -155,7 +157,12 @@
   function initialize(){
     //filters
     var pnlFilterFields = [
-      {row:true,selector:'form',code:'period',text:'Period',type:'period',value:'2024-05'},
+      {row:true,selector:'form',code:'period_from',text:'Period From',type:'period',value:'2024-05',required:true},
+      {row:true,selector:'form',code:'period_to',text:'Period To',type:'period',value:'2024-06',required:true},
+      {row:true,selector:'form',code:'contract',text:'Contract',type:'domain'},
+      {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain'},
+      {row:true,selector:'form',code:'seller',text:'Seller',type:'domain'},
+      {row:true,selector:'form',code:'template',text:'Template',type:'domain'},
     ]
     var html = []
     pnlFilterFields.map(field=>{
@@ -193,27 +200,37 @@
       filterData.push({field:$(v).attr('val'),data:$(v).val()})
     })   
 
-    var calculateddata = deepCopy(billing_calculations).filter(x=> getPeriod(x.report_period) == report_period)
+    var period_from
+    var period_to
 
-    var loadData = deepCopy(getLatestContractData(true)).filter(
-      x=> calculateddata.filter(y=> x.contract==y.contract).length==0
-    )
-
-
+    var loadData = deepCopy(getLatestContractData(true))
     filterData.map(filter=>{
       switch (filter.field) {
-        case 'period':   
-          period = getPeriod(filter.data)
-          loadData = loadData.filter(x=>(getPeriod(x.period_from)<=period)&&(getPeriod(x.period_to)>=period))
+        case 'period_from':   
+          period_from = getPeriod(filter.data)
+          loadData = loadData.filter(x=>getPeriod(x.period_to)>=period_from)
+          break;
+        case 'period_to':   
+          period_to = getPeriod(filter.data)
+          loadData = loadData.filter(x=>getPeriod(x.period_from)<=period_to)
           break;
         default:
       }
-    })
+    })   
+
+
+    var periods = getPeriodBetWeen(period_from,period_to)
+    loadData = crossJoin(periods.map(x=>{return{period:toPeriod(x)}}),loadData)
+    var calculateddata = deepCopy(billing_calculations).filter(x=>(getPeriod(x.period)>=period_from)&&(getPeriod(x.period)<=period_to))
+    loadData =  loadData.filter(
+      x=> calculateddata.filter(y=>(x.contract==y.contract)&&(x.period==y.period)).length==0
+    )
+
     loadData.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change()">'
       x['prevgeneration'] = ''
-      var template = getLast(x.templates.filter(x=> getPeriod(x.period_start)<period)).value
-      var templateversion = deepCopy(getLast(billing_templates.filter(x=>x.code == template)[0].versions.filter(x=> x.status=='active')))
+      var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
+      var templateversion = deepCopy(getLast(billing_templates.filter(y=>y.code == template)[0].versions.filter(y=> y.status=='active')))
       x['template'] = template
       x['version_number'] = templateversion.version_number
     })
@@ -311,6 +328,8 @@
         } 
       });
 
+      var period = getPeriod(selected.period)
+
 
       var billingcalculation = {
         report_period:toPeriod(report_period),
@@ -361,7 +380,6 @@
       load()
     })
   }
-
 
   function getValueHeader(type){
     switch (type) {
@@ -428,6 +446,7 @@
     var tr = $(ctrl).closest('tr')
     var contract = $(tr.find('td[data="contract"]')[0]).text()
     var revision_number = $(tr.find('td[data="revision_number"]')[0]).text()
+    var period = getPeriod($(tr.find('td[data="period"]')[0]).text())
     var html = []
     
     var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && getPeriod(x.report_period)==report_period && x.contract==contract && x.revision_number == revision_number)[0] 

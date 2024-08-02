@@ -334,6 +334,27 @@ function getLatestContractData(final=false){
   }
 
 
+  function getPeriodBetWeen(periodFrom, periodTo){
+    var periods = []
+    var period=periodFrom
+    do {
+        periods.push(period)
+        period += (period.toString().slice(-2)=='12')?89:1
+    } while (period <= periodTo);
+    return periods
+  }
+
+  function crossJoin(objs1, objs2) {
+    const result = [];
+    for (let obj1 of objs1) {
+      for (let obj2 of objs2) {
+        result.push({ ...obj1,...obj2});
+      }
+    }    
+    return result;
+  }
+
+
 
 function p(item){
     console.log(item)
