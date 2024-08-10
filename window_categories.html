@@ -219,7 +219,10 @@
     refreshTableWindows()
   }
 
-  refreshTableWindows()
+  (async function() {
+    const dataLoaded = await resDbLoad();
+    refreshTableWindows()
+  })();
  
 </script>
 

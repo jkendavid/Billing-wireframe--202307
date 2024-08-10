@@ -130,8 +130,12 @@
     modal.modal('hide')
     refreshTableRegexs()
   }
-  refreshTableRegexs()
  
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableRegexs()
+  })();
 </script>
 
 

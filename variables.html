@@ -274,8 +274,11 @@
     modal.modal('hide')
     refreshTableVariables()
   }
-  refreshTableVariables()
  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableVariables()
+  })();
 </script>
 
 

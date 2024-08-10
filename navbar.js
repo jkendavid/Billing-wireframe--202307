@@ -44,7 +44,15 @@ $('body').prepend(
         </li>
           
       </ul>
-      <ul class="navbar-nav ml-auto">         
+
+      <ul class="navbar-nav ml-auto mr-5">         
+          <li class="nav-item">              
+            <button type="button" class="btn btn-primary" id="resdbCommitBtn" onclick="resDbCommit()">Commit
+                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none;"></span>
+            </button>
+          </li>
+      </ul>
+      <ul class="navbar-nav">         
           <li class="nav-item">
               <select class="form-control" id="user" required onchange="handleUserChange()">
                 <option value="MKTG">MKTG</option>
@@ -338,3 +346,5 @@ function cellFinanceAccountRef(ref){
     }
     return `<a href="#" title="${title}">${ref}</a>`
 }
+
+

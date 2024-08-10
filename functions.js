@@ -364,3 +364,97 @@ var x1
 var x2
 var x3
 var x4
+
+
+
+
+
+const resDbUrl = 'https://samplebilling-a335.restdb.io/rest/wireframe/66b4ec34eb728d7b000069c2'
+const resDbApiKey = '66b4de10b8678aea9d284a9f'
+
+
+function resDbCommit(){
+
+    $('#resdbCommitBtn').attr('disabled', true);
+    $('#spinner').show();
+    var jsondata = {"jasondata": {
+        window_categories,
+        approval_rules,
+        approval_steps,
+        regex_validations,
+        variables,
+        variable_domain_codes,
+        rounding_rules,
+        tax_rules,
+        window_fields,
+        parties,
+        contracts,
+        contract_update_trans,
+        party_update_trans,
+        dynamic_update_trans,
+        billing_null_handling_rules,
+        billing_templates,
+        template_default,
+        billing_calculations
+    }};
+
+    fetch(resDbUrl, {
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json',
+        'x-apikey': resDbApiKey,
+        'Cache-Control': 'no-cache'
+    },
+    body: JSON.stringify(jsondata) // Use body to send data
+    })
+    .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+    })
+    .then(data => {
+    console.log('Data Committed');
+    })
+    .catch(error => {
+    console.error('Error:', error); // Log any errors
+    })
+    .finally(() => {
+      $('#resdbCommitBtn').attr('disabled', false);
+      $('#spinner').hide();
+    });
+}
+
+
+async function resDbLoad() {
+    return true
+    try {
+      const response = await fetch(resDbUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-apikey': resDbApiKey,
+          'Cache-Control': 'no-cache'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      const obj = data.jasondata;
+  
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          eval(`${key} = obj[key];`);
+        }
+      }
+  
+      console.log('Data has been loaded and processed.');
+      return true;
+    } catch (error) {
+      console.error('Error:', error);
+      return false; 
+    }
+}

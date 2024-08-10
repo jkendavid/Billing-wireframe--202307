@@ -133,7 +133,11 @@
     modal.modal('hide')
     refreshTableRoundings()
   }
-  refreshTableRoundings()
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableRoundings()
+  })();
  
 </script>
 

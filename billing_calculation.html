@@ -241,7 +241,8 @@
     html.push('</tr>')
     $('#tblCalculate thead').html(html.join(''))
   }
-  initialize()
+ 
+  
 
 
   function load(){
@@ -580,6 +581,10 @@
     })  
   }
 
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    initialize()
+  })();
 
 </script>
 

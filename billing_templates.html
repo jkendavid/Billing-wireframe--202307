@@ -406,7 +406,11 @@
     }
     refreshTemplateTable()
   }
-  refreshTemplateTable();
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTemplateTable();
+  })();
 </script>
 
 

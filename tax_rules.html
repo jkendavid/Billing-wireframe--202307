@@ -198,7 +198,10 @@
     modal.modal('hide')
     refreshTableTaxs()
   }
-  refreshTableTaxs()
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableTaxs()
+  })();
  
 </script>
 

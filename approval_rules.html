@@ -195,7 +195,11 @@
     modal.modal('hide')
     refreshTableApprovals()
   }
-  refreshTableApprovals()
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableApprovals()
+  })();
  
 </script>
 

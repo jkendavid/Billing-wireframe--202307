@@ -436,7 +436,12 @@
     modal = modalShow(`Change History [${item.code}]`,html.join(''))
   }
 
-  refreshContractTable()
+  
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshContractTable()
+  })();
  
 </script>
 

@@ -390,8 +390,12 @@
     modal = modalShow(`Change History [${item.code}]`,html.join(''))
   }
 
-  refreshDynamicTable()
  
+  
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshDynamicTable()
+  })();
 </script>
 
 </body>

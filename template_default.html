@@ -125,7 +125,10 @@
     modal.modal('hide')
     refreshTableTemplateDefault()
   }
-  refreshTableTemplateDefault()
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshTableTemplateDefault()
+  })();
  
 </script>
 
