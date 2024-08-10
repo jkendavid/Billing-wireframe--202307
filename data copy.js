@@ -591,14 +591,13 @@ var template_default = [{code:'TEMPL_DEF_COAL',template:'COALFIRM',default_versi
 
 
 var billing_calculations = [{
-    report_period:'2024-05',
+    report_period:'',
     period:'2024-05',
     contract:'PSA-GEN01-00002',
     revision_number:0,
     template:'COALFIRM',
     version_number:0,
     status:[{code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'}],
-    status:[{code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'THREESTEPFIRST'}],
     values:[
         {index:1,type:'determinant',text:'Indices',internal:'false',items:[
             {index:1,variable:'forexb',base:55,comment:''},
@@ -635,18 +634,6 @@ var billing_calculations = [{
     ],
     },
 ]
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

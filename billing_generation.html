@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
-  <title>Billing Calculation</title>
+  <title>Billing Generation</title>
   <style>   
     .form-group.row{
       max-width: 800px;
@@ -59,7 +59,7 @@
 <body>  
   <div id="container" class="container mt-4">
   <div>
-    <h2>Billing Calculation</h2>    
+    <h2>Billing Generation</h2>    
 
     <div class="panel panel-default">
       <h5>Filters</h5> 
@@ -72,45 +72,47 @@
     <div class="container mt-4">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
-          <a class="nav-link active" id="new-tab" data-toggle="tab" href="#new" role="tab" aria-controls="new" aria-selected="true">New</a>
+          <a class="nav-link active" id="forapproval-tab" data-toggle="tab" href="#forapproval" role="tab" aria-controls="forapproval" aria-selected="true">For-Approval</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="error-tab" data-toggle="tab" href="#error" role="tab" aria-controls="error" aria-selected="false">Error</a>
+          <a class="nav-link" id="rejected-tab" data-toggle="tab" href="#rejected" role="tab" aria-controls="rejected" aria-selected="false">Rejected</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="calculated-tab" data-toggle="tab" href="#calculated" role="tab" aria-controls="calculated" aria-selected="false">Calculated</a>
+          <a class="nav-link" id="approved-tab" data-toggle="tab" href="#approved" role="tab" aria-controls="approved" aria-selected="false">Approved</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="released-tab" data-toggle="tab" href="#released" role="tab" aria-controls="released" aria-selected="false">Released</a>
         </li>
       </ul>
   
       <div class="tab-content mt-3" id="myTabContent">
-        <div class="tab-pane fade show active" id="new" role="tabpanel" aria-labelledby="new-tab">
-          <table class="table table-bordered" id="tblLoad">
+        <div class="tab-pane fade show active" id="forapproval" role="tabpanel" aria-labelledby="forapproval-tab">
+          <table class="table table-bordered" id="tblforapproval">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnCalculate" onclick="calculate()" disabled>Calculate</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="approve()" disabled>Approve</button>
         </div>
-        <div class="tab-pane fade" id="error" role="tabpanel" aria-labelledby="error-tab">
-          <table class="table table-bordered" id="tblError">
+        <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+          <table class="table table-bordered" id="tblrejected">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnRemove" onclick="clearerror()" disabled>Clear</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="release()" disabled>Cancel</button>
         </div>
-        <div class="tab-pane fade" id="calculated" role="tabpanel" aria-labelledby="calculated-tab">
-          <table class="table table-bordered" id="tblCalculate">
+        <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
+          <table class="table table-bordered" id="tblapproved">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <div class="row mt-3" style="width: 400px;">
-            <label for="newCode" class="col-md-4 col-form-label">Report Period<span class="required">*</span></label>
-            <div class="col-md-8">
-              <input type="month" value="2024-05" class="form-control" val="reportperiod">
-            </div>
-          </div>
-          <div class="row mt-3">
-            <button type="button" class="btn btn-primary btnExecute ml-auto" id="btnGenerate" onclick="release()" disabled>Release</button>
-          </div>
+          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="release()" disabled>Released</button>
+        </div>
+        <div class="tab-pane fade" id="released" role="tabpanel" aria-labelledby="released-tab">
+          <table class="table table-bordered" id="tblreleased">
+            <thead></thead>
+            <tbody></tbody>
+          </table>   
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="approve()" disabled>Cancel</button>
         </div>
       </div>
     </div>
@@ -138,39 +140,15 @@
     {code:'contract',text:'Contract'},
     {code:'buyer',text:'Buyer'},
     {code:'seller',text:'Seller'},
-    {code:'template',text:'Template'},
-    {code:'version_number',text:'Template Version'},
-  ]
- 
-  const errorheader =[
-    {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
-    {code:'period',text:'Period'},
-    {code:'contract',text:'Contract'},
-    {code:'buyer',text:'Buyer'},
-    {code:'seller',text:'Seller'},
     {code:'revision_number',text:'Rev. No.'},
     {code:'template',text:'Template'},
-    {code:'version_number',text:'Template Version'},
     {code:'status',text:'Status'},
+    {code:'sub_status',text:'Sub Status'},
     {code:'update_by',text:'Update By'},
     {code:'update_time',text:'Update Time'},
     {code:'control',text:''},
   ]
-  
-  const calculateheader =[
-   {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
-   {code:'period',text:'Period'},
-   {code:'contract',text:'Contract'},
-   {code:'buyer',text:'Buyer'},
-   {code:'seller',text:'Seller'},
-   {code:'revision_number',text:'Rev. No.'},
-   {code:'template',text:'Template'},
-   {code:'version_number',text:'Template Version'},
-   {code:'status',text:'Status'},
-   {code:'update_by',text:'Update By'},
-   {code:'update_time',text:'Update Time'},
-   {code:'control',text:''},
- ]
+
 
   function selectAllToggle(ctrl){
     var status = ctrl.checked
@@ -187,18 +165,7 @@
     trs.each(function() {
         var item = {};
         var headers = []
-        switch(tableid){
-          case'tblLoad':
-            headers= loadheader
-            break
-          case'tblError':
-            headers= errorheader
-            break
-          case'tblCalculate':
-            headers= calculateheader
-            break
-        }
-        headers.forEach(header => {
+        loadheader.forEach(header => {
             var td = $(this).find(`td[data="${header.code}"]`)[0];
             item[header.code] = td ? $(td).text() : ''; 
         });
@@ -215,8 +182,7 @@
   function initialize(){
     //filters
     var pnlFilterFields = [
-      {row:true,selector:'form',code:'period_from',text:'Period From',type:'period',value:'2024-05',required:true},
-      {row:true,selector:'form',code:'period_to',text:'Period To',type:'period',value:'2024-06',required:true},
+      {row:true,selector:'form',code:'report_period',text:'Report Period',type:'period',value:'2024-05',required:true},
       {row:true,selector:'form',code:'contract',text:'Contract',type:'domain'},
       {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain'},
       {row:true,selector:'form',code:'seller',text:'Seller',type:'domain'},
@@ -235,24 +201,10 @@
       html.push(`<th>${header.text}</th>`)
     })
     html.push('</tr>')
-    $('#tblLoad thead').html(html.join(''))
-
-
-    html=[]
-    html.push('<tr>')
-    errorheader.map(header=>{
-      html.push(`<th>${header.text}</th>`)
-    })
-    html.push('</tr>')
-    $('#tblError thead').html(html.join(''))
-
-    html=[]
-    html.push('<tr>')
-    calculateheader.map(header=>{
-      html.push(`<th>${header.text}</th>`)
-    })
-    html.push('</tr>')
-    $('#tblCalculate thead').html(html.join(''))
+    $('#tblforapproval thead').html(html.join(''))
+    $('#tblrejected thead').html(html.join(''))
+    $('#tblapproved thead').html(html.join(''))
+    $('#tblreleased thead').html(html.join(''))
   }
 
   function load(){
@@ -261,54 +213,20 @@
       filterData.push({field:$(v).attr('val'),data:$(v).val()})
     })   
 
-    var period_from
-    var period_to
-
-    var loadData = deepCopy(getLatestContractData(true))
+    var reportperiod
+    var loadData = deepCopy(billing_calculations).filter(x=>x.report_period)
+   
     filterData.map(filter=>{
       switch (filter.field) {
-        case 'period_from':   
-          period_from = getPeriod(filter.data)
-          loadData = loadData.filter(x=>getPeriod(x.period_to)>=period_from)
-          break;
-        case 'period_to':   
-          period_to = getPeriod(filter.data)
-          loadData = loadData.filter(x=>getPeriod(x.period_from)<=period_to)
+        case 'repor_period':   
+          reportperiod = getPeriod(filter.data)
+          loadData = loadData.filter(x=>getPeriod(x.report_period)==reportperiod)
           break;
         default:
       }
     })   
 
-
-    var periods = getPeriodBetWeen(period_from,period_to)
-    loadData = crossJoin(periods.map(x=>{return{period:toPeriod(x)}}),loadData)
-    var calculateddata = deepCopy(billing_calculations).filter(x=>(getPeriod(x.period)>=period_from)&&(getPeriod(x.period)<=period_to))
-    loadData =  loadData.filter(x=> calculateddata.filter(y=>(x.contract==y.contract)&&(x.period==y.period)).length==0)
-
     loadData.map(x=>{
-      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
-      x['prevgeneration'] = ''
-      var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
-      template = template_default.filter(x=> x.code == template)[0].template
-      var templateversion = deepCopy(getLast(billing_templates.filter(y=>y.code == template)[0].versions.filter(y=> y.status=='active')))
-      x['template'] = template
-      x['version_number'] = templateversion.version_number
-    })
-
-    
-    var html=[]
-    loadData.map(rowdata=>{
-      html.push(`<tr>`)
-      loadheader.map(header=>{
-        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
-      })
-      html.push(`</tr>`)
-    })
-    $('#tblLoad tbody').html(html.join(''))
-    $('#new-tab').html(`New [${loadData.length}]`)
-
-
-    calculateddata.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
       x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a><a href="#" class="mx-2" onclick="removeCalculated(this)">Remove</a>'
       var contract = contracts.filter(c=> c.code == x['contract'])[0]
@@ -318,33 +236,62 @@
       x['status'] = status.code
       x['update_by'] = status.update_by
       x['update_time'] = status.update_time
+      x['template'] = `${x['template']} v.${x['version_number']}`
+      x['sub_status']=status.sub_status?approval_steps.filter(x=>x.code==status.sub_status)[0].text:''
     })
-    html=[]
-    var okdata = calculateddata.filter(x=> x.status =='calculated')
-    okdata.map(rowdata=>{
+
+    var forapprovaldata = loadData.filter(x=>x.status =='for-approval')
+    var html=[]
+    forapprovaldata.map(rowdata=>{
       html.push(`<tr>`)
-      errorheader.map(header=>{
+      loadheader.map(header=>{
         html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
       })
       html.push(`</tr>`)
     })
-    $('#tblCalculate tbody').html(html.join(''))
-    $('#calculated-tab').html(`Calculated [${okdata.length}]`)
+    $('#tblforapproval tbody').html(html.join(''))
+    $('#forapproval-tab').html(`For-Approval [${forapprovaldata.length}]`)
 
-
-    html=[]
-    var errorData = calculateddata.filter(x=> x.status =='error')
-    errorData.map(rowdata=>{
+    var rejecteddata = loadData.filter(x=>x.status =='rejected')
+    var html=[]
+    rejecteddata.map(rowdata=>{
       html.push(`<tr>`)
-      calculateheader.map(header=>{
+      loadheader.map(header=>{
         html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
       })
       html.push(`</tr>`)
     })
-    $('#tblError tbody').html(html.join(''))
-    $('#error-tab').html(`Error [${errorData.length}]`)
+    $('#tblrejected tbody').html(html.join(''))
+    $('#rejected-tab').html(`Rejected [${rejecteddata.length}]`)
+
+    var approveddata = loadData.filter(x=>x.status =='approved')
+    var html=[]
+    approveddata.map(rowdata=>{
+      html.push(`<tr>`)
+      loadheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblapproved tbody').html(html.join(''))
+    $('#approved-tab').html(`Approved [${approveddata.length}]`)
+
+    var releaseddata = loadData.filter(x=>x.status =='released')
+    var html=[]
+    releaseddata.map(rowdata=>{
+      html.push(`<tr>`)
+      loadheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblreleased tbody').html(html.join(''))
+    $('#released-tab').html(`Released [${releaseddata.length}]`)
+
+
 
   }
+
 
   const headers = [
     {selector:'form',code:'contract',text:'Contract',readonly:false,required:true,type:'text'},
@@ -458,6 +405,7 @@
     })
   }
 
+
   function removeCalculated(ctrl){ 
     var tr = $($(ctrl).closest('tr'))
     getinputselected('tblError',tr).map(selected=>{removeCalculation(selected)})   
@@ -484,28 +432,58 @@
     load()
   }
 
-  function release(ctrl=''){    
-    var report_period = getPeriod($('input[val="reportperiod"]').val())
+  function approve(ctrl=''){       
     var remarks = showPromptRemarks(false);
     if(remarks.ok){
-      if(!ctrl)selections=getinputselected('tblCalculate')
+      if(!ctrl)selections=getinputselected('tblforapproval')
         selections.map(selected=>{
         var calculation = billing_calculations.filter(x => 
           getPeriod(x.period) == getPeriod(selected.period) &&
           x.contract == selected.contract &&
           x.revision_number == selected.revision_number
         )[0]
-        calculation.report_period = report_period
         var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
         var step = $(calculation.status).last().get(0).sub_status
         var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
-        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && (x.code == step||!step))[0].index
+        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
         var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
         calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
         load()
       }) 
     }  
   }
+
+
+  function release(ctrl=''){   
+    if(!ctrl)selections=getinputselected('tblforapproval')
+    selections.map(selected=>{
+      var calculation = billing_calculations.filter(x => 
+        getPeriod(x.period) == getPeriod(selected.period) &&
+        x.contract == selected.contract &&
+        x.revision_number == selected.revision_number
+      )[0]
+      calculation.status.push({code:'released',update_by:getUser(),update_time:getCurrentTime()})
+      load()
+    })  
+  }
+
+function reject(ctrl=''){   
+  if(!ctrl)selections=getinputselected('tblforapproval')
+  selections.map(selected=>{
+    var calculation = billing_calculations.filter(x => 
+      getPeriod(x.period) == getPeriod(selected.period) &&
+      x.contract == selected.contract &&
+      x.revision_number == selected.revision_number
+    )[0]
+    var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
+    var step = $(calculation.status).last().get(0).sub_status
+    var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
+    var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
+    var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
+    calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
+    load()
+  })  
+}
 
   (async function() {
     const dataLoaded = await resDbLoad(); 
