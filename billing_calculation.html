@@ -265,7 +265,7 @@
     var period_to
 
     var loadData = deepCopy(getLatestContractData(true))
-    filterData.map(filter=>{
+    filterData.filter(x=> x.data).map(filter=>{
       switch (filter.field) {
         case 'period_from':   
           period_from = getPeriod(filter.data)
@@ -499,8 +499,8 @@
         var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
         var step = $(calculation.status).last().get(0).sub_status
         var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
-        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && (x.code == step||!step))[0].index
-        var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
+        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
+        var newStep = approval_steps.filter(x=> x.rule==approvalrule && (x.index >stepindex||!step))[0]
         calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
         load()
       }) 

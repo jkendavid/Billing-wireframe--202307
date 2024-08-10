@@ -83,6 +83,9 @@
         <li class="nav-item">
           <a class="nav-link" id="released-tab" data-toggle="tab" href="#released" role="tab" aria-controls="released" aria-selected="false">Released</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" id="canceled-tab" data-toggle="tab" href="#canceled" role="tab" aria-controls="canceled" aria-selected="false">Canceled</a>
+        </li>
       </ul>
   
       <div class="tab-content mt-3" id="myTabContent">
@@ -91,28 +94,37 @@
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="approve()" disabled>Approve</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="submit('approved',this)" disabled>Approve</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="submit('rejected',this)" disabled>Reject</button>
         </div>
         <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
           <table class="table table-bordered" id="tblrejected">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="release()" disabled>Cancel</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="submit('canceled',this)" disabled>Cancel</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="submit('resubmit',this)" disabled>Re-submit</button>
         </div>
         <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
           <table class="table table-bordered" id="tblapproved">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="release()" disabled>Released</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="submit('released',this)" disabled>Released</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnrelease" onclick="submit('canceled',this)" disabled>Cancel</button>
         </div>
         <div class="tab-pane fade" id="released" role="tabpanel" aria-labelledby="released-tab">
           <table class="table table-bordered" id="tblreleased">
             <thead></thead>
             <tbody></tbody>
           </table>   
-          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="approve()" disabled>Cancel</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnapprove" onclick="submit('canceled',this)" disabled>Cancel</button>
+        </div>
+        <div class="tab-pane fade" id="canceled" role="tabpanel" aria-labelledby="canceled-tab">
+          <table class="table table-bordered" id="tblcanceled">
+            <thead></thead>
+            <tbody></tbody>
+          </table>   
         </div>
       </div>
     </div>
@@ -136,6 +148,7 @@
  
   const loadheader =[
     {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+    {code:'report_period',text:'Report Period'},
     {code:'period',text:'Period'},
     {code:'contract',text:'Contract'},
     {code:'buyer',text:'Buyer'},
@@ -159,9 +172,9 @@
     inputselected_Change(ctrl)
   }
 
-  function getinputselected(tableid,trs=null) {
+  function getinputselected(ctrl) {
     var selected = [];
-    if(trs==null)trs = $(`#${tableid} .inputselected:checked`).closest('tr');
+    trs=$($(ctrl).hasClass('btnExecute')?$(ctrl).parent().find('.inputselected:checked'):ctrl).closest('tr');
     trs.each(function() {
         var item = {};
         var headers = []
@@ -176,13 +189,15 @@
 
   function inputselected_Change(ctrl){ 
     var pnl = $($(ctrl).closest('.tab-pane'))
-    pnl.find('.btnExecute').prop('disabled', getinputselected(pnl.find('table').attr('id')).length === 0);
+    pnl.find('.btnExecute').prop('disabled', getinputselected(pnl.find('.btnExecute')).length === 0);
   }
 
   function initialize(){
     //filters
     var pnlFilterFields = [
-      {row:true,selector:'form',code:'report_period',text:'Report Period',type:'period',value:'2024-05',required:true},
+      {row:true,selector:'form',code:'report_period',text:'Report Period',type:'period'},
+      {row:true,selector:'form',code:'period_from',text:'Period From',type:'period'},
+      {row:true,selector:'form',code:'period_to',text:'Period To',type:'period'},
       {row:true,selector:'form',code:'contract',text:'Contract',type:'domain'},
       {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain'},
       {row:true,selector:'form',code:'seller',text:'Seller',type:'domain'},
@@ -205,6 +220,7 @@
     $('#tblrejected thead').html(html.join(''))
     $('#tblapproved thead').html(html.join(''))
     $('#tblreleased thead').html(html.join(''))
+    $('#tblcanceled thead').html(html.join(''))
   }
 
   function load(){
@@ -215,12 +231,19 @@
 
     var reportperiod
     var loadData = deepCopy(billing_calculations).filter(x=>x.report_period)
-   
-    filterData.map(filter=>{
+    filterData.filter(x=> x.data).map(filter=>{
       switch (filter.field) {
         case 'repor_period':   
           reportperiod = getPeriod(filter.data)
           loadData = loadData.filter(x=>getPeriod(x.report_period)==reportperiod)
+          break;
+        case 'period_from':   
+          period_from = getPeriod(filter.data)
+          loadData = loadData.filter(x=>getPeriod(x.period_to)>=period_from)
+          break;
+        case 'period_to':   
+          period_to = getPeriod(filter.data)
+          loadData = loadData.filter(x=>getPeriod(x.period_from)<=period_to)
           break;
         default:
       }
@@ -228,7 +251,7 @@
 
     loadData.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
-      x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a><a href="#" class="mx-2" onclick="removeCalculated(this)">Remove</a>'
+      x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a>'
       var contract = contracts.filter(c=> c.code == x['contract'])[0]
       x['buyer']=contract['buyer']
       x['seller']=contract['seller']
@@ -240,7 +263,11 @@
       x['sub_status']=status.sub_status?approval_steps.filter(x=>x.code==status.sub_status)[0].text:''
     })
 
-    var forapprovaldata = loadData.filter(x=>x.status =='for-approval')
+    var forapprovaldata = loadData.filter(x=>x.status =='for-approval').map(x=>{
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('approved',this)">Approve</a>`
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('rejected',this)">Reject</a>`
+      return x
+    })
     var html=[]
     forapprovaldata.map(rowdata=>{
       html.push(`<tr>`)
@@ -252,7 +279,11 @@
     $('#tblforapproval tbody').html(html.join(''))
     $('#forapproval-tab').html(`For-Approval [${forapprovaldata.length}]`)
 
-    var rejecteddata = loadData.filter(x=>x.status =='rejected')
+    var rejecteddata = loadData.filter(x=>x.status =='rejected').map(x=>{
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('resubmit',this)">Resubmit</a>`
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('canceled',this)">Cancel</a>`
+      return x
+    })
     var html=[]
     rejecteddata.map(rowdata=>{
       html.push(`<tr>`)
@@ -264,7 +295,11 @@
     $('#tblrejected tbody').html(html.join(''))
     $('#rejected-tab').html(`Rejected [${rejecteddata.length}]`)
 
-    var approveddata = loadData.filter(x=>x.status =='approved')
+    var approveddata = loadData.filter(x=>x.status =='approved').map(x=>{
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('released',this)">Release</a>`
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('canceled',this)">Cancel</a>`
+      return x
+    })
     var html=[]
     approveddata.map(rowdata=>{
       html.push(`<tr>`)
@@ -276,7 +311,10 @@
     $('#tblapproved tbody').html(html.join(''))
     $('#approved-tab').html(`Approved [${approveddata.length}]`)
 
-    var releaseddata = loadData.filter(x=>x.status =='released')
+    var releaseddata = loadData.filter(x=>x.status =='released').map(x=>{
+      x['control'] += `<a href="#" class="mx-2" onclick="submit('canceled',this)">Cancel</a>`
+      return x
+    })
     var html=[]
     releaseddata.map(rowdata=>{
       html.push(`<tr>`)
@@ -288,8 +326,17 @@
     $('#tblreleased tbody').html(html.join(''))
     $('#released-tab').html(`Released [${releaseddata.length}]`)
 
-
-
+    var canceleddata = loadData.filter(x=>x.status =='canceled')
+    var html=[]
+    canceleddata.map(rowdata=>{
+      html.push(`<tr>`)
+      loadheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblcanceled tbody').html(html.join(''))
+    $('#canceled-tab').html(`Canceled [${canceleddata.length}]`)
   }
 
 
@@ -299,191 +346,36 @@
  
   var modal
 
-  function calculate(){
-    var contractData = deepCopy(getLatestContractData(true))
-    var partyData = deepCopy(getLatestPartyData(true))
 
-    getinputselected('tblLoad').map(selected=>{
-      var period = getPeriod(selected.period)     
-      var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
-
-      var inputs = {}
-      var contractRowData = contractData.filter(x=> x.contract == selected.contract)[0];
-      [...contractRowData.numbers,...contractRowData.texts,...contractRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
-      ).map(x=>{
-        inputs['CONTRACT.'+x.variable]=x.value
-      })
-      
-      var sellerRowData = partyData.filter(x=> x.party == contractRowData.seller)[0];
-      [...sellerRowData.numbers,...sellerRowData.texts,...sellerRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
-      ).map(x=>{
-        inputs['SELLER.'+x.variable]=x.value
-      })
-      
-      var buyerRowData = partyData.filter(x=> x.party == contractRowData.buyer)[0];
-      [...buyerRowData.numbers,...buyerRowData.texts,...buyerRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
-      ).map(x=>{
-        inputs['BUYER.'+x.variable]=x.value
-      })
-
-      var contractfilters = {}      
-      contractRowData.filters.map(x=>{
-        contractfilters[x.variable]=x.value
-      });
-
-      dynamicData.map(dynamicRowData=>{
-        var dynamicFilterRowData = dynamicRowData.filters.filter(x=>
-          contractfilters[x.filter.variable]?contractfilters[x.filter.variable].includes(x.filter.value):false
-        )[0];
-        if(dynamicFilterRowData){
-          [...dynamicFilterRowData.numbers].map(x=>{            
-            inputs[dynamicRowData.category + '.'+x.variable]=x.value
-          });
-          [...dynamicFilterRowData.texts].map(x=>{            
-            inputs[dynamicRowData.category + '.'+x.variable]= "'" + x.value +"'"
-          }) 
-        } 
-      });
-
-      var period = getPeriod(selected.period)
-
-
-      var billingcalculation = {
-        period:toPeriod(period),
-        contract:selected.contract,
-        revision_number:0,
-        template:selected.template,
-        version_number:selected.version_number,
-        status:[],
-        values:[]
-      }
-
-      var status = {code:'calculated',update_by:getUser(),update_time:getCurrentTime()}
-
-      var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
-      
-      xx = template
-      template.item_groups.map(group=>{
-        var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
-        var valueheaders = getValueHeader(group.type)
-        group.items.map(item=>{
-          var itemvalue = {index:item.index,variable:item.variable}
-          valueheaders.map(header=>{
-            var executionstring = ''
-            if(header.code=='tax_amount'){
-              executionstring = '0'
-              if(item.tax_rule){
-                executionstring = tax_rules.filter(x=>x.code==item.tax_rule)[0].items.map(x=> `(${x.formula})`).join('+').replace(/@/g,itemvalue.variable)
-              }
-            }else{
-              executionstring = item[header.formula]??((header.calculation??'').replace(/@/g,itemvalue.variable))
-            }
-            executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
-              return inputs[key] !== undefined ? inputs[key] : match;
-            });
-
-            var calculatedvalue = executionstring
-            try {
-              calculatedvalue = eval(executionstring)
-            } catch (error) {
-              status.code ='error'
-            }
-            itemvalue[header.code]= calculatedvalue
-            inputs[itemvalue.variable + (header.noref?'':('.'+header.code))]=calculatedvalue
-          })
-
-          value.items.push(itemvalue)
-        })
-        billingcalculation.values.push(value)
-      })
-      billingcalculation.status.push(status)
-      billing_calculations.push(billingcalculation)
-      load()
-    })
-  }
-
-
-  function removeCalculated(ctrl){ 
-    var tr = $($(ctrl).closest('tr'))
-    getinputselected('tblError',tr).map(selected=>{removeCalculation(selected)})   
-    load()
-  }
-
-  function removeCalculation(selected){
-    var filteredItems = billing_calculations.filter(x => 
-      getPeriod(x.period) == getPeriod(selected.period) &&
-      x.contract == selected.contract &&
-      x.revision_number == selected.revision_number
-    );
-    if (filteredItems.length > 0) {
-      const index = billing_calculations.indexOf(filteredItems[0]);
-      if (index > -1) {
-          billing_calculations.splice(index, 1);
-      }
-    }
-  }
-
-
-  function clearerror(){
-    getinputselected('tblError').map(selected=>{removeCalculation(selected)})  
-    load()
-  }
-
-  function approve(ctrl=''){       
+  function submit(type,ctrl){       
     var remarks = showPromptRemarks(false);
     if(remarks.ok){
-      if(!ctrl)selections=getinputselected('tblforapproval')
-        selections.map(selected=>{
+      xx = ctrl
+      selections=getinputselected(ctrl)
+      selections.map(selected=>{
         var calculation = billing_calculations.filter(x => 
           getPeriod(x.period) == getPeriod(selected.period) &&
           x.contract == selected.contract &&
           x.revision_number == selected.revision_number
         )[0]
-        var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
-        var step = $(calculation.status).last().get(0).sub_status
-        var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
-        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
-        var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
-        calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
+        var newStatus = {update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text}
+        p(type)
+        if(['approved','resubmit'].includes(type)){
+          var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
+          var step = $(calculation.status).last().get(0).sub_status
+          var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
+          var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
+          var newStep = approval_steps.filter(x=> x.rule==approvalrule && (x.index >stepindex||!step))[0] 
+          newStatus.code=newStep?'for-approval':'approved'
+          newStatus.sub_status=newStep?newStep.code:''
+        }else{
+          newStatus.code=type
+        }
+        calculation.status.push(newStatus)
         load()
       }) 
     }  
   }
-
-
-  function release(ctrl=''){   
-    if(!ctrl)selections=getinputselected('tblforapproval')
-    selections.map(selected=>{
-      var calculation = billing_calculations.filter(x => 
-        getPeriod(x.period) == getPeriod(selected.period) &&
-        x.contract == selected.contract &&
-        x.revision_number == selected.revision_number
-      )[0]
-      calculation.status.push({code:'released',update_by:getUser(),update_time:getCurrentTime()})
-      load()
-    })  
-  }
-
-function reject(ctrl=''){   
-  if(!ctrl)selections=getinputselected('tblforapproval')
-  selections.map(selected=>{
-    var calculation = billing_calculations.filter(x => 
-      getPeriod(x.period) == getPeriod(selected.period) &&
-      x.contract == selected.contract &&
-      x.revision_number == selected.revision_number
-    )[0]
-    var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
-    var step = $(calculation.status).last().get(0).sub_status
-    var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
-    var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
-    var newStep = approval_steps.filter(x=> x.rule==approvalrule && x.index >stepindex)[0]
-    calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
-    load()
-  })  
-}
 
   (async function() {
     const dataLoaded = await resDbLoad(); 
