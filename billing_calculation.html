@@ -218,9 +218,9 @@
       {row:true,selector:'form',code:'period_from',text:'Period From',type:'period',value:'2024-05',required:true},
       {row:true,selector:'form',code:'period_to',text:'Period To',type:'period',value:'2024-06',required:true},
       {row:true,selector:'form',code:'contract',text:'Contract',type:'domain'},
-      {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain'},
-      {row:true,selector:'form',code:'seller',text:'Seller',type:'domain'},
-      {row:true,selector:'form',code:'template',text:'Template',type:'domain'},
+      {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain',options:[...new Set(contracts.map(x=>x.buyer))].map(x=>{return{value:x,text:x}})},
+      {row:true,selector:'form',code:'seller',text:'Seller',type:'domain',options:[...new Set(contracts.map(x=>x.seller))].map(x=>{return{value:x,text:x}})},
+      {row:true,selector:'form',code:'template',text:'Template',type:'domain',options:[...new Set(billing_templates.map(x=>x.code))].map(x=>{return{value:x,text:x}})},
     ]
     var html = []
     pnlFilterFields.map(field=>{
@@ -276,6 +276,7 @@
           loadData = loadData.filter(x=>getPeriod(x.period_from)<=period_to)
           break;
         default:
+        loadData = loadData.filter(x=>x[filter.field]==filter.data)
       }
     })   
 

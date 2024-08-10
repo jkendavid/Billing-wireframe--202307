@@ -438,6 +438,9 @@ var x4
     var html = []
     
     var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && x.contract==contract && x.revision_number == revision_number)[0] 
+   
+    var grandtotal = {net_amount:10000,tax_amount:0,gross_amount:0}
+
     calculation.values.map(group=>{
       var headers = getValueHeader(group.type)
       var ischarge = group.type!='determinant'
@@ -449,14 +452,30 @@ var x4
         html.push(`<tr><td>${variable.text}</td>`)
         headers.map(header=>{
           html.push(formatVariableTd(variable.code,item,header))
-          if(header.type=='amount')totalAmounts[header.code]=item[header.code]+(totalAmounts[header.code]??0)
+          if(header.type=='amount'){
+            totalAmounts[header.code]=item[header.code]+(totalAmounts[header.code]??0)
+            grandtotal[header.code]=item[header.code]+(grandtotal[header.code]??0)
+          }
         })
         html.push('</tr>')
       })
-      if(ischarge)html.push(`<tr class="trtotal"><th colspan="${group.type=='baseprice'?3:1}">Total</th>${headers.filter(x=> x.isamount).map(x=> formatVariableTd('',totalAmounts,x)).join('')}</tr>`)
-
+      if(ischarge){
+        html.push(`<tr class="trtotal"><th colspan="${group.type=='baseprice'?3:1}">Total</th>${headers.filter(x=> x.isamount).map(x=> formatVariableTd('',totalAmounts,x)).join('')}</tr>`)
+        
+      }
       html.push('</table>')    
     })
+
+    
+
+    html.push(`<table class="table table-sm table-condensed table-bordered">`)  
+    getValueHeader('amount').map(x=>{ 
+        html.push(`<tr class="trtotal"><th>Total ${x.text}</th>${formatVariableTd('',grandtotal,x)}</tr>`)  
+    })
+    html.push(`</table>`)  
+
+    
+
 
     modal = modalShow(`Calculation Result`,html.join(''))
   }
