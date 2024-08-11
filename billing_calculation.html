@@ -419,7 +419,8 @@
 
       var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
       
-      xx = template
+      var amount_taxes={}
+
       template.item_groups.map(group=>{
         var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
         var valueheaders = getValueHeader(group.type)
@@ -430,33 +431,50 @@
             if(header.code=='tax_amount'){
               executionstring = '0'
               if(item.tax_rule){
-                executionstring = tax_rules.filter(x=>x.code==item.tax_rule)[0].items.map(x=> `(${x.formula})`).join('+').replace(/@/g,itemvalue.variable)
+                executionstring = tax_rules.filter(x=>x.code==item.tax_rule)[0].items.map(x=> {
+                  amount_taxes[x.code]=`${amount_taxes[x.code]??0}+(${x.formula})`
+                  return `(${x.formula})`
+                }).join('+').replace(/@/g,itemvalue.variable)
               }
             }else{
               executionstring = item[header.formula]??((header.calculation??'').replace(/@/g,itemvalue.variable))
             }
-            executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
-              return inputs[key] !== undefined ? inputs[key] : match;
-            });
-
-            var calculatedvalue = executionstring
-            try {
-              calculatedvalue = eval(executionstring)
-            } catch (error) {
-              status.code ='error'
-            }
+            var result = executeFormula(inputs,executionstring)
+            if(!result.success)status.code ='error'
+            calculatedvalue = result.value
             itemvalue[header.code]= calculatedvalue
             inputs[itemvalue.variable + (header.noref?'':('.'+header.code))]=calculatedvalue
           })
-
           value.items.push(itemvalue)
         })
         billingcalculation.values.push(value)
       })
+      billingcalculation.amounts=[]
+      billingcalculation.values.filter(x=>x.type!='determinant').map(x=>{
+        x.items.map(y=>{
+          billingcalculation.amounts.push({variable:y.variable,amount_prev:0,amount:y.net_amount,amount_diff:y.net_amount},)
+        })
+      })
+      p(billingcalculation)
       billingcalculation.status.push(status)
       billing_calculations.push(billingcalculation)
       load()
     })
+  }
+
+
+  function executeFormula(inputs,executionstring){
+    executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
+      return inputs[key] !== undefined ? inputs[key] : match;
+    });
+    var value = executionstring
+    var success = false
+    try {
+      value = eval(executionstring)
+      success = true
+    } catch (error) {
+    }
+    return {value,success}
   }
 
   function removeCalculated(ctrl){ 
@@ -478,7 +496,6 @@
       }
     }
   }
-
 
   function clearerror(){
     getinputselected('tblError').map(selected=>{removeCalculation(selected)})  

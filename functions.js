@@ -457,14 +457,18 @@ var x4
       <ul class="nav nav-tabs" id="calcTab" role="tablist">
         <li class="nav-item">
           <a class="nav-link active" id="calculation-tab" data-toggle="tab" href="#calculation" role="tab" aria-controls="calculation" aria-selected="true">Calculation</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="charges-tab" data-toggle="tab" href="#charges" role="tab" aria-controls="charges" aria-selected="false">Charges</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="financeval-tab" data-toggle="tab" href="#financeval" role="tab" aria-controls="charges" aria-selected="false">Finance Values</a>
-        </li>
-      </ul>`)
+        </li>`)
+
+      
+    if(calculation.amounts)html.push(`<li class="nav-item">
+            <a class="nav-link" id="charges-tab" data-toggle="tab" href="#charges" role="tab" aria-controls="charges" aria-selected="false">Charges</a>
+          </li>`)          
+    
+    if(calculation.finance_values)html.push(`<li class="nav-item">
+            <a class="nav-link" id="financeval-tab" data-toggle="tab" href="#financeval" role="tab" aria-controls="charges" aria-selected="false">Finance Values</a>
+          </li>`)
+
+    html.push('</ul>')
 
     html.push('<div class="tab-content mt-3" id="calcTabContent">')
     html.push('<div class="tab-pane fade show active" id="calculation" role="tabpanel" aria-labelledby="calculation-tab">')
@@ -501,37 +505,39 @@ var x4
     html.push('</div>')
     
 
-    html.push('<div class="tab-pane fade" id="charges" role="tabpanel" aria-labelledby="charges-tab">')  
-    html.push('<table class="table table-sm table-condensed table-bordered">')   
-    var chargeheader = getValueHeader('financeval')
-    html.push(`<tr><th style="width:300px">Charge</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
-    var chargeTotal={}
-    calculation.amounts.map(amount=>{  
-        html.push(`<tr><td>${getVariable(amount.variable).text}</td>${chargeheader.map(x=> {
-            chargeTotal[x.code]=(chargeTotal[x.code]??0)+amount[x.code]
-            return formatVariableTd('',amount,x)
-        }).join('')}</tr>`)   
-    })  
-    html.push(`<tr class="trtotal"><th>Total</th>${chargeheader.map(x=> formatVariableTd('',chargeTotal,x)).join('')}</tr>`)   
-    html.push('</table>')  
-    html.push('</div>')
+    if(calculation.amounts){
+        html.push('<div class="tab-pane fade" id="charges" role="tabpanel" aria-labelledby="charges-tab">')  
+        html.push('<table class="table table-sm table-condensed table-bordered">')   
+        var chargeheader = getValueHeader('charges')
+        html.push(`<tr><th style="width:300px">Charge</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+        var chargeTotal={}
+        calculation.amounts.map(amount=>{  
+            html.push(`<tr><td>${getVariable(amount.variable).text}</td>${chargeheader.map(x=> {
+                chargeTotal[x.code]=(chargeTotal[x.code]??0)+amount[x.code]
+                return formatVariableTd('',amount,x)
+            }).join('')}</tr>`)   
+        })  
+        html.push(`<tr class="trtotal"><th>Total</th>${chargeheader.map(x=> formatVariableTd('',chargeTotal,x)).join('')}</tr>`)   
+        html.push('</table>')  
+        html.push('</div>')
+    }
     
-
-    html.push('<div class="tab-pane fade" id="financeval" role="tabpanel" aria-labelledby="financeval-tab">')  
-    html.push('<table class="table table-sm table-condensed table-bordered">')     
-    var financevalheader = getValueHeader('financeval')
-    html.push(`<tr><th style="width:500px">Finance Account</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
-    var financevalTotal={}
-    calculation.finance_values.map(amount=>{ 
-        html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
-            financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
-            return formatVariableTd('',amount,x)
-        }).join('')}</tr>`)   
-    })  
-    html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
-    html.push('</table>')  
-    html.push('</div>')
-
+    if(calculation.finance_values){
+        html.push('<div class="tab-pane fade" id="financeval" role="tabpanel" aria-labelledby="financeval-tab">')  
+        html.push('<table class="table table-sm table-condensed table-bordered">')     
+        var financevalheader = getValueHeader('financeval')
+        html.push(`<tr><th style="width:500px">Finance Account</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+        var financevalTotal={}
+        calculation.finance_values.map(amount=>{ 
+            html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
+                financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
+                return formatVariableTd('',amount,x)
+            }).join('')}</tr>`)   
+        })  
+        html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
+        html.push('</table>')  
+        html.push('</div>')
+    }
 
     html.push('</div>')
     html.push('</div>')
