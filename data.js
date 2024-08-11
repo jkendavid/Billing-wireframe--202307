@@ -633,8 +633,51 @@ var billing_calculations = [{
             {index:3,variable:'fuel',base:1254,price:3375,net_amount:4232250,tax_amount:507870,gross_amount:4740120},
         ]},
     ],
+    amounts:[
+        {variable:'crf',amount_prev:0,amount:5820000,amount_diff:5820000},
+        {variable:'fom',amount_prev:0,amount:20000000,amount_diff:20000000},
+        {variable:'vom',amount_prev:0,amount:501600,amount_diff:501600},
+        {variable:'er194',amount_prev:0,amount:125400,amount_diff:125400},
+        {variable:'fuel',amount_prev:0,amount:4232250,amount_diff:4232250},
+        {variable:'vat',amount_prev:0,amount:3666462,amount_diff:3666462},
+    ],
+    finance_values:[        
+        {account:'GLR0001',amount:25820000},
+        {account:'GLR0002',amount:4733850},
+        {account:'GLR0050',amount:125400},
+        {account:'GLR0100',amount:3666462},
+    ]
     },
 ]
+
+
+var finance_accounts =[
+    {code:'GLR0001',text:'Fixed Charges Receivable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLP0001',text:'Fixed Charges Payable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLR0002',text:'Variable Charges Receivable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLP0002',text:'Variable Charges Payable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLR0050',text:'Non-Vatable Receivable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLP0050',text:'Non-Vatable Payable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLR0100',text:'Tax Receivable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+    {code:'GLP0100',text:'Tax Payable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
+]
+
+
+
+
+var finance_schemes =[
+    {code:'FSCoalMain',text:'Coal Main Scheme',description:'',create_by:'user',create_time:'2024-01-01 00:00',
+        lines:[
+            {charge:'crf',account_pos:'GLR0001',account_neg:'GLP0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'fom',account_pos:'GLR0001',account_neg:'GLP0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'vom',account_pos:'GLR0002',account_neg:'GLP0002',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'er194',account_pos:'GLR0050',account_neg:'GLP0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'fuel',account_pos:'GLR0002',account_neg:'GLP0002',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'vat',account_pos:'GLR0100',account_neg:'GLP0100',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+        ]
+    },
+]
+
 
 
 

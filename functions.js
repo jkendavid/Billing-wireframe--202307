@@ -10,7 +10,7 @@ function modalShow(title,body){
     var modalId = `modal${timeStamp()}`
     var htmlModal = `    
     <div class="modal" id="${modalId}" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-scrollable" role="document"   style="min-width: max-content;">
+        <div class="modal-dialog modal-dialog-scrollable" role="document" style="min-width: max-content;">
             <div class="modal-content">
                 <div class="modal-header">   
             <h5 class="modal-title">${title}</h5>
@@ -330,7 +330,8 @@ function getLatestContractData(final=false){
 
 
   function formatNumber(value,decimalmin,decimalmax){
-    return  value?value.toLocaleString('en-US', { minimumFractionDigits: decimalmin, maximumFractionDigits: decimalmax }):''
+    if (value === null || value === undefined)return ''
+    return  value.toLocaleString('en-US', { minimumFractionDigits: decimalmin, maximumFractionDigits: decimalmax })
   }
 
 
@@ -389,6 +390,16 @@ var x4
           {code:"tax_amount",text:"Tax Amount",isamount:true,type:'amount',calculation:'0.12*[@.net_amount]'},
           {code:"gross_amount",text:"Gross Amount",isamount:true,type:'amount',calculation:'[@.net_amount]+[@.tax_amount]'}
         ]
+    case 'charges':
+        return [
+        {code:"amount_prev",text:"Previous Amount",isamount:true,type:'amount'},
+        {code:"amount",text:"Current Amount",isamount:true,type:'amount'},
+        {code:"amount_diff",text:"Difference",isamount:true,type:'amount'}
+        ]
+    case 'financeval':
+        return [
+        {code:"amount",text:"Amount",isamount:true,type:'amount'},
+        ]
       default:
         return []
     }
@@ -441,6 +452,23 @@ var x4
    
     var grandtotal = {net_amount:10000,tax_amount:0,gross_amount:0}
 
+    
+    html.push(`<div class="container" style="min-width: 1000px;">
+      <ul class="nav nav-tabs" id="calcTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="calculation-tab" data-toggle="tab" href="#calculation" role="tab" aria-controls="calculation" aria-selected="true">Calculation</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="charges-tab" data-toggle="tab" href="#charges" role="tab" aria-controls="charges" aria-selected="false">Charges</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="financeval-tab" data-toggle="tab" href="#financeval" role="tab" aria-controls="charges" aria-selected="false">Finance Values</a>
+        </li>
+      </ul>`)
+
+    html.push('<div class="tab-content mt-3" id="calcTabContent">')
+    html.push('<div class="tab-pane fade show active" id="calculation" role="tabpanel" aria-labelledby="calculation-tab">')
+
     calculation.values.map(group=>{
       var headers = getValueHeader(group.type)
       var ischarge = group.type!='determinant'
@@ -461,20 +489,52 @@ var x4
       })
       if(ischarge){
         html.push(`<tr class="trtotal"><th colspan="${group.type=='baseprice'?3:1}">Total</th>${headers.filter(x=> x.isamount).map(x=> formatVariableTd('',totalAmounts,x)).join('')}</tr>`)
-        
       }
       html.push('</table>')    
     })
-
-    
 
     html.push(`<table class="table table-sm table-condensed table-bordered">`)  
     getValueHeader('amount').map(x=>{ 
         html.push(`<tr class="trtotal"><th>Total ${x.text}</th>${formatVariableTd('',grandtotal,x)}</tr>`)  
     })
-    html.push(`</table>`)  
-
+    html.push(`</table>`)      
+    html.push('</div>')
     
+
+    html.push('<div class="tab-pane fade" id="charges" role="tabpanel" aria-labelledby="charges-tab">')  
+    html.push('<table class="table table-sm table-condensed table-bordered">')   
+    var chargeheader = getValueHeader('financeval')
+    html.push(`<tr><th style="width:300px">Charge</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+    var chargeTotal={}
+    calculation.amounts.map(amount=>{  
+        html.push(`<tr><td>${getVariable(amount.variable).text}</td>${chargeheader.map(x=> {
+            chargeTotal[x.code]=(chargeTotal[x.code]??0)+amount[x.code]
+            return formatVariableTd('',amount,x)
+        }).join('')}</tr>`)   
+    })  
+    html.push(`<tr class="trtotal"><th>Total</th>${chargeheader.map(x=> formatVariableTd('',chargeTotal,x)).join('')}</tr>`)   
+    html.push('</table>')  
+    html.push('</div>')
+    
+
+    html.push('<div class="tab-pane fade" id="financeval" role="tabpanel" aria-labelledby="financeval-tab">')  
+    html.push('<table class="table table-sm table-condensed table-bordered">')     
+    var financevalheader = getValueHeader('financeval')
+    html.push(`<tr><th style="width:500px">Finance Account</th>${chargeheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+    var financevalTotal={}
+    calculation.finance_values.map(amount=>{ 
+        html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
+            financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
+            return formatVariableTd('',amount,x)
+        }).join('')}</tr>`)   
+    })  
+    html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
+    html.push('</table>')  
+    html.push('</div>')
+
+
+    html.push('</div>')
+    html.push('</div>')
 
 
     modal = modalShow(`Calculation Result`,html.join(''))
