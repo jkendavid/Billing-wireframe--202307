@@ -98,7 +98,7 @@
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnCalculateRev" onclick="calculate(this)" disabled>Calculate</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnCalculateRev" onclick="calculate(this,true)" disabled>Calculate</button>
         </div>
         <div class="tab-pane fade" id="error" role="tabpanel" aria-labelledby="error-tab">
           <table class="table table-bordered" id="tblError">
@@ -174,7 +174,6 @@
     {code:'seller',text:'Seller'},
     {code:'revision_number',text:'Rev. No.'},
     {code:'template',text:'Template'},
-    {code:'status',text:'Status'},
     {code:'update_by',text:'Update By'},
     {code:'update_time',text:'Update Time'},
     {code:'control',text:''},
@@ -188,7 +187,6 @@
    {code:'seller',text:'Seller'},
    {code:'revision_number',text:'Rev. No.'},
    {code:'template',text:'Template'},
-   {code:'status',text:'Status'},
    {code:'update_by',text:'Update By'},
    {code:'update_time',text:'Update Time'},
    {code:'control',text:''},
@@ -360,7 +358,7 @@
     html=[]
     var revdata = loadData.filter(x=> x.status =='released')
     revdata.map(x=>{
-      x['control2'] = '<a href="#" class="mx-2" onclick="calculate(this)">Calculate</a>'
+      x['control2'] = '<a href="#" class="mx-2" onclick="calculate(this,true)">Calculate</a>'
     })
     revdata.map(rowdata=>{
       html.push(`<tr>`)
@@ -376,7 +374,7 @@
     html=[]
     var errorData = loadData.filter(x=> x.status =='error')
     errorData.map(x=>{
-      x['control'] = '<a href="#" class="mx-2" onclick="clearerror(this)">Clear</a>'
+      x['control'] += '<a href="#" class="mx-2" onclick="clearerror(this)">Clear</a>'
     })
     errorData.map(rowdata=>{
       html.push(`<tr>`)
@@ -391,7 +389,8 @@
     html=[]
     var okdata = loadData.filter(x=> x.status =='calculated')
     okdata.map(x=>{
-      x['control'] = '<a href="#" class="mx-2" onclick="release(this)">Release</a>'
+      x['control'] += '<a href="#" class="mx-2" onclick="release(this)">Release</a>'
+      x['control'] += '<a href="#" class="mx-2" onclick="clearerror(this)">Cancel</a>'
     })
     okdata.map(rowdata=>{
       html.push(`<tr>`)
@@ -418,7 +417,7 @@
     return({template:result[0],version_number:result[1]})
   }
 
-  function calculate(ctrl){
+  function calculate(ctrl,rev=false){
     
     var contractData = deepCopy(getLatestContractData(true))
     var partyData = deepCopy(getLatestPartyData(true))
@@ -472,7 +471,7 @@
       var billingcalculation = {
         period:toPeriod(period),
         contract:selected.contract,
-        revision_number:0,
+        revision_number:rev?selected.new_revision_number:0,
         template:selected.template,
         version_number:selected.version_number,
         status:[],
@@ -515,19 +514,26 @@
         billingcalculation.values.push(value)
       })
       billingcalculation.amounts=[]
+      var billedAmounts = {}
+      p(billing_calculations.filter(x=>x.period==billingcalculation.period&&x.contract==billingcalculation.contract))
+      billing_calculations.filter(x=>x.period==billingcalculation.period&&x.contract==billingcalculation.contract)
+                          .map(x=>{
+                            x.amounts.map(y=>{
+                              billedAmounts[y.variable]=(billedAmounts[y.variable]??0)+y.amount_diff
+                            })
+                          })
+      
+      
       billingcalculation.values.filter(x=>x.type!='determinant').map(x=>{
         x.items.map(y=>{
-          billingcalculation.amounts.push({variable:y.variable,amount_prev:0,amount:y.net_amount,amount_diff:y.net_amount},)
+          var billed = billedAmounts[y.variable]??0
+          billingcalculation.amounts.push({variable:y.variable,amount_prev:billed,amount:y.net_amount,amount_diff:y.net_amount-billed},)
         })
       })
       for (const key in amount_taxes) {
         var result = executeFormula(inputs,amount_taxes[key])
-        p(result)
-        p(result.value)
         billingcalculation.amounts.push({variable:key,amount_prev:0,amount:result.value,amount_diff:result.value},)       
       }
-
-      var amount_taxes={}
       billingcalculation.status.push(status)
       billing_calculations.push(billingcalculation)
       load()
