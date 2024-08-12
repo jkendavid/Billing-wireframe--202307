@@ -75,6 +75,9 @@
           <a class="nav-link active" id="new-tab" data-toggle="tab" href="#new" role="tab" aria-controls="new" aria-selected="true">New</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" id="rev-tab" data-toggle="tab" href="#rev" role="tab" aria-controls="rev" aria-selected="false">Revisions</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" id="error-tab" data-toggle="tab" href="#error" role="tab" aria-controls="error" aria-selected="false">Error</a>
         </li>
         <li class="nav-item">
@@ -84,18 +87,25 @@
   
       <div class="tab-content mt-3" id="myTabContent">
         <div class="tab-pane fade show active" id="new" role="tabpanel" aria-labelledby="new-tab">
-          <table class="table table-bordered" id="tblLoad">
+          <table class="table table-bordered" id="tblNew">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnCalculate" onclick="calculate()" disabled>Calculate</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnCalculate" onclick="calculate(this)" disabled>Calculate</button>
+        </div>        
+        <div class="tab-pane fade" id="rev" role="tabpanel" aria-labelledby="rev-tab">
+          <table class="table table-bordered" id="tblRev">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+          <button type="button" class="btn btn-primary btnExecute" id="btnCalculateRev" onclick="calculate(this)" disabled>Calculate</button>
         </div>
         <div class="tab-pane fade" id="error" role="tabpanel" aria-labelledby="error-tab">
           <table class="table table-bordered" id="tblError">
             <thead></thead>
             <tbody></tbody>
           </table>
-          <button type="button" class="btn btn-primary btnExecute" id="btnRemove" onclick="clearerror()" disabled>Clear</button>
+          <button type="button" class="btn btn-primary btnExecute" id="btnRemove" onclick="clearerror(this)" disabled>Clear</button>
         </div>
         <div class="tab-pane fade" id="calculated" role="tabpanel" aria-labelledby="calculated-tab">
           <table class="table table-bordered" id="tblCalculate">
@@ -109,7 +119,7 @@
             </div>
           </div>
           <div class="row mt-3">
-            <button type="button" class="btn btn-primary btnExecute ml-auto" id="btnGenerate" onclick="release()" disabled>Release</button>
+            <button type="button" class="btn btn-primary btnExecute ml-auto" id="btnGenerate" onclick="release(this)" disabled>Release</button>
           </div>
         </div>
       </div>
@@ -132,16 +142,30 @@
 
 <script>
  
-  const loadheader =[
+  const newheader =[
     {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
     {code:'period',text:'Period'},
     {code:'contract',text:'Contract'},
     {code:'buyer',text:'Buyer'},
     {code:'seller',text:'Seller'},
     {code:'template',text:'Template'},
-    {code:'version_number',text:'Template Version'},
+    {code:'control',text:''},
   ]
- 
+  
+  const revheader =[
+    {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
+    {code:'period',text:'Period'},
+    {code:'contract',text:'Contract'},
+    {code:'buyer',text:'Buyer'},
+    {code:'seller',text:'Seller'},
+    {code:'report_period',text:'Report Period'},
+    {code:'old_template',text:'Old Template'},
+    {code:'control',text:''},
+    {code:'template',text:'New Template'},
+    {code:'new_revision_number',text:'New Rev. No.'},
+    {code:'control2',text:''},
+  ]
+
   const errorheader =[
     {code:'selected',text:'<input type="checkbox" id="inputselectall" onclick="selectAllToggle(this)">'},
     {code:'period',text:'Period'},
@@ -150,7 +174,6 @@
     {code:'seller',text:'Seller'},
     {code:'revision_number',text:'Rev. No.'},
     {code:'template',text:'Template'},
-    {code:'version_number',text:'Template Version'},
     {code:'status',text:'Status'},
     {code:'update_by',text:'Update By'},
     {code:'update_time',text:'Update Time'},
@@ -165,7 +188,6 @@
    {code:'seller',text:'Seller'},
    {code:'revision_number',text:'Rev. No.'},
    {code:'template',text:'Template'},
-   {code:'version_number',text:'Template Version'},
    {code:'status',text:'Status'},
    {code:'update_by',text:'Update By'},
    {code:'update_time',text:'Update Time'},
@@ -181,15 +203,19 @@
     inputselected_Change(ctrl)
   }
 
-  function getinputselected(tableid,trs=null) {
+  function getinputselected(ctrl) {
     var selected = [];
-    if(trs==null)trs = $(`#${tableid} .inputselected:checked`).closest('tr');
+    var table = $(ctrl.closest('.tab-pane')).find('table')
+    var trs=$($(ctrl).hasClass('btnExecute')?$(ctrl).parent().find('.inputselected:checked'):ctrl).closest('tr');
     trs.each(function() {
         var item = {};
         var headers = []
-        switch(tableid){
-          case'tblLoad':
-            headers= loadheader
+        switch(table.attr("id")){
+          case'tblNew':
+            headers= newheader
+            break
+          case'tblRev':
+            headers= revheader
             break
           case'tblError':
             headers= errorheader
@@ -209,7 +235,7 @@
 
   function inputselected_Change(ctrl){ 
     var pnl = $($(ctrl).closest('.tab-pane'))
-    pnl.find('.btnExecute').prop('disabled', getinputselected(pnl.find('table').attr('id')).length === 0);
+    pnl.find('.btnExecute').prop('disabled', getinputselected(ctrl).length === 0);
   }
 
   function initialize(){
@@ -231,11 +257,20 @@
     //main table header
     html=[]
     html.push('<tr>')
-    loadheader.map(header=>{
+    newheader.map(header=>{
       html.push(`<th>${header.text}</th>`)
     })
     html.push('</tr>')
-    $('#tblLoad thead').html(html.join(''))
+    $('#tblNew thead').html(html.join(''))
+
+    
+    html=[]
+    html.push('<tr>')
+    revheader.map(header=>{
+      html.push(`<th>${header.text}</th>`)
+    })
+    html.push('</tr>')
+    $('#tblRev thead').html(html.join(''))
 
 
     html=[]
@@ -269,7 +304,7 @@
       switch (filter.field) {
         case 'period_from':   
           period_from = getPeriod(filter.data)
-          loadData = loadData.filter(x=>getPeriod(x.period_to)>=period_from)
+          loadData = loadData.filter(x=>getPeriod(x.period_to)>=period_from)     
           break;
         case 'period_to':   
           period_to = getPeriod(filter.data)
@@ -279,49 +314,85 @@
         loadData = loadData.filter(x=>x[filter.field]==filter.data)
       }
     })   
-
-
     var periods = getPeriodBetWeen(period_from,period_to)
     loadData = crossJoin(periods.map(x=>{return{period:toPeriod(x)}}),loadData)
-    var calculateddata = deepCopy(billing_calculations).filter(x=>(getPeriod(x.period)>=period_from)&&(getPeriod(x.period)<=period_to))
-    loadData =  loadData.filter(x=> calculateddata.filter(y=>(x.contract==y.contract)&&(x.period==y.period)).length==0)
-
+    
+    var calculateddata = deepCopy(billing_calculations)
     loadData.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
-      x['prevgeneration'] = ''
       var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
       template = template_default.filter(x=> x.code == template)[0].template
       var templateversion = deepCopy(getLast(billing_templates.filter(y=>y.code == template)[0].versions.filter(y=> y.status=='active')))
-      x['template'] = template
-      x['version_number'] = templateversion.version_number
+      x['template'] = `${template} V.${templateversion.version_number}`
+      x['status'] = null
+      var oldrev = getLast(calculateddata.filter(y=>(y.contract==x.contract)&&(y.period==x.period)))
+      if(oldrev){
+        var lastStatus = x['status'] = getLast(oldrev.status)
+        x['status'] = lastStatus.code
+        x['update_by'] = lastStatus.update_by
+        x['update_time'] = lastStatus.update_time
+        x['old_template'] = `${oldrev.template} V.${oldrev.version_number}`
+        x['report_period'] = oldrev.report_period
+        x['revision_number'] = oldrev.revision_number
+        x['new_revision_number'] = oldrev.revision_number + 1
+        x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a>'
+      }
     })
 
     
     var html=[]
-    loadData.map(rowdata=>{
+    var newData = loadData.filter(x=>!x.status)
+    newData.map(x=>{
+      x['control'] = '<a href="#" class="mx-2" onclick="calculate(this)">Calculate</a>'
+    })
+
+    newData.map(rowdata=>{
       html.push(`<tr>`)
-      loadheader.map(header=>{
+      newheader.map(header=>{
         html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
       })
       html.push(`</tr>`)
     })
-    $('#tblLoad tbody').html(html.join(''))
-    $('#new-tab').html(`New [${loadData.length}]`)
+    $('#tblNew tbody').html(html.join(''))
+    $('#new-tab').html(`New [${newData.length}]`)
 
 
-    calculateddata.map(x=>{
-      x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
-      x['control'] = '<a href="#" class="mx-2" onclick="viewCalculated(this)">View</a><a href="#" class="mx-2" onclick="removeCalculated(this)">Remove</a>'
-      var contract = contracts.filter(c=> c.code == x['contract'])[0]
-      x['buyer']=contract['buyer']
-      x['seller']=contract['seller']
-      var status =  getLast(x.status)
-      x['status'] = status.code
-      x['update_by'] = status.update_by
-      x['update_time'] = status.update_time
-    })
     html=[]
-    var okdata = calculateddata.filter(x=> x.status =='calculated')
+    var revdata = loadData.filter(x=> x.status =='released')
+    revdata.map(x=>{
+      x['control2'] = '<a href="#" class="mx-2" onclick="calculate(this)">Calculate</a>'
+    })
+    revdata.map(rowdata=>{
+      html.push(`<tr>`)
+      revheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblRev tbody').html(html.join(''))
+    $('#rev-tab').html(`Revisions [${revdata.length}]`)
+
+
+    html=[]
+    var errorData = loadData.filter(x=> x.status =='error')
+    errorData.map(x=>{
+      x['control'] = '<a href="#" class="mx-2" onclick="clearerror(this)">Clear</a>'
+    })
+    errorData.map(rowdata=>{
+      html.push(`<tr>`)
+      calculateheader.map(header=>{
+        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
+      })
+      html.push(`</tr>`)
+    })
+    $('#tblError tbody').html(html.join(''))
+    $('#error-tab').html(`Error [${errorData.length}]`)
+
+    html=[]
+    var okdata = loadData.filter(x=> x.status =='calculated')
+    okdata.map(x=>{
+      x['control'] = '<a href="#" class="mx-2" onclick="release(this)">Release</a>'
+    })
     okdata.map(rowdata=>{
       html.push(`<tr>`)
       errorheader.map(header=>{
@@ -333,18 +404,6 @@
     $('#calculated-tab').html(`Calculated [${okdata.length}]`)
 
 
-    html=[]
-    var errorData = calculateddata.filter(x=> x.status =='error')
-    errorData.map(rowdata=>{
-      html.push(`<tr>`)
-      calculateheader.map(header=>{
-        html.push(`<td data="${header.code}">${rowdata[header.code]}</td>`)
-      })
-      html.push(`</tr>`)
-    })
-    $('#tblError tbody').html(html.join(''))
-    $('#error-tab').html(`Error [${errorData.length}]`)
-
   }
 
   const headers = [
@@ -353,11 +412,17 @@
  
   var modal
 
-  function calculate(){
+
+  function parseTemplateName(strVersion){
+    var result = strVersion.split(" V.");
+    return({template:result[0],version_number:result[1]})
+  }
+
+  function calculate(ctrl){
+    
     var contractData = deepCopy(getLatestContractData(true))
     var partyData = deepCopy(getLatestPartyData(true))
-
-    getinputselected('tblLoad').map(selected=>{
+    getinputselected(ctrl).map(selected=>{
       var period = getPeriod(selected.period)     
       var dynamicData = deepCopy(getLatestDynamic(true)).filter(x=> getPeriod(x.period_from)<=period && getPeriod(x.period_to)>=period)
 
@@ -404,7 +469,6 @@
 
       var period = getPeriod(selected.period)
 
-
       var billingcalculation = {
         period:toPeriod(period),
         contract:selected.contract,
@@ -416,8 +480,8 @@
       }
 
       var status = {code:'calculated',update_by:getUser(),update_time:getCurrentTime()}
-
-      var template = deepCopy(billing_templates).filter(x=> x.code == selected.template)[0].versions.filter(x=> x.version_number == selected.version_number)[0]
+      var selectedTemplate = parseTemplateName(selected.template)
+      var template = deepCopy(billing_templates).filter(x=> x.code == selectedTemplate.template)[0].versions.filter(x=> x.version_number == selectedTemplate.version_number)[0]
       
       var amount_taxes={}
 
@@ -486,8 +550,7 @@
   }
 
   function removeCalculated(ctrl){ 
-    var tr = $($(ctrl).closest('tr'))
-    getinputselected('tblError',tr).map(selected=>{removeCalculation(selected)})   
+    getinputselected(ctrl).map(selected=>{removeCalculation(selected)})   
     load()
   }
 
@@ -505,16 +568,16 @@
     }
   }
 
-  function clearerror(){
-    getinputselected('tblError').map(selected=>{removeCalculation(selected)})  
+  function clearerror(ctrl){
+    getinputselected(ctrl).map(selected=>{removeCalculation(selected)})  
     load()
   }
 
-  function release(ctrl=''){    
+  function release(ctrl){    
     var report_period = getPeriod($('input[val="reportperiod"]').val())
     var remarks = showPromptRemarks(false);
     if(remarks.ok){
-      if(!ctrl)selections=getinputselected('tblCalculate')
+        var selections=getinputselected(ctrl)
         selections.map(selected=>{
         var calculation = billing_calculations.filter(x => 
           getPeriod(x.period) == getPeriod(selected.period) &&
@@ -523,9 +586,9 @@
         )[0]
         calculation.report_period = report_period
         var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
-        var step = $(calculation.status).last().get(0).sub_status
+        var step = getLast(calculation.status).sub_status
         var approvalrule = window_categories.filter(x=> x.code == contractCategory)[0].approval
-        var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
+        if(step)var stepindex = approval_steps.filter(x=> x.rule==approvalrule && x.code == step)[0].index
         var newStep = approval_steps.filter(x=> x.rule==approvalrule && (x.index >stepindex||!step))[0]
         calculation.status.push({code:newStep?'for-approval':'approved',sub_status:newStep?newStep.code:'', update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text})
         load()
