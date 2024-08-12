@@ -432,9 +432,10 @@
               executionstring = '0'
               if(item.tax_rule){
                 executionstring = tax_rules.filter(x=>x.code==item.tax_rule)[0].items.map(x=> {
-                  amount_taxes[x.code]=`${amount_taxes[x.code]??0}+(${x.formula})`
-                  return `(${x.formula})`
-                }).join('+').replace(/@/g,itemvalue.variable)
+                  var result =  executeFormula(inputs,x.formula.replace(/@/g,itemvalue.variable))
+                  amount_taxes[x.variable]=`${amount_taxes[x.variable]??0}+(${result.value})`
+                  return `(${result.value})`
+                }).join('+')
               }
             }else{
               executionstring = item[header.formula]??((header.calculation??'').replace(/@/g,itemvalue.variable))
@@ -455,7 +456,14 @@
           billingcalculation.amounts.push({variable:y.variable,amount_prev:0,amount:y.net_amount,amount_diff:y.net_amount},)
         })
       })
-      p(billingcalculation)
+      for (const key in amount_taxes) {
+        var result = executeFormula(inputs,amount_taxes[key])
+        p(result)
+        p(result.value)
+        billingcalculation.amounts.push({variable:key,amount_prev:0,amount:result.value,amount_diff:result.value},)       
+      }
+
+      var amount_taxes={}
       billingcalculation.status.push(status)
       billing_calculations.push(billingcalculation)
       load()

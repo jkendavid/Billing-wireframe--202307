@@ -597,8 +597,11 @@ var billing_calculations = [{
     revision_number:0,
     template:'COALFIRM',
     version_number:0,
-    status:[{code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'}],
-    status:[{code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'THREESTEPFIRST'}],
+    status:[
+        {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+        {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'THREESTEPFIRST'},
+        {code:'released',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+    ],
     values:[
         {index:1,type:'determinant',text:'Indices',internal:'false',items:[
             {index:1,variable:'forexb',base:55,comment:''},
