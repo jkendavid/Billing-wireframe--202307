@@ -142,8 +142,8 @@
     html.push(`<table class="table table-bordered" id="tblVarInput">`);
     var btnAddNewLine = `<a href="#" class="mx-2" onclick='dynamicAddNewVariableLine(this)'>Add</a>`
     html.push(`<thead><tr><th>${getVariable(windowCategory.filter).text}</th>`)    
-    deepCopy(windowCategory.variables).map(variable=>{  
-      html.push(`<th>${getVariable(variable.code).text}</th>`)   
+    deepCopy(windowCategory.fields).map(field=>{  
+      html.push(`<th>${getVariable(field.variable).text}</th>`)   
     })    
     html.push(`<th>${btnAddNewLine}</th></thead>`)
     html.push(`<tbody>`)   
@@ -167,8 +167,8 @@
     var header = deepCopy(filterHeader)
     if(line)header.value = line.filter.value
     html.push(`<td>${htmlControl(header)}</td>`)
-    deepCopy(windowCategory.variables).map(variable=>{   
-      var variable = deepCopy(getVariable(variable.code));
+    deepCopy(windowCategory.fields).map(field=>{   
+      var variable = deepCopy(getVariable(field.variable));
       variable.required = windowCategory.required
       if(line){
         var value = [...line.numbers,...line.texts].filter(x=>x.variable == variable.code)
