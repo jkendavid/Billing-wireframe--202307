@@ -99,7 +99,7 @@
   
     windowFields= deepCopy(window_categories).filter(x=> (x.code==partyCategory)&&(x.window=='parties'))[0].fields.map(x=>{
       var field = getVariable(x.variable)
-      field.required = x.required
+      field.required = x.required=='true'
       field.selector='form'
       return field
     })
@@ -152,7 +152,6 @@
     
       
     html.push('<div class="windowFields">'); 
-    //Row controls
     deepCopy(windowFields).map(header=>{
       if(update){
         header.value = item[header.code]

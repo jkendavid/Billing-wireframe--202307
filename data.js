@@ -31,9 +31,15 @@ var window_categories =[
     ]},
     {window:'parties',code:'CUSTOM', text:'Custom Party type', approval:'ONESTEP',fields:[
     ]},
-    {window:'contracts',code:'PSA_COAL', text:'PSA Coal', approval:'THREESTEP'},
-    {window:'contracts',code:'PSA_SOLAR', text:'PSA Solar', approval:'ONESTEP'},
-    {window:'contracts',code:'RSC', text:'Retail supply Contract', approval:'ONESTEP'},
+    {window:'contracts',code:'PSA_COAL', text:'PSA Coal', approval:'THREESTEP',fields:[
+        {variable:'freetext1',required:'false'},
+    ]},
+    {window:'contracts',code:'PSA_SOLAR', text:'PSA Solar', approval:'ONESTEP',fields:[
+        {variable:'freetext1',required:'false'},
+        {variable:'freetext2',required:'false'},
+    ]},
+    {window:'contracts',code:'RSC', text:'Retail supply Contract', approval:'ONESTEP',fields:[
+    ]},
     {
         window:'dynamics',code:'FINCONST', text:'Finance Constants', approval:'ADMIN',
         filter:'finconst',variables:[{code:'vatrate',required:'true',active:'true'},]
@@ -113,6 +119,10 @@ var variables = [
     {category:'inputs',code:'mq',type:'number',text:'MQ',description:'',active:'active',rounding:'kw',unit:'kWh'},
     {category:'inputs',code:'lr',type:'number',text:'Line Rental',description:'',active:'active',rounding:'php',unit:'Php'},
     {category:'inputs',code:'comment',type:'text',text:'Comment',description:'',active:'active'},
+    {category:'inputs',code:'freetext1',type:'text',text:'Free text 1',description:'',active:'active'},
+    {category:'inputs',code:'freetext2',type:'text',text:'Free text 2',description:'',active:'active'},
+
+    
 
     {category:'inputs',code:'vatrate',type:'number',text:'VAT Rate',description:'',active:'active',rounding:'',unit:'', min:0},
 

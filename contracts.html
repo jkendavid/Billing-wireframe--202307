@@ -93,6 +93,7 @@
   ]
 
 
+  var windowFields = []
   function refreshContractTable(){    
     contractCategory = $('#optContractCategories').val();
     var table = $('#tableContracts');
@@ -100,9 +101,16 @@
     trHead.empty();    
     contractRowHeaders = deepCopy(defaultHeader)
     contractDetailHeaders = []
+
+    windowFields= deepCopy(window_categories).filter(x=> (x.code==contractCategory)&&(x.window=='contracts'))[0].fields.map(x=>{
+      var field = getVariable(x.variable)
+      field.required = x.required=='true'
+      field.selector='form'
+      return field
+    })
   
     //add headers to table
-    var rowHeaders = [...contractRowHeaders,...endHeaders]    
+    var rowHeaders = [...contractRowHeaders,...windowFields,...endHeaders]    
     rowHeaders.map(header => {
       trHead.append(`<th>${header.text}</th>`);
     });
@@ -112,6 +120,11 @@
     var tbody = table.find('tbody');
     tbody.empty();    
     getLatestContractData().filter(x=> x.category == contractCategory).map(data=>{
+      var variablelist = [...data.texts,...data.numbers,...data.codes]
+      windowFields.map(f=>{
+        var variabledata = variablelist.filter(x=>x.variable==f.code)[0]
+        data[f.code]=variabledata?variabledata.value:''
+      })
       var strTr = [`<tr>`];
       rowHeaders.map(header => {  
         strTr.push(`<td>${data[header.view??header.code]??''}</td>`);   
@@ -126,7 +139,6 @@
     var update = item!='';
     var html = [];
     html.push('<div>');
-
       
     html.push('<div class="rowFields">'); 
     //Row controls
@@ -139,9 +151,21 @@
       rowHeaders.push(header.code)
     })
     html.push('</div>');
+
+      
+    html.push('<div class="windowFields">'); 
+    deepCopy(windowFields).map(header=>{
+      if(update){
+        header.value = item[header.code]
+      }
+      html.push(htmlControl(header,update))
+      rowHeaders.push(header.code)
+    })
+    html.push('</div>');
+
     const vartypes = [
-      {code:'variable',text:'Variables',list:[...item.numbers,...item.texts,...item.codes]},
-      {code:'filters',text:'Filter',list:item.filters},
+      {code:'variable',text:'Variables',list:item?[...item.numbers,...item.texts,...item.codes].filter(x=>!windowFields.map(y=> y.code).includes(x.variable)):[]},
+      {code:'filters',text:'Filter',list:item?item.filters:[]},
     ]
     vartypes.map(type=>{      
       html.push(`<table class="table table-bordered tblVarInput" type="${type.code}">`);
@@ -165,25 +189,14 @@
     $($(btn).closest('table')).find('tbody').append(contractNewVariableLineHtml(type))
   }
 
-
-
   function contractNewVariableLineHtml (type,line=null){
-    var varType = 'domain'
-    switch (type){
-      case 'numbers':
-        varType = 'number'
-        break;
-      case 'texts':
-        varType = 'text'
-        break;
-    }
     var htmlPeriod = htmlControl({...getVariable('period_from'),value:line?line.period_start:null,required:true})
     var htmlValue = ''   
     var htmlbtn = `<button type="button" class="btn btn-primary" onclick="contractRemoveNewVariableLine(this)">Remove</button>`    
 
     var htmlVariable =  htmlControl({code:'variable',text:'Variable',type:'domain',required:true,
       options:deepCopy(variables)
-          .filter(x=> (x.category == ((type=='filters')?'filters':'inputs')))
+          .filter(x=> (x.category == ((type=='filters')?'filters':'inputs')&&(!windowFields.map(y=>y.code).includes(x.code))))
           .map(x=> { return {value:x.code,text:x.text}}),
       extension:`onchange="updateVariableValueField(this)"`,
       value:line?line.variable:null,
@@ -207,7 +220,6 @@
   function contractRemoveNewVariableLine(ctrl){
     $(ctrl).closest('tr').remove()
   }
-
 
   function getContractLatestTransItem(item){
     return getLast(getContractTransItem(item))
@@ -256,6 +268,15 @@
       }    
     })
 
+    windowFields.map(variable=>{
+      var field = variable.code
+      var value = $(`.windowFields .form-control[val="${field}"]`).val()
+      var validationResult = fieldValidation(variable,value)
+      if (!validationResult.ok)errFields.push(validationResult.message)
+      var variable = getVariable(field)
+      newTransData[getcontractDataType(variable.type)].push({variable:field,period_start:'1900-00',value:value})
+    })
+
     var contractVariables = deepCopy(variables).filter(x=> x.category == 'inputs')
     $.each($(modalBody).find('.tblVarInput tbody tr'),function(i,tr){
       var inputs = $(tr).find('td .form-control')    
@@ -263,7 +284,7 @@
       var period_start = inputs[1].value
       var value = inputs[2].value
       var variable = getVariable(field)
-      var type = getcontractDataType(variable.type)
+      var type =  $(tr).attr('type')=='variable'?getcontractDataType(variable.type):'filters'
       var validationResult = fieldValidation(variable,value)
       if (!validationResult.ok)errFields.push(validationResult.message) 
       newTransData[type].push({variable:field,period_start:period_start,value:value})
@@ -405,9 +426,7 @@
     })
     modal = modalShow(`Change History [${item.code}]`,html.join(''))
   }
-
-  
-  
+ 
   (async function() {
     const dataLoaded = await resDbLoad(); 
     refreshContractTable()
