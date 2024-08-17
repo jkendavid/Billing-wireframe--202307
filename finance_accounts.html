@@ -7,94 +7,32 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
   <title>Finance Accounts</title>
   <style>   
-
-    td .btn-sm{
-      width: 80px;
-      margin: 0px 2px;
-      height: 25px;
-      font-size: 12px;
-    }  
-    .table {
-        padding: 0;
-    }
-    .table th, .table td, .table tr {
-      padding-top: 2px;
-      padding-bottom: 5px;
-      font-size: 14px;
-    }
-    .colindex {
-      width: 3px;
-    }
-    td:last-child {
-      display: flex;      
-    }
-    .btnsubmit{
-      width: 120px;
-      margin: 10px;
+    .form-group.row{
+      max-width: 800px;
     }
   </style>
 </head>
-<body>
-  
-  <div class="container mt-4">
-
-  <h2>Finance Accounts</h2>
-  
-
-  <div class="form-row my-2">
-    <div class="mx-auto"></div>        
-    <div>
-      <button type="button" class="btn btn-primary" id="addNewButton" onclick="addNewModalShow()">Add New</button>
-    </div>
-  </div>
-  <!-- Table -->
-  <table class="table table-bordered" id="dataTable">
-    <thead>
-      <tr>
-        <th>Code</th>
-        <th>Text</th>
-        <th>Description</th>
-        <th>Active</th>
-        <th>Created By</th>
-        <th>Created Time</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-
-  <div class="modal" id="addNewModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add/Edit Entry</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id="addEntryForm">
-            <input type="hidden" id="editRowIndex" value=""> 
-            <input type="hidden" id="newActive" value="">
-            <div class="form-group">
-              <label for="newCode">Code*</label>
-              <input type="text" class="form-control" id="newCode">
-            </div>  
-            <div class="form-group">
-              <label for="newText">Text*</label>
-              <input type="text" class="form-control" id="newText">
-            </div>  
-            <div class="form-group">
-              <label for="newDescription">Description</label>
-              <input type="text" class="form-control" id="newDescription">
-            </div>  
-            <button type="button" class="btn btn-primary" onclick="addNewEntry()">Save</button>
-          </form>
-        </div>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Finance Accounts</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateFinanceAccounts()">Add New</button>
       </div>
     </div>
+
+    <table class="table table-bordered" id="tableFinanceAccounts">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
   </div>
+
 </div>
 
 
@@ -106,167 +44,89 @@
 
 <script src="navbar.js"></script>
 <script src="data.js"></script>
+<script src="functions.js"></script>
 
 <script>
+  const headers = [
+    {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    {code:'text',text:'Text',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
+    {code:'description',text:'Description',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
+  ] 
 
-  var rowButtons = `<button class="btn btn-info btn-sm editButton" onclick="editEntry(this)">Edit</button>
-                    <button class="btn btn-info btn-sm editButton" onclick="activateEntry(this)">Activate</button>
-                    <button class="btn btn-danger btn-sm removeButton" onclick="deactivateEntry(this)">Deactivate</button>`
-
-  function loadData(){
-    var data = []
-    $.each(dataFinanceAccount, function(index, row) {
-      row.push(getUser());
-      row.push(getCurrentTime());
-      row.push(rowButtons);
-      data.push(row)
-    });
-    return data;
-  }
-  
-  var table = $('#dataTable').DataTable({
-    paging: true, // Enable pagination
-    searching: true, 
-    scrollX:true,
-    data:loadData()
-  });  
-
-  function addNewModalShow(){
-    var modal = $('#addNewModal');
-    modal.modal('show');
-  
-    modal = modal[0]
-    modal.querySelectorAll('input').forEach(function(obj) {
-      obj.value = "";
-      obj.disabled = false;
-    });
-    modal.querySelectorAll('textarea').forEach(function(obj) {
-      obj.value = "";
-      obj.disabled = false;
-    });
-    modal.querySelectorAll('select').forEach(function(obj) {
-      obj.value = "";
-      obj.disabled = false;
-    });
-    modal.querySelectorAll('input[type="number"]').forEach(function(obj) {
-      obj.value = "";
-      obj.disabled = false;
-    });
-    modal.querySelectorAll('#newIndex').forEach(function(obj) {
-      obj.value = 1;
-    });
-    
+  function getFinanceAccuntsData() {
+    return deepCopy(finance_accounts)
   }
 
 
-  function addNewEntry() {
-    var newCode = document.getElementById("newCode").value;
-    var newText = document.getElementById("newText").value;
-    var newDescription = document.getElementById("newDescription").value;
-    var newCreatedBy = getUser();
-    var newCreatedTime = getCurrentTime();
-    var newActive = document.getElementById("newActive").value;
-    if(newActive=='')newActive='Yes';
+  function refreshtableFinanceAccounts(){    
+    var table = $('#tableFinanceAccounts');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
 
-    if (!newCode || !newText) {
-      alert("Please enter valid data.");
-      return;
-    }
+    var tbody = table.find('tbody');
+    tbody.empty();
 
-    var editing = document.getElementById("editRowIndex").value;
-    if (editing !== "") {      
-      var rowIndex = parseInt(editing);
-      var newData = table.row(rowIndex).data();
-      newData[0] = newCode;
-      newData[1] = newText;
-      newData[2] = newDescription;
-      newData[3] = newActive;
-      newData[4] = newCreatedBy;
-      newData[5] = newCreatedTime;
-      table.row(rowIndex).data(newData).draw();
-    } else {
-      for (var i = 0; i < table.rows().count(); i++) {
-        var rows = table.rows().data()[i]
-        if(rows[0]==newCode) {
-          alert(`The following record is already exist.                  
-  Code: ${newField}`);
-          return;
-        }
-      }
-
-      var newRow = table.row.add([newCode, newText, newDescription, newActive, newCreatedBy, newCreatedTime, 
-                      `<td>${rowButtons}</td>`,
-      ]).draw().node();
-    }    
-    $('#addNewModal').modal('hide');
-    calculationControlsAuth();
-  }
-  
-  function editEntry(button) {
-    var row = button.closest('tr');
-
-    var code = row.cells[0].innerText;
-    var text= row.cells[1].innerText;
-    var description = row.cells[2].innerText;
-    var active = row.cells[3].innerText;
-
-    addNewModalShow();
-
-    document.getElementById("newCode").value = code;
-    document.getElementById("newText").value = text;
-    document.getElementById("newDescription").value = description;
-    document.getElementById("newActive").value = active;
-
-    document.getElementById("newCode").disabled = true;
-
-    document.getElementById("editRowIndex").value = table.row(row).index();
-  }
-
-  function activateEntry(button){
-    var confirmation = confirm("Are you sure you want to activate this entry?");
-    if (confirmation) { 
-        var row = button.closest('tr');
-        alert(`Finance Account Activated.`);
-        var rowIndex = table.row(row).index();
-        var newData = table.row(rowIndex).data();
-        newData[3] = 'Yes';
-        table.row(rowIndex).data(newData).draw();
-        calculationControlsAuth();   
-    }
-  }
-
-  function deactivateEntry(button){
-    var confirmation = confirm("Are you sure you want to de-activate this entry?");
-    if (confirmation) { 
-        var row = button.closest('tr');
-        alert(`Finance Account De-activated.`);
-        var rowIndex = table.row(row).index();
-        var newData = table.row(rowIndex).data();
-        newData[3] = 'No';
-        table.row(rowIndex).data(newData).draw();
-        calculationControlsAuth();   
-    }
-  }
-
-  function calculationControlsAuth(){
-    var user = getUser(); 
-    table.rows().every(function() {
-      var rowData = this.data();
-      var active = rowData[3];
-      var tdControls = this.node().children[6];
-      tdControls.children[0].style.display = active=="Yes"&&user=="MKTG"?"block":"none";
-      tdControls.children[1].style.display = active=="No"&&user=="MKTG"?"block":"none";
-      tdControls.children[2].style.display = active=="Yes"&&user=="MKTG"?"block":"none";
+    getFinanceAccuntsData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.filter(x=> x.code != 'id').forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateFinanceAccounts('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
     })
-    table.columns.adjust().draw();
-  }
-  calculationControlsAuth();
-  function handleUserChange() {
-    calculationControlsAuth();
   }
 
+  function updateFinanceAccounts(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getFinanceAccuntsData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).map(header=>{
+      if(code)header.value=rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');      
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveFinanceAccount('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Template Default',html.join(''))
+  }
 
+  function saveFinanceAccount(code=""){
+    var errFields = []
+    var newData = {}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()      
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })   
 
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = finance_accounts.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      finance_accounts.push(newData)
+    }  
+
+    modal.modal('hide')
+    refreshtableFinanceAccounts()
+  }
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshtableFinanceAccounts()
+  })();
+ 
 </script>
 
 
