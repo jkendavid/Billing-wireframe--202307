@@ -23,6 +23,7 @@ $('body').prepend(
               </a>
               <div class="dropdown-menu" aria-labelledby="servicesDropdown">
                   <a class="dropdown-item" href="billing_templates.html">Billing Templates</a>
+                  <a class="dropdown-item" href="finance_schemes.html">Finance Schemes</a>
                   <a class="dropdown-item" href="billing_setup.html">Billing Setup</a>
                   <a class="dropdown-item" href="billing_calculation.html">Billing Calculation</a>
                   <a class="dropdown-item" href="billing_generation.html">Billing Generation</a>
@@ -40,7 +41,6 @@ $('body').prepend(
                 <a class="dropdown-item" href="regex_validations.html">Regex Validations</a>
                 <a class="dropdown-item" href="tax_rules.html">Tax Rules</a>
                 <a class="dropdown-item" href="finance_accounts.html">Finance Accounts</a>
-                <a class="dropdown-item" href="finance_account_link.html">Finance Accounts Link</a>
             </div>
         </li>
           

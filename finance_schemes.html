@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Finance Schemes</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Finance Schemes</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateFinanceScheme()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableFinanceSchemes">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+  const headers = [
+    {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    {code:'text',text:'Text',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
+    {code:'description',text:'Description',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
+  ] 
+
+  function getFinanceSchemeData() {
+    return deepCopy(finance_schemes)
+  }
+
+
+  function refreshtableFinanaceSchemes(){    
+    var table = $('#tableFinanceSchemes');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getFinanceSchemeData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.filter(x=> x.code != 'id').forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateFinanceScheme('${data.code}')">Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  const detailsFields =[
+    {code:'charge',text:'Charge',required:true,type:'domain',options:getOptionDomain('charges')},
+    {code:'account_pos',text:'Account Pos.',type:'domain',options:getOptionDomain('finance_accounts')},
+    {code:'account_neg',text:'Account Pos.',type:'domain',options:getOptionDomain('finance_accounts')},
+  ]
+
+  function updateFinanceScheme(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');      
+    if(code)var rowData = getFinanceSchemeData().filter(x=> x.code == code)[0];  
+    deepCopy(headers).map(header=>{
+      if(code)header.value=rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');   
+    
+    html.push(`<table class="table table-bordered" id="tblDetails">`);
+    var btnAddNewLine = `<a href="#" class="mx-2" onclick='addDetailNewLine()'>Add</a>`
+    html.push(`<thead>${detailsFields.map(x=>{return`<th>${x.text}</th>`})}<th>${btnAddNewLine}</th></tr></thead>`)
+    html.push(`<tbody>`)   
+    if (code){
+      var finance_scheme = finance_schemes.filter(x=>x.code==code)[0]
+      finance_scheme.lines.map(line=>{
+        html.push(addDetailNewLineHtml(line))
+      })
+    }
+    html.push(`</tbody></table>`)  
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveFinanceSchemes('${code}')">Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Template Default',html.join(''))
+  }
+
+  function addDetailNewLine(){
+    $('#tblDetails tbody').append(addDetailNewLineHtml())
+  }
+
+  function addDetailNewLineHtml(line=''){
+    var html= []
+    html.push('<tr>')
+    deepCopy(detailsFields).map(header=>{
+      if(line)header.value=line[header.code]
+      html.push(`<td>${htmlControl(header,line)}</td>`)
+    })
+    var htmlbtn = `<button type="button" class="btn btn-primary" onclick="removeDetailNewLineHtml(this)">Remove</button>`
+    html.push(`<td>${htmlbtn}</td>`)
+    html.push('</tr>')
+    return html.join('')
+  }
+
+  function removeDetailNewLineHtml(ctrl){
+    $(ctrl).closest('tr').remove()
+  }
+
+  function saveFinanceSchemes(code=""){
+    var errFields = []
+    var newData = {lines:[],create_by:getUser(),create_time:getCurrentTime(),update_by:getUser(),update_time:getCurrentTime()}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()      
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })   
+
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    $.each($('#tblDetails tbody tr'),function(i,tr){
+      var newLineData ={}
+      deepCopy(detailsFields).map(header=>{
+        var value = $(tr).find(`.form-control[val="${header.code}"]`).val()
+        var validationResult = fieldValidation(header,value)
+        if (!validationResult.ok)errFields.push(validationResult.message) 
+        newLineData[header.code]=value
+      })
+      newData.lines.push(newLineData)
+    })
+
+    if(code){
+      var data = finance_schemes.filter(x=> x.code == code)[0]
+      Object.assign(data, newData);      
+    }else{
+      finance_schemes.push(newData)
+    }  
+
+    modal.modal('hide')
+    refreshtableFinanaceSchemes()
+  }
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshtableFinanaceSchemes()
+  })();
+ 
+</script>
+
+
+</body>
+</html>

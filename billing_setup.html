@@ -94,11 +94,11 @@
     })
     html.push('</div>');      
     html.push('</div>');
-    html.push(`<button type="button" class="btn btn-primary" onclick="saveTemplateDefault('${code}')">Save</button>`)
+    html.push(`<button type="button" class="btn btn-primary" onclick="saveBillingSetup('${code}')">Save</button>`)
     modal = modalShow((code?'New':'Update') + ' Template Default',html.join(''))
   }
 
-  function saveTemplateDefault(code=""){
+  function saveBillingSetup(code=""){
     var errFields = []
     var newData = {}
     $.each(modal.find('.rowFields .form-control'),function(i,v){
