@@ -1,10 +1,36 @@
 var window_categories =[
-    {window:'parties',code:'GEN', text:'Generator', approval:'THREESTEP'},
-    {window:'parties',code:'RES', text:'Retail Electricity Supplier', approval:'ONESTEP'},
-    {window:'parties',code:'DU', text:'Distribution Utilities', approval:'ONESTEP'},
-    {window:'parties',code:'DCC', text:'Directly Connected Customer', approval:'ONESTEP'},
-    {window:'parties',code:'CC', text:'Contestable Customer', approval:'ONESTEP'},
-    {window:'parties',code:'CUSTOM', text:'Custom Party type', approval:'ONESTEP'},
+    {window:'parties',code:'GEN', text:'Generator', approval:'THREESTEP',fields:[
+        {variable:'name',required:'true'},
+        {variable:'address',required:'true'},
+        {variable:'tin',required:'false'},
+        {variable:'gentype',required:'true'},
+    ]},
+    {window:'parties',code:'RES', text:'Retail Electricity Supplier', approval:'ONESTEP',fields:[
+        {variable:'name',required:'true'},
+        {variable:'address',required:'true'},
+        {variable:'tin',required:'false'},
+        {variable:'creditrating',required:'false'},
+    ]},
+    {window:'parties',code:'DU', text:'Distribution Utilities', approval:'ONESTEP',fields:[
+        {variable:'name',required:'true'},
+        {variable:'address',required:'true'},
+        {variable:'tin',required:'false'},
+        {variable:'creditrating',required:'false'},
+    ]},
+    {window:'parties',code:'DCC', text:'Directly Connected Customer', approval:'ONESTEP',fields:[
+        {variable:'name',required:'true'},
+        {variable:'address',required:'true'},
+        {variable:'tin',required:'false'},
+        {variable:'creditrating',required:'false'},
+    ]},
+    {window:'parties',code:'CC', text:'Contestable Customer', approval:'ONESTEP',fields:[
+        {variable:'name',required:'true'},
+        {variable:'address',required:'true'},
+        {variable:'tin',required:'false'},
+        {variable:'creditrating',required:'false'},
+    ]},
+    {window:'parties',code:'CUSTOM', text:'Custom Party type', approval:'ONESTEP',fields:[
+    ]},
     {window:'contracts',code:'PSA_COAL', text:'PSA Coal', approval:'THREESTEP'},
     {window:'contracts',code:'PSA_SOLAR', text:'PSA Solar', approval:'ONESTEP'},
     {window:'contracts',code:'RSC', text:'Retail supply Contract', approval:'ONESTEP'},
@@ -51,9 +77,6 @@ var variables = [
     {category:'system',code:'period_from',type:'period',text:'Period From'},
     {category:'system',code:'period_to',type:'period',text:'Period To'},
     {category:'system',code:'index',type:'number',text:'Index', min:0, max:99}, 
-    {category:'system',code:'name',type:'text',text:'Name',description:'',active:'active'},
-    {category:'system',code:'address',type:'text',text:'Address',description:'',active:'active'},
-    {category:'system',code:'tin',type:'text',text:'TIN',description:'',active:'active',regex:'tin'},
    
 
     {category:'system',code:'contract',type:'domain',text:'Contract'},
@@ -67,8 +90,12 @@ var variables = [
     {category:'system',code:'interval5m',type:'domain',text:'5-minute interval'},
     {category:'system',code:'interval1h',type:'domain',text:'Hourly Interval'},
 
+    {category:'inputs',code:'name',type:'text',text:'Name',description:'',active:'active'},
+    {category:'inputs',code:'address',type:'text',text:'Address',description:'',active:'active'},
+    {category:'inputs',code:'tin',type:'text',text:'TIN',description:'',active:'active',regex:'tin'},
     {category:'inputs',code:'msp',type:'domain',text:'Metering Service Provider',description:'',active:'active'},
     {category:'inputs',code:'creditrating',type:'domain',text:'Credit Rating',description:'',active:'active'},  
+    {category:'inputs',code:'gentype',type:'domain',text:'Type',description:'',active:'active'},  
     {category:'inputs',code:'cc',type:'number',text:'Contracted Capacity',description:'',active:'active',rounding:'kw',unit:'MW', min:0},
     {category:'inputs',code:'crfr',type:'number',text:'Capital Recovery Fee Rate',description:'',active:'active',rounding:'rate',unit:'Php/kW'},
     {category:'inputs',code:'fomr',type:'number',text:'Fixed O&M Fee Rate',description:'',active:'active',rounding:'rate',unit:'Php/kW'},
@@ -154,6 +181,12 @@ var variable_domain_codes = [
     {variable:'finconst',code:'General'},
     {variable:'wesm_buyer_bid',code:'WESMBIDDU01'},
     {variable:'wesm_buyer_bid',code:'WESMBIDDU02'},
+    {variable:'gentype',code:'COAL'},
+    {variable:'gentype',code:'SOLAR'},
+    {variable:'gentype',code:'WIND'},
+    {variable:'gentype',code:'HYDRO'},
+    {variable:'gentype',code:'GEOTHERMAL'},
+    {variable:'gentype',code:'OTHERS'},
 ]
 
 var rounding_rules =[
@@ -340,44 +373,75 @@ contract_update_trans = [
 
 party_update_trans = [
     {
-        party:'GEN01',name:'Generator 1',address:'Gen addr 1',tin:'000-000-001',owned:'true',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'GEN01',owned:'true',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Generator 1'},
+            {variable:'address',value:'Gen addr 1'},
+            {variable:'tin',value:'000-000-000-001'},
+        ],numbers:[],codes:[ {variable:'gentype',value:'COAL'},],
     }, 
     {
-        party:'GEN02',name:'Generator 2',address:'Gen addr 2',tin:'000-000-002',owned:'true',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'GEN02',owned:'true',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Generator 2'},
+            {variable:'address',value:'Gen addr 2'},
+            {variable:'tin',value:'000-000-000-002'},            
+        ],numbers:[],codes:[{variable:'gentype',value:'SOLAR'},],
     }, 
     {
-        party:'DU01',name:'DU 1',address:'DU addr 1',tin:'000-000-003',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'DU01',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[{variable:'creditrating',period_start:'202201',value:'AAA'},],
+        texts:[
+            {variable:'name',value:'Distribution Utilities 1'},
+            {variable:'address',value:'DU 1 addr'},
+            {variable:'tin',value:'000-000-000-003'},
+        ],numbers:[],codes:[{variable:'creditrating',value:'AAA'},],
     }, 
     {
-        party:'DU02',name:'DU 2',address:'DU addr 2',tin:'000-000-004',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'DU02',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[{variable:'creditrating',period_start:'202201',value:'AAA'},],
+        texts:[
+            {variable:'name',value:'Distribution Utilities 2'},
+            {variable:'address',value:'DU 2 addr'},
+            {variable:'tin',value:'000-000-000-004'},
+        ],numbers:[],codes:[{variable:'creditrating',value:'AAA'},],
     }, 
     {
-        party:'RES01',name:'RES 1',address:'RES addr 1',tin:'000-000-005',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'RES01',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Retail electricity 1'},
+            {variable:'address',value:'RES 1 addr'},
+            {variable:'tin',value:'000-000-000-005'},
+        ],numbers:[],codes:[{variable:'creditrating',value:'AAA'}],
     }, 
     {
         party:'RES02',name:'RES 2',address:'RES addr 2',tin:'000-000-006',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Retail electricity 2'},
+            {variable:'address',value:'RES 2 addr'},
+            {variable:'tin',value:'000-000-000-006'},
+        ],numbers:[],codes:[{variable:'creditrating',value:'AAA'}],
     }, 
     {
-        party:'CC01',name:'CC 1',address:'CC addr 1',tin:'000-000-007',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
+        party:'CC01',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Contestable Customer 1'},
+            {variable:'address',value:'CC 1 addr'},
+            {variable:'tin',value:'000-000-000-007'},
+        ],numbers:[],codes:[{variable:'creditrating',value:'AAA'}],
     }, 
     {
         party:'CC02',name:'CC 2',address:'CC addr 2',tin:'000-000-008',owned:'false',create_by:'MKTG', create_time:'2022-12-15 00:00', 
         status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-01-01 00:00',remarks:''},],
-        texts:[],numbers:[],codes:[],
+        texts:[
+            {variable:'name',value:'Contestable Customer 2'},
+            {variable:'address',value:'CC 2 addr'},
+            {variable:'tin',value:'000-000-000-008'},],numbers:[],codes:[{variable:'creditrating',value:'AAA'}],
     }, 
 ]
 
@@ -741,11 +805,9 @@ var billing_templates =[
     ]},
 ]
 
-var template_default = [{code:'TEMPL_DEF_COAL',template:'COALFIRM',default_version:'latest'}]
-
  
 var billing_setup = [
-    {code:'SETUP_COAL',template:'COALFIRM',finance_scheme:'FSCoalMain',}
+    {code:'SETUP_COAL',description:'',template:'COALFIRM',finance_scheme:'FSCoalMain',}
 ]
 
 var contract_billing_setup =[
@@ -882,7 +944,7 @@ var finance_accounts =[
 
 
 var finance_schemes =[
-    {code:'FSCoalMain',text:'Coal Main Scheme',description:'',create_by:'user',create_time:'2024-01-01 00:00',
+    {code:'FSCoalMain',text:'Coal Main Scheme',description:'',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00',
         lines:[
             {charge:'crf',account_pos:'GLR0001',account_neg:'GLP0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
             {charge:'fom',account_pos:'GLR0001',account_neg:'GLP0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
