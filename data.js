@@ -41,20 +41,31 @@ var window_categories =[
     {window:'contracts',code:'RSC', text:'Retail supply Contract', approval:'ONESTEP',fields:[
     ]},
     {
-        window:'dynamics',code:'FINCONST', text:'Finance Constants', approval:'ADMIN',
-        filter:'finconst',variables:[{code:'vatrate',required:'true',active:'true'},]
-    },
-    {
         window:'dynamics',code:'INDEX', text:'Monthly Index', approval:'ONESTEP',
-        filter:'finconst',variables:[{code:'forex',required:'true',active:'true'},{code:'ncrcpi',required:'true',active:'true'},{code:'phpcpi',required:'true',active:'true'},{code:'comment',required:'false',active:'true'},]
+        filter:'finconst',fields:[
+            {variable:'forex',required:'true',active:'true'},
+            {variable:'ncrcpi',required:'true',active:'true'},
+            {variable:'phpcpi',required:'true',active:'true'},
+            {variable:'comment',required:'false',active:'true'},]
     },
     {
         window:'dynamics',code:'PLANT', text:'Monthly Plant Data', approval:'ONESTEP',
-        filter:'plant_sources',variables:[{code:'pmq',required:'true',active:'true'},{code:'coalmt',required:'true',active:'true'},{code:'coalcost',required:'true',active:'true'},{code:'comment',required:'false',active:'true'},]
+        filter:'plant_sources',fields:[
+            {variable:'pmq',required:'true',active:'true'},
+            {variable:'coalmt',required:'true',active:'true'},
+            {variable:'coalcost',required:'true',active:'true'},
+            {variable:'comment',required:'false',active:'true'},]
     },
     {
         window:'dynamics',code:'MBCQ', text:'Monthly BCQ', approval:'ONESTEP',
-        filter:'wesm_buyer_bid',variables:[{code:'bcq',required:'true',active:'true'},{code:'mq',required:'true',active:'true'},{code:'lr',required:'true',active:'true'},]
+        filter:'wesm_buyer_bid',fields:[
+            {variable:'bcq',required:'true',active:'true'},
+            {variable:'mq',required:'true',active:'true'},
+            {variable:'lr',required:'true',active:'true'},]
+    },
+    {
+        window:'dynamics',code:'FINCONST', text:'Finance Constants', approval:'ADMIN',
+        filter:'finconst',fields:[{variable:'vatrate',required:'true',active:'true'},]
     },
 ]
 

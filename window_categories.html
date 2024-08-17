@@ -70,28 +70,26 @@
       dynamics:true,row:true,selector:'form',code:'filter',view:'filtertext',text:'Filter Field',readonly:false,required:false,type:'domain',
       options:deepCopy(variables).filter(x=> x.category=="filters").map(x=>{return{value:x.code,text:x.text}})
     },
-    {dynamics:true,row:false,selector:'form',code:'variables',view:'variablestext',text:'Variable Fields',readonly:false,required:false,type:'domain'},
+    {dynamics:false,row:false,selector:'form',code:'variables',view:'variablestext',text:'Variable Fields',readonly:false,required:false,type:'domain'},
   ]
 
   var fieldHeaders = [ 
-    {code:'code',text:'Variable',required:true,type:'domain',options:deepCopy(variables).filter(x=> x.category=='inputs').map(x=>{return{value:x.code,text:x.text}})},
+    {code:'variable',text:'Variable',required:true,type:'domain',options:deepCopy(variables).filter(x=> x.category=='inputs').map(x=>{return{value:x.code,text:x.text}})},
     {code:'required',text:'Required',required:true,type:'bool'},
-    {code:'active',text:'Active',required:true,type:'bool'}
   ]
 
   function getWindowData(){
     return deepCopy(window_categories).filter(x=> x.window == windowWindow).map(x=> {
       var approval = deepCopy(approval_rules).filter(y=> y.code == x.approval)[0]
       x.approval_text =  approval?approval.text:'' 
-      if(x.filter) {
-        x.filtertext = deepCopy(getVariable(x.filter)).text
-        x.variablestext = x.variables.map(y=>{
-          return (deepCopy(getVariable(y.code)).text) + (y.required=='false'?' [o]':'') + (y.active=='false'?' [x]':'')
+      if(x.filter)  x.filtertext = deepCopy(getVariable(x.filter)).text
+      x.variablestext = x.fields.map(y=>{
+          return (deepCopy(getVariable(y.variable)).text) + (y.required=='false'?' [o]':'') + (y.active=='false'?' [x]':'')
         }).join('<br>')
-      }
       return x
     })
   }
+  
   var vheaders =[]
   function refreshTableWindows(){    
     windowWindow = $('#optWindowWindows').val();
@@ -134,19 +132,19 @@
       html.push(htmlControl(header,code))
     })
     html.push('</div>');  
-    if(windowWindow=='dynamics'){
-      html.push('<div class="extFields">');  
-      html.push('<table class="table table-bordered">'); 
-      html.push('<tr>');  
-      fieldHeaders.map(header=>{
-        html.push(`<th>${header.text}</th>`); 
-      })
-      html.push(`<td><a href="#" class="mx-2" onclick="addWindowDetailRow(this)">Add</a></td>`); 
-      html.push('</tr>');  
-      if(rowData)rowData.variables.map(row=>{html.push(windowDetailRow(code,row))})
-      html.push('</table>');  
-      html.push('</div>');  
-    }
+    
+    html.push('<div class="extFields">');  
+    html.push('<table class="table table-bordered">'); 
+    html.push('<tr>');  
+    fieldHeaders.map(header=>{
+      html.push(`<th>${header.text}</th>`); 
+    })
+    html.push(`<td><a href="#" class="mx-2" onclick="addWindowDetailRow(this)">Add</a></td>`); 
+    html.push('</tr>');  
+    if(rowData)rowData.fields.map(row=>{html.push(windowDetailRow(code,row))})
+    html.push('</table>');  
+    html.push('</div>');  
+    
     html.push('</div>');
     html.push(`<button type="button" class="btn btn-primary" onclick="saveWindow('${code}')">Save</button>`)
     modal = modalShow((code?'New':'Update') + ' Window',html.join(''))
@@ -177,7 +175,7 @@
 
   function saveWindow(code=""){
     var errFields = []
-    var newData = {window:windowWindow,variables:[]}
+    var newData = {window:windowWindow,fields:[]}
     $.each(modal.find('.rowFields .form-control'),function(i,v){
       var field = $(v).attr('val');
       newData[field]=$(v).val()
@@ -195,7 +193,7 @@
           errFields.push(fieldHeaders.filter(x=> x.code == field)[0].text)
         }
       })
-      newData.variables.push(newFieldRow)
+      newData.fields.push(newFieldRow)
     })
 
     if (errFields.length>0){
