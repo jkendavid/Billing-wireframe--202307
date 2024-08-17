@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Contract Billing Link</title>
+  <style>   
+    .form-group.row{
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Contract Billing Link</h2>      
+    <div class="form-row my-2">
+      <div class="mx-auto"></div>        
+      <div>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateContractBillingLink()">Add New</button>
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="tableContractBillingLink">
+      <thead>
+        <tr></tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>  
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+
+<script>
+  const headers = [
+    {code:'contract',text:'Contract',type:'domain',selector:'form',field_locs:'row',required:false,readonly:false,main:true,options:getOptionDomain('contract')},
+    {code:'period_start',text:'Period Start',type:'period',required:true,selector:'form'}, 
+    {code:'setup',text:'Setup',type:'domain',selector:'form',field_locs:'row',required:false,readonly:false,main:true,options:getOptionDomain('billing_setup')},
+  
+  ] 
+
+  function getContractBilingLinkData() {
+    return deepCopy(contract_billing_setup)
+  }
+
+
+  function refreshtableContractBillingLink(){    
+    var table = $('#tableContractBillingLink');
+    var trHead = table.find('thead tr');
+    trHead.empty();
+    headers.map(header => {
+      trHead.append(`<th>${header.text}</th>`);
+    });
+    trHead.append(`<th></th>`);
+
+    var tbody = table.find('tbody');
+    tbody.empty();
+
+    getContractBilingLinkData().map(data=>{
+      var strTr = [`<tr>`];
+      var status
+      headers.filter(x=> x.code != 'id').forEach(header => {  
+        strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
+      });
+      strTr.push(`<td><a href="#" class="mx-2" onclick='updateContractBillingLink(${JSON.stringify(data)})'>Edit</a></td>`)
+      strTr.push('</tr>');
+      tbody.append(strTr.join(''));
+    })
+  }
+
+  function updateContractBillingLink(code=''){
+    var html = [];
+    html.push('<div>');
+    html.push('<div class="rowFields">');   
+    if(code)var rowData = getContractBilingLinkData().filter(x=> x.contract == code.contract &&(x.period_start==code.period_start))[0];  
+    deepCopy(headers).map(header=>{
+
+      if(code)header.value=rowData[header.code]
+      html.push(htmlControl(header,code))
+    })
+    html.push('</div>');      
+    html.push('</div>');
+    html.push(`<button type="button" class="btn btn-primary" onclick='saveContractBillingLink(${JSON.stringify(code)})'>Save</button>`)
+    modal = modalShow((code?'New':'Update') + ' Contract Billing Link',html.join(''))
+  }
+
+  function saveContractBillingLink(code=""){
+    var errFields = []
+    var newData = {}
+    $.each(modal.find('.rowFields .form-control'),function(i,v){
+      var field = $(v).attr('val');
+      newData[field]=$(v).val()      
+      var validationResult = fieldValidation(headers.filter(x=> x.code == field)[0],newData[field])
+      if (!validationResult.ok)errFields.push(validationResult.message)
+    })   
+
+    if (errFields.length>0){
+      alert('Error fields: \n• ' + errFields.join("\n• "));
+      return
+    }
+
+    if(code){
+      var data = contract_billing_setup.filter(x=> x.contract == code.contract &&(x.period_start==code.period_start))[0]
+      Object.assign(data, newData);      
+    }else{
+      contract_billing_setup.push(newData)
+    }  
+
+    modal.modal('hide')
+    refreshtableContractBillingLink()
+  }
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    refreshtableContractBillingLink()
+  })();
+ 
+</script>
+
+
+</body>
+</html>

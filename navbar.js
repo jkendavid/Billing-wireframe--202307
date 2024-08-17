@@ -25,6 +25,7 @@ $('body').prepend(
                   <a class="dropdown-item" href="billing_templates.html">Billing Templates</a>
                   <a class="dropdown-item" href="finance_schemes.html">Finance Schemes</a>
                   <a class="dropdown-item" href="billing_setup.html">Billing Setup</a>
+                  <a class="dropdown-item" href="contract_billling_setup.html">Contract Link</a>                  
                   <a class="dropdown-item" href="billing_calculation.html">Billing Calculation</a>
                   <a class="dropdown-item" href="billing_generation.html">Billing Generation</a>
               </div>
