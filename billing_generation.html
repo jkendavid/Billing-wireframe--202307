@@ -143,6 +143,8 @@
 <script src="navbar.js"></script>
 <script src="data.js"></script>
 <script src="functions.js"></script>
+<script src="billing_generation.js"></script>
+<script src="input_functions.js"></script>
 
 <script>
  
@@ -155,6 +157,7 @@
     {code:'seller',text:'Seller'},
     {code:'revision_number',text:'Rev. No.'},
     {code:'template',text:'Template'},
+    {code:'finance_scheme',text:'Finance Sccheme'},
     {code:'status',text:'Status'},
     {code:'sub_status',text:'Sub Status'},
     {code:'update_by',text:'Update By'},
@@ -262,6 +265,9 @@
       x['update_time'] = status.update_time
       x['template'] = `${x['template']} v.${x['version_number']}`
       x['sub_status']=status.sub_status?approval_steps.filter(x=>x.code==status.sub_status)[0].text:''
+      var setup = getLast(contract_billing_setup.filter(y=>(y.contract==x.contract)&&(getPeriod(y.period_start)<=getPeriod(x.period)))).setup
+      var scheme = billing_setup.filter(y=>y.code==setup)[0].finance_scheme     
+      x['finance_scheme']=scheme
     })
 
     var forapprovaldata = loadData.filter(x=>x.status =='for-approval').map(x=>{
@@ -341,6 +347,7 @@
   }
 
 
+
   const headers = [
     {selector:'form',code:'contract',text:'Contract',readonly:false,required:true,type:'text'},
   ]
@@ -351,7 +358,6 @@
   function submit(type,ctrl){       
     var remarks = showPromptRemarks(false);
     if(remarks.ok){
-      xx = ctrl
       selections=getinputselected(ctrl)
       selections.map(selected=>{
         var calculation = billing_calculations.filter(x => 
@@ -360,7 +366,6 @@
           x.revision_number == selected.revision_number
         )[0]
         var newStatus = {update_by:getUser(),update_time:getCurrentTime(),remarks:remarks.text}
-        p(type)
         if(['approved','resubmit'].includes(type)){
           var contractCategory=contracts.filter(x=>x.code ==selected.contract)[0].category
           var step = $(calculation.status).last().get(0).sub_status
@@ -372,10 +377,32 @@
         }else{
           newStatus.code=type
         }
+        if(['released','realloc'].includes(type)){
+          calculation.finance_values = calculateFinance(calculation,selected.finance_scheme)
+          newStatus.code='released'
+        }  
         calculation.status.push(newStatus)
+
         load()
       }) 
     }  
+  }
+
+  function calculateFinance(calculation,scheme){    
+    var objOutput = {}
+    var amounts = calculation.amounts
+    finance_schemes.filter(x=>x.code == scheme)[0].lines.map(x=>{
+      var amount = amounts.filter(y=>y.variable==x.charge)[0].amount_diff
+      var account = ''
+      if(amount>0)account=x.account_pos
+      if(amount<0)account=x.account_neg
+      if(account)objOutput[account]=(objOutput[account]??0)+amount
+    })
+    var output = []
+    for (const key in objOutput) {
+      output.push({account:key,amount:objOutput[key]},)      
+    }
+    return output
   }
 
   (async function() {

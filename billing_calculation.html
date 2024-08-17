@@ -139,6 +139,8 @@
 <script src="navbar.js"></script>
 <script src="data.js"></script>
 <script src="functions.js"></script>
+<script src="billing_generation.js"></script>
+<script src="input_functions.js"></script>
 
 <script>
  
@@ -318,8 +320,8 @@
     var calculateddata = deepCopy(billing_calculations)
     loadData.map(x=>{
       x['selected'] = '<input type="checkbox" class="inputselected" onchange="inputselected_Change(this)">'
-      var template = getLast(x.templates.filter(y=> getPeriod(y.period_start)<getPeriod(x.period))).value
-      template = template_default.filter(x=> x.code == template)[0].template
+      var setup = getLast(contract_billing_setup.filter(y=>(y.contract==x.contract)&&(getPeriod(y.period_start)<=getPeriod(x.period)))).setup
+      var template = billing_setup.filter(y=>y.code==setup)[0].template
       var templateversion = deepCopy(getLast(billing_templates.filter(y=>y.code == template)[0].versions.filter(y=> y.status=='active')))
       x['template'] = `${template} V.${templateversion.version_number}`
       x['status'] = null
@@ -417,8 +419,7 @@
     return({template:result[0],version_number:result[1]})
   }
 
-  function calculate(ctrl,rev=false){
-    
+  function calculate(ctrl,rev=false){    
     var contractData = deepCopy(getLatestContractData(true))
     var partyData = deepCopy(getLatestPartyData(true))
     getinputselected(ctrl).map(selected=>{
@@ -539,7 +540,6 @@
       load()
     })
   }
-
 
   function executeFormula(inputs,executionstring){
     executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {

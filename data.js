@@ -458,6 +458,86 @@ dynamic_update_trans = [
                 {variable:'phpcpi',value:3.7},
         ]}
     ]},
+    {category:'PLANT',period_from:'2024-01',period_to:'2024-01',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'plant_sources',value:'PLANT01'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:800000},
+                {variable:'coalmt',value:900000},
+                {variable:'coalcost',value:3000},
+        ]},
+        {
+            filter:{variable:'plant_sources',value:'PLANT02'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:700000},
+                {variable:'coalmt',value:1200000},
+                {variable:'coalcost',value:2800},
+        ]}
+    ]},
+    {category:'PLANT',period_from:'2024-02',period_to:'2024-02',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'plant_sources',value:'PLANT01'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:800000},
+                {variable:'coalmt',value:900000},
+                {variable:'coalcost',value:3000},
+        ]},
+        {
+            filter:{variable:'plant_sources',value:'PLANT02'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:700000},
+                {variable:'coalmt',value:1200000},
+                {variable:'coalcost',value:2800},
+        ]}
+    ]},
+    {category:'PLANT',period_from:'2024-03',period_to:'2024-03',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'plant_sources',value:'PLANT01'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:800000},
+                {variable:'coalmt',value:900000},
+                {variable:'coalcost',value:3000},
+        ]},
+        {
+            filter:{variable:'plant_sources',value:'PLANT02'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:700000},
+                {variable:'coalmt',value:1200000},
+                {variable:'coalcost',value:2800},
+        ]}
+    ]},
+    {category:'PLANT',period_from:'2024-04',period_to:'2024-04',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'plant_sources',value:'PLANT01'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:800000},
+                {variable:'coalmt',value:900000},
+                {variable:'coalcost',value:3000},
+        ]},
+        {
+            filter:{variable:'plant_sources',value:'PLANT02'},
+            texts:[],
+            numbers:[
+                {variable:'pmq',value:700000},
+                {variable:'coalmt',value:1200000},
+                {variable:'coalcost',value:2800},
+        ]}
+    ]},
     {category:'PLANT',period_from:'2024-05',period_to:'2024-05',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
@@ -478,7 +558,7 @@ dynamic_update_trans = [
                 {variable:'coalcost',value:2800},
         ]}
     ]},
-    {category:'MBCQ',period_from:'2024-05',period_to:'2024-05',
+    {category:'MBCQ',period_from:'2024-01',period_to:'2024-01',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
@@ -497,7 +577,83 @@ dynamic_update_trans = [
                 {variable:'mq',value:1954},
                 {variable:'lr',value:48000},
         ]}
-    ]},
+    ]},{category:'MBCQ',period_from:'2024-02',period_to:'2024-02',
+        status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+        filters:[
+            {
+                filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU01'},
+                texts:[],
+                numbers:[
+                    {variable:'bcq',value:1752},
+                    {variable:'mq',value:2355},
+                    {variable:'lr',value:28000},
+            ]},
+            {
+                filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU02'},
+                texts:[],
+                numbers:[
+                    {variable:'bcq',value:1254},
+                    {variable:'mq',value:1954},
+                    {variable:'lr',value:48000},
+            ]}
+        ]},{category:'MBCQ',period_from:'2024-03',period_to:'2024-03',
+            status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+            filters:[
+                {
+                    filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU01'},
+                    texts:[],
+                    numbers:[
+                        {variable:'bcq',value:1752},
+                        {variable:'mq',value:2355},
+                        {variable:'lr',value:28000},
+                ]},
+                {
+                    filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU02'},
+                    texts:[],
+                    numbers:[
+                        {variable:'bcq',value:1254},
+                        {variable:'mq',value:1954},
+                        {variable:'lr',value:48000},
+                ]}
+            ]},{category:'MBCQ',period_from:'2024-04',period_to:'2024-04',
+                status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+                filters:[
+                    {
+                        filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU01'},
+                        texts:[],
+                        numbers:[
+                            {variable:'bcq',value:1752},
+                            {variable:'mq',value:2355},
+                            {variable:'lr',value:28000},
+                    ]},
+                    {
+                        filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU02'},
+                        texts:[],
+                        numbers:[
+                            {variable:'bcq',value:1254},
+                            {variable:'mq',value:1954},
+                            {variable:'lr',value:48000},
+                    ]}
+                ]},{category:'MBCQ',period_from:'2024-05',period_to:'2024-05',
+                    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+                    filters:[
+                        {
+                            filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU01'},
+                            texts:[],
+                            numbers:[
+                                {variable:'bcq',value:1752},
+                                {variable:'mq',value:2355},
+                                {variable:'lr',value:28000},
+                        ]},
+                        {
+                            filter:{variable:'wesm_buyer_bid',value:'WESMBIDDU02'},
+                            texts:[],
+                            numbers:[
+                                {variable:'bcq',value:1254},
+                                {variable:'mq',value:1954},
+                                {variable:'lr',value:48000},
+                        ]}
+                    ]},
 ]
 
 
@@ -585,14 +741,23 @@ var billing_templates =[
     ]},
 ]
 
-
 var template_default = [{code:'TEMPL_DEF_COAL',template:'COALFIRM',default_version:'latest'}]
+
+ 
+var billing_setup = [
+    {code:'SETUP_COAL',template:'COALFIRM',finance_scheme:'FSCoalMain',}
+]
+
+var contract_billing_setup =[
+    {contract:'PSA-GEN01-00001',period_start:'202101',setup:'SETUP_COAL'},
+    {contract:'PSA-GEN01-00002',period_start:'202101',setup:'SETUP_COAL'},
+]
 
 
 
 var billing_calculations = [{
-    report_period:'2024-05',
-    period:'2024-05',
+    report_period:'2024-04',
+    period:'2024-04',
     contract:'PSA-GEN01-00002',
     revision_number:0,
     template:'COALFIRM',
@@ -600,6 +765,7 @@ var billing_calculations = [{
     status:[
         {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
         {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'THREESTEPFIRST'},
+        {code:'approved',update_by:'MKTG',update_time:'2024-05-05 12:31'},
         {code:'released',update_by:'MKTG',update_time:'2024-05-05 12:31'},
     ],
     values:[
@@ -643,14 +809,63 @@ var billing_calculations = [{
         {variable:'er194',amount_prev:0,amount:125400,amount_diff:125400},
         {variable:'fuel',amount_prev:0,amount:4232250,amount_diff:4232250},
         {variable:'vat',amount_prev:0,amount:3666462,amount_diff:3666462},
-    ],
-    finance_values:[        
-        {account:'GLR0001',amount:25820000},
-        {account:'GLR0002',amount:4733850},
-        {account:'GLR0050',amount:125400},
-        {account:'GLR0100',amount:3666462},
     ]
     },
+    {
+        report_period:'2024-05',
+        period:'2024-05',
+        contract:'PSA-GEN01-00002',
+        revision_number:0,
+        template:'COALFIRM',
+        version_number:0,
+        status:[
+            {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+            {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'THREESTEPFIRST'},
+            {code:'approved',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+        ],
+        values:[
+            {index:1,type:'determinant',text:'Indices',internal:'false',items:[
+                {index:1,variable:'forexb',base:55,comment:''},
+                {index:2,variable:'forexc',base:58.2,comment:'Based on previous month'},
+                {index:3,variable:'ncrcpib',base:3,comment:''},
+                {index:4,variable:'ncrcpic',base:3.3,comment:'Based on previous month'},
+                {index:5,variable:'rateindex',base:1.164,comment:''},
+            ]},
+            {index:2,type:'determinant',text:'Plant Data',internal:'false',items:[
+                {index:1,variable:'pmq',base:8000,comment:''},
+                {index:2,variable:'coalmt',base:900000,comment:''},
+                {index:3,variable:'coalcost',base:3000,comment:''},
+            ]},
+            {index:3,type:'determinant',text:'Quantities',internal:'false',items:[
+                {index:1,variable:'cc',base:5000,comment:''},
+                {index:2,variable:'energy',base:1254,comment:''},
+            ]},
+            {index:4,type:'determinant',text:'Rates',internal:'false',items:[
+                {index:1,variable:'crfr',base:1000,comment:''},
+                {index:2,variable:'fomr',base:4000,comment:''},
+                {index:3,variable:'vomr',base:500,comment:''},
+                {index:4,variable:'er194r',base:100,comment:''},
+                {index:5,variable:'fuelr',base:3375,comment:''},
+            ]},
+            {index:5,type:'baseprice',text:'Fixed Charge',internal:'false',items:[
+                {index:1,variable:'crf',base:5000,price:1164,net_amount:5820000,tax_amount:698400,gross_amount:6518400},
+                {index:2,variable:'fom',base:5000,price:4000,net_amount:20000000,tax_amount:2400000,gross_amount:22400000},
+            ]},
+            {index:6,type:'baseprice',text:'Variable Charge',internal:'false',items:[
+                {index:1,variable:'vom',base:1254,price:400,net_amount:501600,tax_amount:60192,gross_amount:561792},
+                {index:2,variable:'er194',base:1254,price:100,net_amount:125400,tax_amount:0,gross_amount:125400},
+                {index:3,variable:'fuel',base:1254,price:3375,net_amount:4232250,tax_amount:507870,gross_amount:4740120},
+            ]},
+        ],
+        amounts:[
+            {variable:'crf',amount_prev:0,amount:5820000,amount_diff:5820000},
+            {variable:'fom',amount_prev:0,amount:20000000,amount_diff:20000000},
+            {variable:'vom',amount_prev:0,amount:501600,amount_diff:501600},
+            {variable:'er194',amount_prev:0,amount:125400,amount_diff:125400},
+            {variable:'fuel',amount_prev:0,amount:4232250,amount_diff:4232250},
+            {variable:'vat',amount_prev:0,amount:3666462,amount_diff:3666462},
+        ]
+        },
 ]
 
 
@@ -664,8 +879,6 @@ var finance_accounts =[
     {code:'GLR0100',text:'Tax Receivable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
     {code:'GLP0100',text:'Tax Payable',description:'',active:'true',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00'},
 ]
-
-
 
 
 var finance_schemes =[
