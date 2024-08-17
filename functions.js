@@ -55,6 +55,9 @@ function getOptionDomain(variable){
         case 'tax_rules':
             tax_rules.forEach(x => options.push({value:x.code,text:x.code}));
             break;
+        case 'finance_schemes':
+            finance_schemes.forEach(x => options.push({value:x.code,text:x.code}));
+            break;
         case 'regex':
             regex_validations.forEach(x => options.push({value:x.code,text:x.code}));
             break;

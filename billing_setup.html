@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
-  <title>Template Default</title>
+  <title>Billing Setup</title>
   <style>   
     .form-group.row{
       max-width: 800px;
@@ -15,15 +15,15 @@
 <body>  
   <div id="container" class="container mt-4">
   <div>
-    <h2>Template Default</h2>      
+    <h2>Billing Setup</h2>      
     <div class="form-row my-2">
       <div class="mx-auto"></div>        
       <div>
-        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateTemplateDefault()">Add New</button>
+        <button type="button" class="btn btn-primary" id="addNewButton" onclick="updateBillingSetup()">Add New</button>
       </div>
     </div>
 
-    <table class="table table-bordered" id="tableTemplateDefault">
+    <table class="table table-bordered" id="tableBillingSetup">
       <thead>
         <tr></tr>
       </thead>
@@ -49,20 +49,18 @@
 <script>
   const headers = [
     {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
+    {code:'description',text:'Description',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
     {row:true,selector:'form',code:'template',text:'Billing Template',readonly:false,required:true,type:'domain',options:getOptionDomain('billing_template')},
-    {
-      row:true,selector:'form',code:'default_version',text:'Default Version',readonly:false,required:true,type:'domain',
-      options:[{value:'latest',text:'Latest'},{value:'previous',text:'Previous'}]
-    }
+    {row:true,selector:'form',code:'finance_scheme',text:'Finance Scheme',readonly:false,required:true,type:'domain',options:getOptionDomain('finance_schemes')},
   ] 
 
-  function getTemplateDefaultData() {
-    return deepCopy(template_default)
+  function getBillingSetupData() {
+    return deepCopy(billing_setup)
   }
 
 
-  function refreshTableTemplateDefault(){    
-    var table = $('#tableTemplateDefault');
+  function refreshtableBillingSetup(){    
+    var table = $('#tableBillingSetup');
     var trHead = table.find('thead tr');
     trHead.empty();
     headers.map(header => {
@@ -73,23 +71,23 @@
     var tbody = table.find('tbody');
     tbody.empty();
 
-    getTemplateDefaultData().map(data=>{
+    getBillingSetupData().map(data=>{
       var strTr = [`<tr>`];
       var status
       headers.filter(x=> x.code != 'id').forEach(header => {  
         strTr.push(`<td>${data[header.view??header.code] ?? ''}</td>`);     
       });
-      strTr.push(`<td><a href="#" class="mx-2" onclick="updateTemplateDefault('${data.code}')">Edit</a></td>`)
+      strTr.push(`<td><a href="#" class="mx-2" onclick="updateBillingSetup('${data.code}')">Edit</a></td>`)
       strTr.push('</tr>');
       tbody.append(strTr.join(''));
     })
   }
 
-  function updateTemplateDefault(code=''){
+  function updateBillingSetup(code=''){
     var html = [];
     html.push('<div>');
     html.push('<div class="rowFields">');      
-    if(code)var rowData = getTemplateDefaultData().filter(x=> x.code == code)[0];  
+    if(code)var rowData = getBillingSetupData().filter(x=> x.code == code)[0];  
     deepCopy(headers).map(header=>{
       if(code)header.value=rowData[header.code]
       html.push(htmlControl(header,code))
@@ -116,18 +114,18 @@
     }
 
     if(code){
-      var data = template_default.filter(x=> x.code == code)[0]
+      var data = billing_setup.filter(x=> x.code == code)[0]
       Object.assign(data, newData);      
     }else{
-      template_default.push(newData)
+      billing_setup.push(newData)
     }  
 
     modal.modal('hide')
-    refreshTableTemplateDefault()
+    refreshtableBillingSetup()
   }
   (async function() {
     const dataLoaded = await resDbLoad(); 
-    refreshTableTemplateDefault()
+    refreshtableBillingSetup()
   })();
  
 </script>
