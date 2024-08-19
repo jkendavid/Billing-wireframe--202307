@@ -1,5 +1,4 @@
 
-
 $('body').prepend(
 `<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +23,7 @@ $('body').prepend(
               <div class="dropdown-menu" aria-labelledby="servicesDropdown">
                   <a class="dropdown-item" href="billing_templates.html">Billing Templates</a>
                   <a class="dropdown-item" href="finance_schemes.html">Finance Schemes</a>
+                  <a class="dropdown-item" href="invoice_templates.html">Invoice Template</a>
                   <a class="dropdown-item" href="billing_setup.html">Billing Setup</a>
                   <a class="dropdown-item" href="contract_billling_setup.html">Contract Link</a>                  
                   <a class="dropdown-item" href="billing_calculation.html">Billing Calculation</a>

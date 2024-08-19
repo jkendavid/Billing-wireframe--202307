@@ -116,13 +116,23 @@ function htmlControl(obj,readonly=false){
         case 'bool':
             obj.options=[{value:'true',text:'Yes'},{value:'false',text:'No'}]
             return htmlControl_Option(obj,readonly)
+        case 'file':
+            return htmlControl_File(obj,readonly)
         default:
     }
 }
 
 
+
+
+function htmlControl_File(obj,readonly=false){
+    var strValue = obj.value?`value="${obj.value}"`:''
+    return htmlControlFormat(obj.selector,`<input ${obj.extension} prevval="${obj.value}" type="file" ${strValue} class="form-control" val="${obj.code}" ${obj.required?'required':''}  ${obj.readonly&&readonly?'readonly':''}>`,obj.text,obj.required) 
+}
+
+
 function htmlControl_Code(obj,readonly=false){
-    return htmlControlFormat(obj.selector,`<textarea ${obj.extension} prevval="${obj.value}" type="text" class="form-control" val="${obj.code}" ${obj.required?'required':''}  ${obj.readonly&&readonly?'readonly':''}>${obj.value??''}</textarea>`,obj.text,obj.required) 
+    return htmlControlFormat(obj.selector,`<textarea ${obj.extension} prevval="${obj.value}" type="text" class="form-control code-input" val="${obj.code}" ${obj.required?'required':''}  ${obj.readonly&&readonly?'readonly':''}>${obj.value??''}</textarea>`,obj.text,obj.required) 
 }
 
 function htmlControl_Text(obj,readonly=false){
@@ -176,6 +186,10 @@ function getCurrentTime() {
 function getLast(obj){
     return obj?obj[obj.length-1]:null
 }
+
+Array.prototype.sum = function (field) {
+return this.reduce((sum, item) => sum + (item[field] || 0), 0);
+};
 
 if (typeof JSON === 'undefined') {
     JSON = {
@@ -282,6 +296,15 @@ function fieldValidation(variable, value){
 }
 
 
+function base64ToUint8Array(base64) {
+    const binaryString = atob(base64); // Decode Base64 to binary string
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i); // Convert each character to a byte
+    }
+    return bytes;
+}
 
   function formatNumber(value,decimalmin,decimalmax){
     if (value === null || value === undefined)return ''

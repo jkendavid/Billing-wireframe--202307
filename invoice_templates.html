@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css">
+  <title>Invoice Templates</title>
+  <style>
+    .code-input {
+        width: 100%;
+        height: 300px;
+        padding: 10px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 14px;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+</style>
+</head>
+<body>  
+  <div id="container" class="container mt-4">
+  <div>
+    <h2>Invoice Templates</h2>    
+  
+    <div id="keyFields"></div>
+  
+    <button type="button" class="btn btn-primary" id="btnLoad" style="float: right;" onclick="load()">Load</button>
+    
+    <div class="container mt-4">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="inputs-tab" data-toggle="tab" href="#inputs" role="tab" aria-controls="inputs" aria-selected="true">Input</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="output-tab" onclick="refreshOutput()" data-toggle="tab" href="#output" role="tab" aria-controls="output" aria-selected="false">Output</a>
+        </li>       
+      </ul>
+      <div class="tab-content mt-3" id="myTabContent">
+        <div class="tab-pane fade show active" id="inputs" role="tabpanel" aria-labelledby="inputs-tab">    
+        
+          <h2>Input:</h2>
+          <textarea class="code-input" placeholder="..." id="inputStringExec"></textarea>
+        </div>
+        <div class="tab-pane fade" id="output" role="tabpanel" aria-labelledby="output-tab">      
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="hideTemplateCheck" onchange="refreshOutput()">
+            <label class="form-check-label" for="hideTemplateCheck">
+              Hide Template
+            </label>
+          </div>
+          <iframe id="pdfViewer" style="width: 100%; height: 600px;"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="navbar.js"></script>
+<script src="data.js"></script>
+<script src="functions.js"></script>
+<script src="billing_generation.js"></script>
+<script src="input_functions.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+
+
+
+
+<script>
+
+  const keyFields = [
+    {...getVariable('code'),selector:'form',required:true,readonly:true},
+    {code:'description',text:'Description',type:'text',selector:'form',required:true,readonly:true},
+    {code:'templateFile',text:'Template File',type:'file',selector:'form',required:true,readonly:true},
+  ]
+
+  function initialize(){
+    var html=[]
+    keyFields.map(field=>{
+      html.push(htmlControl(field))
+    })
+    $('#keyFields').html(html.join(''))
+
+    $('.form-control[val="templateFile"]').on('change', async function(event) {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            templatePdfBytes = new Uint8Array(e.target.result);
+          };
+          reader.readAsArrayBuffer(file);
+      }
+    });
+  } 
+
+  let templatePdfBytes = base64ToUint8Array(templatePdfString);
+
+  async function refreshOutput(){
+    if (!templatePdfBytes) {
+      alert('No tempate');
+      return;
+    }
+
+    const pdfDoc = await PDFLib.PDFDocument.load(templatePdfBytes);
+    const pages = pdfDoc.getPages();
+    var Page = pages[0];
+    
+    if($('#hideTemplateCheck').prop('checked')){
+      const { width, height } = Page.getSize();
+      pdfDoc.removePage(0);
+      Page = pdfDoc.addPage([width, height]);
+    }
+    var executionstring = $('#inputStringExec').val()
+
+    const objCalcs = [1,2,3,4,5].map(x=>{
+      var obj ={};
+      ['code','text','base','net_amount','tax_amount','gross_amount'].map(y=>{
+        obj[y]=`calcs[${x}].${y}` 
+      })
+      return obj
+    })
+
+    const objDets = [1,2,3,4,5].map(x=>{
+      var obj ={};
+      ['code','text','base','remarks'].map(y=>{
+        obj[y]=`dets[${x}].${y}` 
+      })
+      return obj
+    })
+
+    const objCharges = [1,2,3,4,5].map(x=>{
+      var obj ={};
+      ['code','text','previous_amount','current_amount','diff_amount'].map(y=>{
+        obj[y]=`charges[${x}].${y}` 
+      })
+      return obj
+    })
+
+    const objFinvals = [1,2,3,4,5].map(x=>{
+      var obj ={};
+      ['code','text','amount'].map(y=>{
+        obj[y]=`finvals[${x}].${y}` 
+      })
+      return obj
+    })
+
+    executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
+      var keys = key.split('.')
+      var extText = ""     
+
+      switch(keys[0].toLowerCase()){
+        case 'buyer':
+        case 'seller':
+          var variable = variables.filter(x=>x.code == keys[1])[0]
+          extText = variable? ': '+ (variable.text):': not a valid variable'
+          break
+        case 'calcs':
+          if(!keys[1]) return 'objCalcs'
+          match = `sum(${match})`
+          if(!['base','net_amount','tax_amount','gross_amount'].includes(keys[1]))  extText = `: ${keys[1]} invalid field`
+          break
+        case 'dets':
+          if(!keys[1]) return 'objDets'
+          match = `sum(${match})`
+          if(!['base'].includes(keys[1]))  extText = `: ${keys[1]} invalid field`
+          break
+        case 'charges':
+          if(!keys[1]) return 'objCharges'
+          match = `sum(${match})`
+          if(!['previous_amount','current_amount','diff_amount'].includes(keys[1]))  extText = `: ${keys[1]} invalid field`
+          break
+        case 'finvals':
+          if(!keys[1]) return 'objFinvals'
+          match = `sum(${match})`
+          if(!['amount'].includes(keys[1]))  extText = `: ${keys[1]} invalid field`
+          break
+        default:
+      }
+      return '`' + match + extText +'`'
+
+    });
+
+
+    executionstring = executionstring.replace(/print\(/g, 'pdfDraw(pdfDoc,Page,');
+    eval(executionstring)
+
+    const pdfBytes = await pdfDoc.save();
+
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const pdfUrl = URL.createObjectURL(blob);
+
+    $('#pdfViewer').attr('src', pdfUrl);
+  }
+
+
+
+  async function pdfDraw(doc,page, text, arg) {
+    defaultArg ={
+      font : await doc.embedFont(PDFLib.StandardFonts.Helvetica),
+      size: 12,
+      justify: 'left'
+    };
+    arg ={...defaultArg,...arg}
+    const { width, height } = page.getSize();
+
+    if(arg.y<=1)arg.y*=height
+    if(arg.x<=1)arg.x*=height
+    arg.y = height-arg.y;
+
+    if (arg.justify!='left') {
+        const textWidth = arg.font.widthOfTextAtSize(text, arg.size);
+        arg.x = arg.x - textWidth / (arg.justify=='center'?2:1);
+    }
+    page.drawText(text, arg);
+}
+
+
+
+
+  (async function() {
+    const dataLoaded = await resDbLoad(); 
+    initialize()
+  })();
+
+</script>
+
+
+</body>
+</html>
