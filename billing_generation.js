@@ -93,9 +93,9 @@ function getValueHeader(type){
             <a class="nav-link" id="charges-tab" data-toggle="tab" href="#charges" role="tab" aria-controls="charges" aria-selected="false">Charges</a>
           </li>`)          
     
-    if(calculation.finance_values)html.push(`<li class="nav-item">
-            <a class="nav-link" id="financeval-tab" data-toggle="tab" href="#financeval" role="tab" aria-controls="charges" aria-selected="false">Finance Values</a>
-          </li>`)
+    if(calculation.finance_values_seller||calculation.finance_values_buyer)html.push(`<li class="nav-item">
+            <a class="nav-link" id="financevalseller-tab" data-toggle="tab" href="#financeval" role="tab" aria-controls="charges" aria-selected="false">Finance Values</a>
+          </li>`)     
 
     html.push('</ul>')
 
@@ -151,22 +151,39 @@ function getValueHeader(type){
         html.push('</div>')
     }
     
-    if(calculation.finance_values){
+    if(calculation.finance_values_seller||calculation.finance_values_buyer){
         html.push('<div class="tab-pane fade" id="financeval" role="tabpanel" aria-labelledby="financeval-tab">')  
         html.push('<table class="table table-sm table-condensed table-bordered">')     
         var financevalheader = getValueHeader('financeval')
-        html.push(`<tr><th style="width:500px">Finance Account</th>${financevalheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
-        var financevalTotal={}
-        calculation.finance_values.map(amount=>{ 
-            html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
-                financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
-                return formatVariableTd('',amount,x)
-            }).join('')}</tr>`)   
-        })  
-        html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
-        html.push('</table>')  
+
+        if(calculation.finance_values_seller){
+          html.push(`<tr><th style="width:500px">Finance Account Seller</th>${financevalheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+          var financevalTotal={}
+          calculation.finance_values_seller.map(amount=>{ 
+              html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
+                  financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
+                  return formatVariableTd('',amount,x)
+              }).join('')}</tr>`)   
+          })  
+          html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
+          html.push('</table>') 
+        } 
+        if(calculation.finance_values_buyer){
+          html.push(`<tr><th style="width:500px">Finance Account Buyer</th>${financevalheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+          var financevalTotal={}
+          calculation.finance_values_buyer.map(amount=>{ 
+              html.push(`<tr><td>[${amount.account}] ${finance_accounts.filter(x=> x.code==amount.account)[0].text}</td>${financevalheader.map(x=> {
+                  financevalTotal[x.code]=(financevalTotal[x.code]??0)+amount[x.code]
+                  return formatVariableTd('',amount,x)
+              }).join('')}</tr>`)   
+          })  
+          html.push(`<tr class="trtotal"><th>Total</th>${financevalheader.map(x=> formatVariableTd('',financevalTotal,x)).join('')}</tr>`)   
+          html.push('</table>')  
+        }
+
         html.push('</div>')
     }
+    
 
     html.push('</div>')
     html.push('</div>')

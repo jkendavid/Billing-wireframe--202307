@@ -429,21 +429,21 @@
       var inputs = {}
       var contractRowData = contractData.filter(x=> x.contract == selected.contract)[0];
       [...contractRowData.numbers,...contractRowData.texts,...contractRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
+        x.period_start?(getPeriod(x.period_start) <= period):true
       ).map(x=>{
         inputs['CONTRACT.'+x.variable]=x.value
       })
       
       var sellerRowData = partyData.filter(x=> x.party == contractRowData.seller)[0];
       [...sellerRowData.numbers,...sellerRowData.texts,...sellerRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
+        x.period_start?(getPeriod(x.period_start) <= period):true
       ).map(x=>{
         inputs['SELLER.'+x.variable]=x.value
-      })
+      }) 
       
       var buyerRowData = partyData.filter(x=> x.party == contractRowData.buyer)[0];
       [...buyerRowData.numbers,...buyerRowData.texts,...buyerRowData.codes].filter(x=>
-        getPeriod(x.period_start) <= period
+        x.period_start?(getPeriod(x.period_start) <= period):true
       ).map(x=>{
         inputs['BUYER.'+x.variable]=x.value
       })

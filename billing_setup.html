@@ -51,11 +51,19 @@
     {...getVariable('code'),selector:'form',field_locs:'row',required:true,readonly:true,main:true},
     {code:'description',text:'Description',type:'text',selector:'form',field_locs:'row',required:false,readonly:false,main:true},
     {row:true,selector:'form',code:'template',text:'Billing Template',readonly:false,required:true,type:'domain',options:getOptionDomain('billing_template')},
-    {row:true,selector:'form',code:'finance_scheme',text:'Finance Scheme',readonly:false,required:true,type:'domain',options:getOptionDomain('finance_schemes')},
+    {row:true,selector:'form',code:'finance_scheme_buyer',text:'Finance Scheme Seller',readonly:false,required:true,type:'domain',options:getOptionDomain('finance_schemes')},
+    {row:true,selector:'form',code:'finance_scheme_seller',text:'Finance Scheme Buyer',readonly:false,required:true,type:'domain',options:getOptionDomain('finance_schemes')},
+    {row:true,selector:'form',code:'reports',text:'Reports',readonly:false,required:true,type:'domain',options:getOptionDomain('finance_schemes')},
   ] 
 
   function getBillingSetupData() {
-    return deepCopy(billing_setup)
+    var query = deepCopy(billing_setup)
+    query.map(x=>{
+      x.reports = x.reports.map(y=>{
+        return `${y.text} [${y.party}]`;
+      })
+    })
+    return query
   }
 
 

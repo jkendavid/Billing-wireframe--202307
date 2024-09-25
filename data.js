@@ -832,7 +832,10 @@ var invoice_templates =[
 
  
 var billing_setup = [
-    {code:'SETUP_COAL',description:'',template:'COALFIRM',finance_scheme:'FSCoalMain',}
+    {
+        code:'SETUP_COAL',description:'',template:'COALFIRM',finance_scheme_buyer:'FSCoalMain',finance_scheme_seller:'FSCoalMain',
+        reports:[{party:'buyer',code:'COALFIRM_INVOICE',text:'Invoice'}]
+    }
 ]
 
 var contract_billing_setup =[

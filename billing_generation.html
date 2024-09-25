@@ -160,7 +160,8 @@
     {code:'seller',text:'Seller'},
     {code:'revision_number',text:'Rev. No.'},
     {code:'template',text:'Template'},
-    {code:'finance_scheme',text:'Finance Sccheme'},
+    {code:'finance_scheme_seller',text:'Finance Scheme Seller'},
+    {code:'finance_scheme_buyer',text:'Finance Scheme Buyer'},
     {code:'status',text:'Status'},
     {code:'sub_status',text:'Sub Status'},
     {code:'update_by',text:'Update By'},
@@ -269,8 +270,10 @@
       x['template'] = `${x['template']} v.${x['version_number']}`
       x['sub_status']=status.sub_status?approval_steps.filter(x=>x.code==status.sub_status)[0].text:''
       var setup = getLast(contract_billing_setup.filter(y=>(y.contract==x.contract)&&(getPeriod(y.period_start)<=getPeriod(x.period)))).setup
-      var scheme = billing_setup.filter(y=>y.code==setup)[0].finance_scheme     
-      x['finance_scheme']=scheme
+      
+      var partyData = deepCopy(getLatestPartyData(true))
+      x['finance_scheme_seller'] = (partyData.filter(y=> y.code==x['seller'])[0].owned=='true')?(billing_setup.filter(y=>y.code==setup)[0].finance_scheme_seller):'' 
+      x['finance_scheme_buyer'] = (partyData.filter(y=> y.code==x['buyer'])[0].owned=='true')?(billing_setup.filter(y=>y.code==setup)[0].finance_scheme_buyer):'' 
     })
 
     var forapprovaldata = loadData.filter(x=>x.status =='for-approval').map(x=>{
@@ -381,7 +384,8 @@
           newStatus.code=type
         }
         if(['released','realloc'].includes(type)){
-          calculation.finance_values = calculateFinance(calculation,selected.finance_scheme)
+          if(selected.finance_scheme_seller!='')calculation.finance_values_seller = calculateFinance(calculation,selected.finance_scheme_seller)
+          if(selected.finance_scheme_buyer!='')calculation.finance_values_buyer = calculateFinance(calculation,selected.finance_scheme_buyer)
           newStatus.code='released'
         }  
         calculation.status.push(newStatus)
