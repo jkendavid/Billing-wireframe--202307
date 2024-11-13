@@ -48,10 +48,16 @@ function getValueHeader(type){
         break;
       case 'base':
         unit = variable.category=='charges'? variable.base_unit:variable.unit
+        xx = variable
         decimal = rounding_rules.filter(x=> x.code == (variable.category=='charges'?variable.base_rounding:variable.rounding))[0].decimal_place
         break;
       case 'price':
-        unit ='Php/'+variable.base_unit
+        if(variable.base_unit =='Php'){
+          unit = ''
+          decimal = 0
+        }else{
+          unit ='Php/'+variable.base_unit        
+        }
         decimal = rounding_rules.filter(x=> x.code == variable.price_rounding)[0].decimal_place
         break;
     }   

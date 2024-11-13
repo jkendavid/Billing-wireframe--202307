@@ -84,6 +84,7 @@
       x.approval_text =  approval?approval.text:'' 
       if(x.filter)  x.filtertext = deepCopy(getVariable(x.filter)).text
       x.variablestext = x.fields.map(y=>{
+          xx = y
           return (deepCopy(getVariable(y.variable)).text) + (y.required=='false'?' [o]':'') + (y.active=='false'?' [x]':'')
         }).join('<br>')
       return x

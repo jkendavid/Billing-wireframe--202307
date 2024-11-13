@@ -358,6 +358,7 @@
       })
       tran.filters.map(filter=>{
         [...filter.numbers,...filter.texts].map(v=>{
+          xx = v
           newVals[`${getVariable(v.variable).text}[${filter.filter}]`] = v.value
         })
       })
