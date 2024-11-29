@@ -115,7 +115,7 @@
           <div class="row mt-3" style="width: 400px;">
             <label for="newCode" class="col-md-4 col-form-label">Report Period<span class="required">*</span></label>
             <div class="col-md-8">
-              <input type="month" value="2024-05" class="form-control" val="reportperiod">
+              <input type="month" value="2024-07" class="form-control" val="reportperiod">
             </div>
           </div>
           <div class="row mt-3">
@@ -163,8 +163,8 @@
     {code:'report_period',text:'Report Period'},
     {code:'old_template',text:'Old Template'},
     {code:'control',text:''},
-    {code:'template',text:'New Template'},
-    {code:'new_revision_number',text:'New Rev. No.'},
+    {code:'template',text:'Template'},
+    {code:'new_revision_number',text:'Rev. No.'},
     {code:'control2',text:''},
   ]
 
@@ -241,9 +241,9 @@
   function initialize(){
     //filters
     var pnlFilterFields = [
-      {row:true,selector:'form',code:'period_from',text:'Period From',type:'period',value:'2024-05',required:true},
-      {row:true,selector:'form',code:'period_to',text:'Period To',type:'period',value:'2024-06',required:true},
-      {row:true,selector:'form',code:'contract',text:'Contract',type:'domain'},
+      {row:true,selector:'form',code:'period_from',text:'Period From',type:'period',value:'2024-01',required:true},
+      {row:true,selector:'form',code:'period_to',text:'Period To',type:'period',value:'2024-12',required:true},
+      {row:true,selector:'form',code:'contract',text:'Contract',type:'domain',value:'RSC-GEN01-ALPDC-001'},
       {row:true,selector:'form',code:'buyer',text:'Buyer',type:'domain',options:[...new Set(contracts.map(x=>x.buyer))].map(x=>{return{value:x,text:x}})},
       {row:true,selector:'form',code:'seller',text:'Seller',type:'domain',options:[...new Set(contracts.map(x=>x.seller))].map(x=>{return{value:x,text:x}})},
       {row:true,selector:'form',code:'template',text:'Template',type:'domain',options:[...new Set(billing_templates.map(x=>x.code))].map(x=>{return{value:x,text:x}})},
@@ -331,7 +331,7 @@
         x['status'] = lastStatus.code
         x['update_by'] = lastStatus.update_by
         x['update_time'] = lastStatus.update_time
-        x['old_template'] = `${oldrev.template} V.${oldrev.version_number}`
+        x['old_template'] = `${oldrev.template}`
         x['report_period'] = oldrev.report_period
         x['revision_number'] = oldrev.revision_number
         x['new_revision_number'] = oldrev.revision_number + 1
@@ -484,26 +484,19 @@
       var template = deepCopy(billing_templates).filter(x=> x.code == selectedTemplate.template)[0].versions.filter(x=> x.version_number == selectedTemplate.version_number)[0]
       
       var amount_taxes={}
-
       template.item_groups.map(group=>{
         var value =  {index:1,type:group.type,text:group.text,internal:group.internal,items:[]}
         var valueheaders = getValueHeader(group.type)
+        grouptotal = []
         group.items.map(item=>{
           var itemvalue = {index:item.index,variable:item.variable}
           valueheaders.map(header=>{
-            var executionstring = ''
-            if(header.code=='tax_amount'){
-              executionstring = '0'
-              if(item.tax_rule){
-                executionstring = tax_rules.filter(x=>x.code==item.tax_rule)[0].items.map(x=> {
-                  var result =  executeFormula(inputs,x.formula.replace(/@/g,itemvalue.variable))
-                  amount_taxes[x.variable]=`${amount_taxes[x.variable]??0}+(${result.value})`
-                  return `(${result.value})`
-                }).join('+')
-              }
-            }else{
-              executionstring = item[header.formula]??((header.calculation??'').replace(/@/g,itemvalue.variable))
-            }
+            executionstring = item[header.formula]??((header.calculation??'')
+            .replace(/@/g,itemvalue.variable))
+            executionstring =executionstring
+            .replace('[base]',`[${itemvalue.variable}.base]`)
+            .replace('[price]',`[${itemvalue.variable}.price]`)
+
             var result = executeFormula(inputs,executionstring)
             if(!result.success)status.code ='error'
             calculatedvalue = result.value
@@ -511,12 +504,14 @@
             inputs[itemvalue.variable + (header.noref?'':('.'+header.code))]=calculatedvalue
           })
           value.items.push(itemvalue)
+          var itemamount = inputs[`${itemvalue.variable}.amount`]
+          grouptotal.push(itemamount)
         })
+        inputs[group.code + '.total'] = executeFormula(inputs,grouptotal.join('+')).value
         billingcalculation.values.push(value)
       })
       billingcalculation.amounts=[]
       var billedAmounts = {}
-      p(billing_calculations.filter(x=>x.period==billingcalculation.period&&x.contract==billingcalculation.contract))
       billing_calculations.filter(x=>x.period==billingcalculation.period&&x.contract==billingcalculation.contract)
                           .map(x=>{
                             x.amounts.map(y=>{
@@ -528,7 +523,7 @@
       billingcalculation.values.filter(x=>x.type!='determinant').map(x=>{
         x.items.map(y=>{
           var billed = billedAmounts[y.variable]??0
-          billingcalculation.amounts.push({variable:y.variable,amount_prev:billed,amount:y.net_amount,amount_diff:y.net_amount-billed},)
+          billingcalculation.amounts.push({variable:y.variable,amount_prev:billed,amount:y.amount,amount_diff:y.amount-billed},)
         })
       })
       for (const key in amount_taxes) {
@@ -542,6 +537,7 @@
   }
 
   function executeFormula(inputs,executionstring){
+    if(executionstring=='')return({success:true,value:0})
     executionstring = executionstring.replace(/\[([a-zA-Z0-9_.;]+)\]/g, (match, key) => {
       return inputs[key] !== undefined ? inputs[key] : match;
     });

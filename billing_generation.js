@@ -8,17 +8,20 @@ function getValueHeader(type){
         ]
       case 'amount':
         return [
-          {code:"net_amount",text:"Net Amount",formula:'amount_formula',type:'amount'},
-          {code:"tax_amount",text:"Tax Amount",type:'amount'},
-          {code:"gross_amount",text:"Gross Amount",type:'amount'}]
+          {code:"amount",text:"Amount",formula:'amount_formula',type:'amount'},
+        ]
       case 'baseprice':
         return [
           {code:"base",text:"Base",formula:'base_formula',type:'base'},
           {code:"price",text:"Price",formula:'price_formula',type:'price'},
-          {code:"net_amount",text:"Net Amount",isamount:true,type:'amount',calculation:'[@.base]*[@.price]'},
-          {code:"tax_amount",text:"Tax Amount",isamount:true,type:'amount',calculation:'0.12*[@.net_amount]'},
-          {code:"gross_amount",text:"Gross Amount",isamount:true,type:'amount',calculation:'[@.net_amount]+[@.tax_amount]'}
+          {code:"amount",text:"Amount",formula:'amount_formula',type:'amount'},
         ]
+        case 'summary':
+          return [
+            {code:"amount",text:"Net Amount"},
+            {code:"tax",text:"Tax Amount"},
+            {code:"gross",text:"Gross Amount"},
+          ]
         case 'charges':
         return [
         {code:"amount_prev",text:"Previous Amount",isamount:true,type:'amount'},
@@ -47,9 +50,8 @@ function getValueHeader(type){
         decimal = 2
         break;
       case 'base':
-        unit = variable.category=='charges'? variable.base_unit:variable.unit
-        xx = variable
-        decimal = rounding_rules.filter(x=> x.code == (variable.category=='charges'?variable.base_rounding:variable.rounding))[0].decimal_place
+        unit = ['charges','tax'].includes(variable.category)? variable.base_unit:variable.unit
+        decimal = rounding_rules.filter(x=> x.code == (['charges','tax'].includes(variable.category)?variable.base_rounding:variable.rounding))[0].decimal_place
         break;
       case 'price':
         if(variable.base_unit =='Php'){
@@ -85,14 +87,17 @@ function getValueHeader(type){
     
     var calculation = deepCopy(billing_calculations).filter(x=> getPeriod(x.period)==period && x.contract==contract && x.revision_number == revision_number)[0] 
    
-    var grandtotal = {net_amount:10000,tax_amount:0,gross_amount:0}
+    var grandtotal = {amount:10000,tax_amount:0,gross_amount:0}
 
     
     html.push(`<div class="container" style="min-width: 1000px;">
       <ul class="nav nav-tabs" id="calcTab" role="tablist">
         <li class="nav-item">
           <a class="nav-link active" id="calculation-tab" data-toggle="tab" href="#calculation" role="tab" aria-controls="calculation" aria-selected="true">Calculation</a>
-        </li>`)
+        </li>   
+        <li class="nav-item">
+            <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
+          </li>`)
 
       
     if(calculation.amounts)html.push(`<li class="nav-item">
@@ -127,7 +132,7 @@ function getValueHeader(type){
         html.push('</tr>')
       })
       if(ischarge){
-        html.push(`<tr class="trtotal"><th colspan="${group.type=='baseprice'?3:1}">Total</th>${headers.filter(x=> x.isamount).map(x=> formatVariableTd('',totalAmounts,x)).join('')}</tr>`)
+        html.push(`<tr class="trtotal"><th colspan="${group.type=='baseprice'?3:1}">Total</th>${headers.filter(x=> x.type=='amount').map(x=> formatVariableTd('',totalAmounts,x)).join('')}</tr>`)
       }
       html.push('</table>')    
     })
@@ -137,6 +142,17 @@ function getValueHeader(type){
         html.push(`<tr class="trtotal"><th>Total ${x.text}</th>${formatVariableTd('',grandtotal,x)}</tr>`)  
     })
     html.push(`</table>`)      
+    html.push('</div>')
+    
+    html.push('<div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">')  
+    html.push('<table class="table table-sm table-condensed table-bordered">')   
+    var summaryheader = getValueHeader('summary')
+    html.push(`<tr><th style="width:300px">Category </th>${summaryheader.map(x=>`<th class="header">${x.text}</th>`).join('')}</tr>`)  
+    var chargeCategoryTotal={}
+
+    html.push(`<tr class="trtotal"><th>Total</th>${summaryheader.map(x=> formatVariableTd('',chargeCategoryTotal,x)).join('')}</tr>`)   
+    html.push('</table>')  
+
     html.push('</div>')
     
 

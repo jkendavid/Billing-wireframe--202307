@@ -50,14 +50,16 @@ var window_categories =[
             {variable:'metering_demand',required:'true',active:'true'},
     ]},
     {
-        window:'dynamics',code:'CC_ENERGY', text:'Monthly Contract Energy', approval:'ONESTEP',
-        filter:'sin',fields:[
-            {variable:'metering_energy_base',required:'true',active:'true'},
-            {variable:'metering_energy_exc',required:'false',active:'true'},]
+        window:'dynamics',code:'CC_ENERGY', text:'Monthly Billing Energy', approval:'ONESTEP',
+        filter:'wesm_bid',fields:[
+            {variable:'energy_base',required:'true',active:'true'},
+            {variable:'energy_exc',required:'true',active:'true'},
+            {variable:'genrateexcc',required:'true',active:'true'},
+        ]
     },
     {
         window:'dynamics',code:'DWSA_MERALCO', text:'MERALCO DWSA', approval:'ONESTEP',
-        filter:'sin',fields:[
+        filter:'wesm_bid',fields:[
             {variable:'dwsa_ddc_base',required:'true',active:'true'},
             {variable:'dwsa_ddc_price',required:'true',active:'true'},
             {variable:'dwsa_dec_base',required:'true',active:'true'},
@@ -70,6 +72,49 @@ var window_categories =[
             {variable:'dwsa_pfa_price',required:'true',active:'true'},
             {variable:'dwsa_dtru_base',required:'true',active:'true'},
             {variable:'dwsa_dtru_price',required:'true',active:'true'},
+            {variable:'dwsa_ilprec_base',required:'true',active:'true'},
+            {variable:'dwsa_ilprec_price',required:'true',active:'true'},
+            {variable:'dwsa_gour_base',required:'true',active:'true'},
+            {variable:'dwsa_gour_price',required:'true',active:'true'},
+            {variable:'dwsa_gramiceradaa_base',required:'true',active:'true'},
+            {variable:'dwsa_gramiceradaa_price',required:'true',active:'true'},
+            {variable:'dwsa_acrmrec_base',required:'true',active:'true'},
+            {variable:'dwsa_acrmrec_price',required:'true',active:'true'},
+            {variable:'dwsa_transdemand_base',required:'true',active:'true'},
+            {variable:'dwsa_transdemand_price',required:'true',active:'true'},
+            {variable:'dwsa_transenergy_base',required:'true',active:'true'},
+            {variable:'dwsa_transenergy_price',required:'true',active:'true'},
+            {variable:'dwsa_systemloss_base',required:'true',active:'true'},
+            {variable:'dwsa_systemloss_price',required:'true',active:'true'},
+            {variable:'dwsa_reinvestcapex_base',required:'true',active:'true'},
+            {variable:'dwsa_reinvestcapex_price',required:'true',active:'true'},
+            {variable:'dwsa_subslifeline_base',required:'true',active:'true'},
+            {variable:'dwsa_subslifeline_price',required:'true',active:'true'},
+            {variable:'dwsa_subsseniorcit_base',required:'true',active:'true'},
+            {variable:'dwsa_subsseniorcit_price',required:'true',active:'true'},
+            {variable:'dwsa_substrac_base',required:'true',active:'true'},
+            {variable:'dwsa_substrac_price',required:'true',active:'true'},
+            {variable:'dwsa_pfdiscsurg_base',required:'true',active:'true'},
+            {variable:'dwsa_pfdiscsurg_price',required:'true',active:'true'},
+            {variable:'dwsa_localfranctax_base',required:'true',active:'true'},
+            {variable:'dwsa_localfranctax_price',required:'true',active:'true'},
+            {variable:'dwsa_realproptax_base',required:'true',active:'true'},
+            {variable:'dwsa_realproptax_price',required:'true',active:'true'},
+            {variable:'dwsa_ucmissionary_base',required:'true',active:'true'},
+            {variable:'dwsa_ucmissionary_price',required:'true',active:'true'},
+            {variable:'dwsa_ucenvshare_base',required:'true',active:'true'},
+            {variable:'dwsa_ucenvshare_price',required:'true',active:'true'},
+            {variable:'dwsa_ucnpcstrandedcost_base',required:'true',active:'true'},
+            {variable:'dwsa_ucnpcstrandedcost_price',required:'true',active:'true'},
+            {variable:'dwsa_ucnpcstrandeddebt_base',required:'true',active:'true'},
+            {variable:'dwsa_ucnpcstrandeddebt_price',required:'true',active:'true'},
+            {variable:'dwsa_ucdustrandedcost_base',required:'true',active:'true'},
+            {variable:'dwsa_ucdustrandedcost_price',required:'true',active:'true'},
+            {variable:'dwsa_ucequaltr_base',required:'true',active:'true'},
+            {variable:'dwsa_ucequaltr_price',required:'true',active:'true'},
+            {variable:'dwsa_fitallcurrent_base',required:'true',active:'true'},
+            {variable:'dwsa_fitallcurrent_price',required:'true',active:'true'},
+            
         ]
     },
     {
@@ -234,51 +279,17 @@ var variables = [
     {category:'inputs',code:'dwsa_ucdustrandedcost_price',type:'number',text:'DU Stranded Contract Cost Price',description:'',active:'active',rounding:'Php/kWh',unit:'Php/kWh'},
     {category:'inputs',code:'dwsa_ucequaltr_base',type:'number',text:'Equalization of T&R Base',description:'',active:'active',rounding:'kWh',unit:'kWh'},
     {category:'inputs',code:'dwsa_ucequaltr_price',type:'number',text:'Equalization of T&R Price',description:'',active:'active',rounding:'Php/kWh',unit:'Php/kWh'},
+    
     {category:'inputs',code:'dwsa_fitallcurrent_base',type:'number',text:'FIT-ALL current bill Base',description:'',active:'active',rounding:'Php/kWh',unit:'Php/kWh'},
     {category:'inputs',code:'dwsa_fitallcurrent_price',type:'number',text:'FIT-ALL current bill Price',description:'',active:'active',rounding:'Php/kWh',unit:'Php/kWh'},
    
-
-
-
-
-    
-    {category:'charges',code:'dwsa_ddc',type:'number',text:'Distribution Demand Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_dec',type:'number',text:'Distribution Energy Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_metering',type:'number',text:'Metering Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_supply',type:'number',text:'Supply Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_pfa',type:'number',text:'Power Factor Adjustment',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_dtru',type:'number',text:'Distribution Rate True Up',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ilprec',type:'number',text:'ILP Recovery',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_gour',type:'number',text:'GOUR',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_gramiceradaa',type:'number',text:'GRAM/ICERA/DAA',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_acrmrec',type:'number',text:'ACRM Recovery',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kW',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_transdemand',type:'number',text:'Transmission Demand',description:'',active:'active',base_rounding:'kW',base_unit:'kW',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_transenergy',type:'number',text:'Transmission Energy',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_systemloss',type:'number',text:'System Loss',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_reinvestcapex',type:'number',text:'Reinvestment fund for sustainable capex',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_subslifeline',type:'number',text:'Lifeline Subsidy Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_subsseniorcit',type:'number',text:'Senior Citicen Subsidy Charge Base',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_substrac',type:'number',text:'TRAC',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_pfdiscsurg',type:'number',text:'Power Factor Discount/Surcharge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_localfranctax',type:'number',text:'Local Franchise Tax',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_realproptax',type:'number',text:'Real Property Tax',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucmissionary',type:'number',text:'Missionary Electrification',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucenvshare',type:'number',text:'Environmental Share',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucnpcstrandedcost',type:'number',text:'NPC Stranded Contract Costs',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucnpcstrandeddebt',type:'number',text:'NPC Stranded Debt',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucdustrandedcost',type:'number',text:'DU Stranded Contract Cost',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_ucequaltr',type:'number',text:'Equalization of T&R',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-    {category:'charges',code:'dwsa_fitallcurrent',type:'number',text:'FIT-ALL current bill',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
-  
-
-
-
 
     {category:'inputs',code:'vatrate',type:'number',text:'VAT Rate',description:'',active:'active',rounding:'',unit:'', min:0},
 
     {category:'filters',code:'plant_sources',type:'domain',text:'Plant Source',description:'',active:'active'}, 
     {category:'filters',code:'finconst',type:'domain',text:'Finance Constants',description:'',active:'active'}, 
     {category:'filters',code:'wesm_buyer_bid',type:'domain',text:'WESM Buyer Billing ID',description:'',active:'active'}, 
+    {category:'filters',code:'wesm_bid',type:'domain',text:'WESM Billing ID',description:'',active:'active'}, 
     {category:'filters',code:'sin',type:'domain',text:'Serial Number ID',description:'',active:'active'}, 
    
    
@@ -324,12 +335,47 @@ var variables = [
     {category:'charges',code:'dwsa_supply',type:'number',text:'Supply Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
     {category:'charges',code:'dwsa_pfa',type:'number',text:'Power Factor Adjustment',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
     {category:'charges',code:'dwsa_dtru',type:'number',text:'Distribution Rate True Up',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
- 
+    {category:'charges',code:'dwsa_ilprec',type:'number',text:'ILP Recovery',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_gour',type:'number',text:'GOUR',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_gramiceradaa',type:'number',text:'GRAM/ICERA/DAA',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_acrmrec',type:'number',text:'ACRM Recovery',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kW',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_transdemand',type:'number',text:'Transmission Demand',description:'',active:'active',base_rounding:'kW',base_unit:'kW',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_transenergy',type:'number',text:'Transmission Energy',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_systemloss',type:'number',text:'System Loss',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_reinvestcapex',type:'number',text:'Reinvestment fund for sustainable capex',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_subslifeline',type:'number',text:'Lifeline Subsidy Charge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_subsseniorcit',type:'number',text:'Senior Citicen Subsidy Charge Base',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_substrac',type:'number',text:'TRAC',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_pfdiscsurg',type:'number',text:'Power Factor Discount/Surcharge',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_localfranctax',type:'number',text:'Local Franchise Tax',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_realproptax',type:'number',text:'Real Property Tax',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucmissionary',type:'number',text:'Missionary Electrification',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucenvshare',type:'number',text:'Environmental Share',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucnpcstrandedcost',type:'number',text:'NPC Stranded Contract Costs',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucnpcstrandeddebt',type:'number',text:'NPC Stranded Debt',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucdustrandedcost',type:'number',text:'DU Stranded Contract Cost',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_ucequaltr',type:'number',text:'Equalization of T&R',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+    {category:'charges',code:'dwsa_fitallcurrent',type:'number',text:'FIT-ALL current bill',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
+  
 
 
     {category:'tax',code:'vat',type:'number',text:'VAT',description:'',active:'active',rounding:'php'},
-   
-     
+    {category:'tax',code:'vat_energy',type:'number',text:'Energy and Supply Charge',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_energyexc',type:'number',text:'Generation Charge in Excess of CC',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_linerental',type:'number',text:'Line Rental',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_interestincome',type:'number',text:'Interest Income',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_distribution',type:'number',text:'Distribution Charge',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_dugenchargeadj',type:'number',text:'DU Generation Charge Adjustment',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_transmission',type:'number',text:'Transmission Charge',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_systemloss',type:'number',text:'System Loss Charge',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_reinvscapex',type:'number',text:'Reinvestment Fund For Sustainable CAPEX',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_subsidies',type:'number',text:'Subsidies and others',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_localtaxdu',type:'number',text:'Local Tax from DU',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_otherrev',type:'number',text:'Other Revenue',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_othervatable',type:'number',text:'Other Vatable',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_othervatexempt',type:'number',text:'Other Vat-Exempt',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_otherzerorated',type:'number',text:'Other Vat Zero Rated',description:'',active:'active',rounding:'php'},
+    {category:'tax',code:'vat_wesmfees',type:'number',text:'WESM Fees',description:'',active:'active',rounding:'php'},     
 ]
 
 var variable_domain_codes = [
@@ -356,6 +402,7 @@ var variable_domain_codes = [
     {variable:'finconst',code:'General'},
     {variable:'wesm_buyer_bid',code:'WESMBIDDU01'},
     {variable:'wesm_buyer_bid',code:'WESMBIDDU02'},
+    {variable:'wesm_bid',code:'ALPDC'},
     {variable:'gentype',code:'COAL'},
     {variable:'gentype',code:'SOLAR'},
     {variable:'gentype',code:'WIND'},
@@ -380,6 +427,13 @@ var rounding_rules =[
 var tax_rules =[
     {code:'vat',text:'Value Added Tax',items:[{variable:'vat', formula:'[@.net_amount]*0.12',rounding:'php'}]},
 ]
+
+var tax_category =[
+    {code:'vatsales',text:'Vat Sales'},
+    {code:'vatexempt',text:'Vat Exempt'},
+    {code:'vatzerorated',text:'Vat Zero Rated'},
+]
+
 
 var window_fields = [    
     {field:'name',category:'GEN',field_locs:'row' ,instance:'single',required:true},    
@@ -472,13 +526,13 @@ contract_update_trans = [
         ],
         numbers:[
             {variable:'genrate',period_start:'2023-01',value:6.1},
-            {variable:'genrateexcc',period_start:'2023-01',value:9.1135},
         ],
         codes:[
         ],
         filters:[
             {variable:'finconst',period_start:'2024-01',value:'General'},
             {variable:'sin',period_start:'2024-01',value:'200205740103'},
+            {variable:'wesm_bid',period_start:'2024-01',value:'ALPDC'},
         ],
         templates:[
             {period_start:'2024-01',value:'TEMPL_DEF_COAL'},
@@ -676,18 +730,19 @@ dynamic_update_trans = [
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
-            filter:{variable:'sin',value:'200205740103'},
+            filter:{variable:'wesm_bid',value:'ALPDC'},
             texts:[],
             numbers:[
                 {variable:'energy_base',value:538582.37},
                 {variable:'energy_exc',value:16041.56},
+                {variable:'genrateexcc',value:9.1135},
         ]}
     ]},
     {category:'WESM_STL',period_from:'2024-03',period_to:'2024-03',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
-            filter:{variable:'sin',value:'200205740103'},
+            filter:{variable:'wesm_bid',value:'ALPDC'},
             texts:[],
             numbers:[
                 {variable:'line_rental',value:227160.69},
@@ -712,6 +767,48 @@ dynamic_update_trans = [
                 {variable:'dwsa_pfa_price',value:-0.093200012821405},
                 {variable:'dwsa_dtru_base',value:553955},
                 {variable:'dwsa_dtru_price',value:0},
+                {variable:'dwsa_ilprec_base',value:553955},
+                {variable:'dwsa_ilprec_price',value:0.0001},
+                {variable:'dwsa_gour_base',value:553955},
+                {variable:'dwsa_gour_price',value:0},
+                {variable:'dwsa_gramiceradaa_base',value:0},
+                {variable:'dwsa_gramiceradaa_price',value:0},
+                {variable:'dwsa_acrmrec_base',value:0},
+                {variable:'dwsa_acrmrec_price',value:0},
+                {variable:'dwsa_transdemand_base',value:1159.76},
+                {variable:'dwsa_transdemand_price',value:257.9},
+                {variable:'dwsa_transenergy_base',value:554623.93},
+                {variable:'dwsa_transenergy_price',value:0},
+                {variable:'dwsa_systemloss_base',value:553955},
+                {variable:'dwsa_systemloss_price',value:0.2343},
+                {variable:'dwsa_reinvestcapex_base',value:1169.78},
+                {variable:'dwsa_reinvestcapex_price',value:0},
+                {variable:'dwsa_subslifeline_base',value:553955},
+                {variable:'dwsa_subslifeline_price',value:-0.0199},
+                {variable:'dwsa_subsseniorcit_base',value:553955},
+                {variable:'dwsa_subsseniorcit_price',value:0.0001},
+                {variable:'dwsa_substrac_base',value:553955},
+                {variable:'dwsa_substrac_price',value:0},
+                {variable:'dwsa_pfdiscsurg_base',value:0},
+                {variable:'dwsa_pfdiscsurg_price',value:0},
+                {variable:'dwsa_localfranctax_base',value:658896.65},
+                {variable:'dwsa_localfranctax_price',value:0.00627},
+                {variable:'dwsa_realproptax_base',value:553955},
+                {variable:'dwsa_realproptax_price',value:0.006},
+                {variable:'dwsa_ucmissionary_base',value:553955},
+                {variable:'dwsa_ucmissionary_price',value:0.1822},
+                {variable:'dwsa_ucenvshare_base',value:553955},
+                {variable:'dwsa_ucenvshare_price',value:0},
+                {variable:'dwsa_ucnpcstrandedcost_base',value:553955},
+                {variable:'dwsa_ucnpcstrandedcost_price',value:0},
+                {variable:'dwsa_ucnpcstrandeddebt_base',value:553955},
+                {variable:'dwsa_ucnpcstrandeddebt_price',value:0.0428},
+                {variable:'dwsa_ucdustrandedcost_base',value:553955},
+                {variable:'dwsa_ucdustrandedcost_price',value:0},
+                {variable:'dwsa_ucequaltr_base',value:553955},
+                {variable:'dwsa_ucequaltr_price',value:0},
+                {variable:'dwsa_fitallcurrent_base',value:554623.93},
+                {variable:'dwsa_fitallcurrent_price',value:0.0838},
         ]}
     ]},
     {category:'FINCONST',period_from:'2024-01',period_to:'2099-12',
@@ -1032,6 +1129,40 @@ var billing_templates =[
                 {index:3,variable:'fuel',base_formula:'[energy]',base_unit:'kWh',price_formula:'[fuelr]',tax_rule:'vat',null_handling_rules:'general'},
             ]},
         ]
+    },  {version_number:1,status:'draft',remarks:'',create_by:'user',create_time:'2024-02-02 00:00',
+        item_groups:[
+            {index:1,type:'determinant',text:'Indices',internal:'false',items:[
+                {index:1,variable:'forexb',determinant_formula:'[CONTRACT.forexb]',null_handling_rules:'general'},
+                {index:2,variable:'forexc',determinant_formula:'[INDEX.forex]',null_handling_rules:'general',comment:'[INDEX.comment]'},
+                {index:3,variable:'ncrcpib',determinant_formula:'[CONTRACT.ncrcpib]',null_handling_rules:'general'},
+                {index:4,variable:'ncrcpic',determinant_formula:'[INDEX.ncrcpi]',null_handling_rules:'general',comment:'[INDEX.comment]'},
+            ]},
+            {index:2,type:'determinant',text:'Plant Data',internal:'false',items:[
+                {index:1,variable:'pmq',determinant_formula:'[PLANT.pmq]',null_handling_rules:'general'},
+                {index:2,variable:'coalmt',determinant_formula:'[PLANT.coalmt]',null_handling_rules:'general'},
+                {index:3,variable:'coalcost',determinant_formula:'[PLANT.coalcost]',null_handling_rules:'general'},
+            ]},
+            {index:3,type:'determinant',text:'Quantities',internal:'false',items:[
+                {index:1,variable:'cc',determinant_formula:'[CONTRACT.cc]',null_handling_rules:'general'},
+                {index:2,variable:'energy',determinant_formula:'[MBCQ.bcq]',null_handling_rules:'general'},
+            ]},
+            {index:4,type:'determinant',text:'Rates',internal:'false',items:[
+                {index:1,variable:'crfr',determinant_formula:'[CONTRACT.crfr]',null_handling_rules:'general'},
+                {index:1,variable:'fomr',determinant_formula:'[CONTRACT.fomr]',null_handling_rules:'general'},
+                {index:1,variable:'vomr',determinant_formula:'[CONTRACT.vomr]',null_handling_rules:'general'},
+                {index:1,variable:'er194r',determinant_formula:'[CONTRACT.er194r]',null_handling_rules:'general'},
+                {index:1,variable:'fuelr',determinant_formula:'[coalcost]*[coalmt]/[pmq]',null_handling_rules:'general'},
+            ]},
+            {index:5,type:'baseprice',text:'Fixed Charge',internal:'false',items:[
+                {index:1,variable:'crf',base_formula:'[cc]*1000',base_unit:'kW',price_formula:'[crfr]',tax_rule:'vat',null_handling_rules:'general'},
+                {index:2,variable:'fom',base_formula:'[cc]*1000',base_unit:'kW',price_formula:'[fomr]',tax_rule:'vat',null_handling_rules:'general'},
+            ]},
+            {index:6,type:'baseprice',text:'Variable Charge',internal:'false',items:[
+                {index:1,variable:'vom',base_formula:'[energy]',base_unit:'kWh',price_formula:'[vomr]-[er194r]',tax_rule:'vat',null_handling_rules:'general'},
+                {index:2,variable:'er194',base_formula:'[energy]',base_unit:'kWh',price_formula:'[er194r]',null_handling_rules:'general'},
+                {index:3,variable:'fuel',base_formula:'[energy]',base_unit:'kWh',price_formula:'[fuelr]',tax_rule:'vat',null_handling_rules:'general'},
+            ]},
+        ]
     },
     ]},
 
@@ -1045,18 +1176,55 @@ var billing_templates =[
                         {index:1,variable:'det_metering_energy',determinant_formula:'[METERING.metering_energy]',null_handling_rules:'general'},
                         {index:2,variable:'det_metering_demand',determinant_formula:'[METERING.metering_demand]',null_handling_rules:'general'},
                     ]},              
-                    {index:2,type:'baseprice',text:'Distribution Charge',internal:'false',items:[
-                        {index:1,variable:'gencharge',base_formula:'[CC_ENERGY.energy_base]',base_unit:'kWh',price_formula:'[CONTRACT.genrate]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'genchargeexcc',base_formula:'[CC_ENERGY.energy_exc]',base_unit:'kWh',price_formula:'[CONTRACT.genrateexcc]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'linerentalcharge',base_formula:'[WESM_STL.line_rental]',base_unit:'Php',price_formula:'1',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:2,type:'baseprice',text:'Generation Charges',internal:'false',items:[
+                        {index:1,variable:'gencharge',base_formula:'[CC_ENERGY.energy_base]',base_unit:'kWh',price_formula:'[CONTRACT.genrate]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'genchargeexcc',base_formula:'[CC_ENERGY.energy_exc]',base_unit:'kWh',price_formula:'[CC_ENERGY.genrateexcc]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'linerentalcharge',base_formula:'[WESM_STL.line_rental]',base_unit:'Php',price_formula:'1',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},    
-                    {index:2,type:'baseprice',text:'DU Generation Charge Adjustment',internal:'false',items:[
-                        {index:1,variable:'dwsa_ddc',base_formula:'[DWSA_MERALCO.dwsa_ddc_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ddc_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_dec',base_formula:'[DWSA_MERALCO.dwsa_dec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dec_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'dwsa_metering',base_formula:'[DWSA_MERALCO.dwsa_metering_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_metering_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:4,variable:'dwsa_supply',base_formula:'[DWSA_MERALCO.dwsa_supply_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_supply_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:5,variable:'dwsa_pfa',base_formula:'[DWSA_MERALCO.dwsa_pfa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfa_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:6,variable:'dwsa_dtru',base_formula:'[DWSA_MERALCO.dwsa_dtru_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dtru_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},                        
+                    {index:3,type:'baseprice',text:'Distribution Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_ddc',base_formula:'[DWSA_MERALCO.dwsa_ddc_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ddc_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_dec',base_formula:'[DWSA_MERALCO.dwsa_dec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dec_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_metering',base_formula:'[DWSA_MERALCO.dwsa_metering_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_metering_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_supply',base_formula:'[DWSA_MERALCO.dwsa_supply_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_supply_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:5,variable:'dwsa_pfa',base_formula:'[DWSA_MERALCO.dwsa_pfa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfa_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:6,variable:'dwsa_dtru',base_formula:'[DWSA_MERALCO.dwsa_dtru_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dtru_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},                        
+                    ]},
+                    {index:4,type:'baseprice',text:'DU Generation Charge Adjustment',internal:'false',items:[
+                        {index:1,variable:'dwsa_ilprec',base_formula:'[DWSA_MERALCO.dwsa_ilprec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ilprec_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_gour',base_formula:'[DWSA_MERALCO.dwsa_gour_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gour_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_gramiceradaa',base_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_acrmrec',base_formula:'[DWSA_MERALCO.dwsa_acrmrec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_acrmrec_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},                        
+                    ]},
+                    {index:5,type:'baseprice',text:'Transmission Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_transdemand',base_formula:'[DWSA_MERALCO.dwsa_transdemand_base]',base_unit:'kW',price_formula:'[DWSA_MERALCO.dwsa_transdemand_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_transenergy',base_formula:'[DWSA_MERALCO.dwsa_transenergy_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_transenergy_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:6,type:'baseprice',text:'System Loss',internal:'false',items:[
+                        {index:1,variable:'dwsa_systemloss',base_formula:'[DWSA_MERALCO.dwsa_systemloss_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_systemloss_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:7,type:'baseprice',text:'Reinvestment fund for sustainable capex',internal:'false',items:[
+                        {index:1,variable:'dwsa_reinvestcapex',base_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:8,type:'baseprice',text:'Subsidies',internal:'false',items:[
+                        {index:1,variable:'dwsa_subslifeline',base_formula:'[DWSA_MERALCO.dwsa_subslifeline_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subslifeline_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_subsseniorcit',base_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_substrac',base_formula:'[DWSA_MERALCO.dwsa_substrac_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_substrac_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_pfdiscsurg',base_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:9,type:'baseprice',text:'Local Tax from DU',internal:'false',items:[
+                        {index:1,variable:'dwsa_localfranctax',base_formula:'[DWSA_MERALCO.dwsa_localfranctax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_localfranctax_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_realproptax',base_formula:'[DWSA_MERALCO.dwsa_realproptax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_realproptax_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:10,type:'baseprice',text:'Universal Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_ucmissionary',base_formula:'[DWSA_MERALCO.dwsa_ucmissionary_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucmissionary_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_ucenvshare',base_formula:'[DWSA_MERALCO.dwsa_ucenvshare_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucenvshare_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_ucnpcstrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_ucnpcstrandeddebt',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:5,variable:'dwsa_ucdustrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:6,variable:'dwsa_ucequaltr',base_formula:'[DWSA_MERALCO.dwsa_ucequaltr_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucequaltr_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},
+                    {index:11,type:'baseprice',text:'Fit-All (Renewable)',internal:'false',items:[
+                        {index:1,variable:'dwsa_fitallcurrent',base_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_price]',amount_formula:'[base]*[price]',tax_formula:'[FINCONS.vat_rate]*[amount]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
                 ]
             },

@@ -399,7 +399,7 @@
     var objOutput = {}
     var amounts = calculation.amounts
     finance_schemes.filter(x=>x.code == scheme)[0].lines.map(x=>{
-      var amount = amounts.filter(y=>y.variable==x.charge)[0].amount_diff
+      var amount = (amounts.filter(y=>y.variable==x.charge)[0]??{amount_diff:0}).amount_diff
       var account = ''
       if(amount>0)account=x.account_pos
       if(amount<0)account=x.account_neg

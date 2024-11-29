@@ -357,11 +357,23 @@ var variables = [
     {category:'charges',code:'dwsa_ucequaltr',type:'number',text:'Equalization of T&R',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
     {category:'charges',code:'dwsa_fitallcurrent',type:'number',text:'FIT-ALL current bill',description:'',active:'active',base_rounding:'kWh',base_unit:'kWh',price_rounding:'Php/kWh',amount_rounding:'php'},
   
-
-
-    {category:'tax',code:'vat',type:'number',text:'VAT',description:'',active:'active',rounding:'php'},
-   
-     
+    {category:'tax',code:'vat',type:'number',text:'VAT',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_energy',type:'number',text:'Energy and Supply Charge',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_energyexc',type:'number',text:'Generation Charge in Excess of CC',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_linerental',type:'number',text:'Line Rental',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_interestincome',type:'number',text:'Interest Income',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_distribution',type:'number',text:'Distribution Charge',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_dugenchargeadj',type:'number',text:'DU Generation Charge Adjustment',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_transmission',type:'number',text:'Transmission Charge',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_systemloss',type:'number',text:'System Loss Charge',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_reinvscapex',type:'number',text:'Reinvestment Fund For Sustainable CAPEX',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_subsidies',type:'number',text:'Subsidies and others',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_localtaxdu',type:'number',text:'Local Tax from DU',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_otherrev',type:'number',text:'Other Revenue',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_othervatable',type:'number',text:'Other Vatable',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_othervatexempt',type:'number',text:'Other Vat-Exempt',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_otherzerorated',type:'number',text:'Other Vat Zero Rated',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},
+    {category:'tax',code:'vat_wesmfees',type:'number',text:'WESM Fees',description:'',active:'active',rounding:'php',base_rounding:'php',base_unit:'Php',price_rounding:'general',amount_rounding:'php'},    	
 ]
 
 var variable_domain_codes = [
@@ -413,6 +425,13 @@ var rounding_rules =[
 var tax_rules =[
     {code:'vat',text:'Value Added Tax',items:[{variable:'vat', formula:'[@.net_amount]*0.12',rounding:'php'}]},
 ]
+
+var tax_category =[
+    {code:'vatsales',text:'Vat Sales',index:1},
+    {code:'vatexempt',text:'Vat Exempt',index:2},
+    {code:'vatzerorated',text:'Vat Zero Rated',index:3},
+]
+
 
 var window_fields = [    
     {field:'name',category:'GEN',field_locs:'row' ,instance:'single',required:true},    
@@ -694,6 +713,28 @@ party_update_trans = [
 
 
 dynamic_update_trans = [
+    {category:'METERING',period_from:'2024-01',period_to:'2024-01',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'sin',value:'200205740103'},
+            texts:[],
+            numbers:[
+                {variable:'metering_energy',value:544623.93},
+                {variable:'metering_demand',value:1059.76},
+        ]}
+    ]},
+    {category:'METERING',period_from:'2024-02',period_to:'2024-02',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'sin',value:'200205740103'},
+            texts:[],
+            numbers:[
+                {variable:'metering_energy',value:334623.93},
+                {variable:'metering_demand',value:859.76},
+        ]}
+    ]},
     {category:'METERING',period_from:'2024-03',period_to:'2024-03',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
@@ -705,6 +746,63 @@ dynamic_update_trans = [
                 {variable:'metering_demand',value:1159.76},
         ]}
     ]},
+    {category:'METERING',period_from:'2024-04',period_to:'2024-04',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'sin',value:'200205740103'},
+            texts:[],
+            numbers:[
+                {variable:'metering_energy',value:884623.93},
+                {variable:'metering_demand',value:1859.76},
+        ]}
+    ]},
+    {category:'METERING',period_from:'2024-05',period_to:'2024-05',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'sin',value:'200205740103'},
+            texts:[],
+            numbers:[
+                {variable:'metering_energy',value:454623.93},
+                {variable:'metering_demand',value:959.76},
+        ]}
+    ]},
+    {category:'METERING',period_from:'2024-06',period_to:'2024-06',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'sin',value:'200205740103'},
+            texts:[],
+            numbers:[
+                {variable:'metering_energy',value:224623.93},
+                {variable:'metering_demand',value:659.76},
+        ]}
+    ]},
+    {category:'CC_ENERGY',period_from:'2024-01',period_to:'2024-01',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'energy_base',value:638582.37},
+                {variable:'energy_exc',value:19041.56},
+                {variable:'genrateexcc',value:8.1135},
+        ]}
+    ]},
+    {category:'CC_ENERGY',period_from:'2024-02',period_to:'2024-02',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'energy_base',value:588582.37},
+                {variable:'energy_exc',value:12041.56},
+                {variable:'genrateexcc',value:12.1135},
+        ]}
+    ]},
     {category:'CC_ENERGY',period_from:'2024-03',period_to:'2024-03',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
@@ -712,9 +810,65 @@ dynamic_update_trans = [
             filter:{variable:'wesm_bid',value:'ALPDC'},
             texts:[],
             numbers:[
-                {variable:'energy_base',value:538582.37},
-                {variable:'energy_exc',value:16041.56},
-                {variable:'genrateexcc',value:9.1135},
+                {variable:'energy_base',value:532582.37},
+                {variable:'energy_exc',value:16341.56},
+                {variable:'genrateexcc',value:9.2135},
+        ]}
+    ]},
+    {category:'CC_ENERGY',period_from:'2024-04',period_to:'2024-04',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'energy_base',value:438582.37},
+                {variable:'energy_exc',value:9041.56},
+                {variable:'genrateexcc',value:9.2235},
+        ]}
+    ]},
+    {category:'CC_ENERGY',period_from:'2024-05',period_to:'2024-05',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'energy_base',value:888582.37},
+                {variable:'energy_exc',value:19041.56},
+                {variable:'genrateexcc',value:12.1135},
+        ]}
+    ]},
+    {category:'CC_ENERGY',period_from:'2024-06',period_to:'2024-06',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'energy_base',value:728582.37},
+                {variable:'energy_exc',value:17041.56},
+                {variable:'genrateexcc',value:11.1135},
+        ]}
+    ]},
+    {category:'WESM_STL',period_from:'2024-01',period_to:'2024-01',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'line_rental',value:237160.69},
+        ]}
+    ]},
+    {category:'WESM_STL',period_from:'2024-02',period_to:'2024-02',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'line_rental',value:197160.69},
         ]}
     ]},
     {category:'WESM_STL',period_from:'2024-03',period_to:'2024-03',
@@ -727,7 +881,37 @@ dynamic_update_trans = [
                 {variable:'line_rental',value:227160.69},
         ]}
     ]},
-    {category:'DWSA_MERALCO',period_from:'2024-03',period_to:'2024-03',
+    {category:'WESM_STL',period_from:'2024-04',period_to:'2024-04',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'line_rental',value:233160.69},
+        ]}
+    ]},
+    {category:'WESM_STL',period_from:'2024-05',period_to:'2024-05',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'line_rental',value:245160.69},
+        ]}
+    ]},
+    {category:'WESM_STL',period_from:'2024-06',period_to:'2024-06',
+    status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
+    filters:[
+        {
+            filter:{variable:'wesm_bid',value:'ALPDC'},
+            texts:[],
+            numbers:[
+                {variable:'line_rental',value:333160.69},
+        ]}
+    ]},
+    {category:'DWSA_MERALCO',period_from:'2024-01',period_to:'2024-07',
     status:[{status:'approved',sub_status:'',update_by:'MKTGMNGR',update_time:'2023-03-01 00:00',remarks:''},],
     filters:[
         {
@@ -1155,55 +1339,73 @@ var billing_templates =[
                         {index:1,variable:'det_metering_energy',determinant_formula:'[METERING.metering_energy]',null_handling_rules:'general'},
                         {index:2,variable:'det_metering_demand',determinant_formula:'[METERING.metering_demand]',null_handling_rules:'general'},
                     ]},              
-                    {index:2,type:'baseprice',text:'Generation Charges',internal:'false',items:[
-                        {index:1,variable:'gencharge',base_formula:'[CC_ENERGY.energy_base]',base_unit:'kWh',price_formula:'[CONTRACT.genrate]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'genchargeexcc',base_formula:'[CC_ENERGY.energy_exc]',base_unit:'kWh',price_formula:'[CC_ENERGY.genrateexcc]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'linerentalcharge',base_formula:'[WESM_STL.line_rental]',base_unit:'Php',price_formula:'1',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:2,type:'baseprice',code:'group_generationcharge',text:'Generation Charges',internal:'false',items:[
+                        {index:1,variable:'gencharge',base_formula:'[CC_ENERGY.energy_base]',base_unit:'kWh',price_formula:'[CONTRACT.genrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'genchargeexcc',base_formula:'[CC_ENERGY.energy_exc]',base_unit:'kWh',price_formula:'[CC_ENERGY.genrateexcc]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'linerentalcharge',base_formula:'',base_unit:'',price_formula:'',amount_formula:'[WESM_STL.line_rental]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},    
-                    {index:3,type:'baseprice',text:'Distribution Charges',internal:'false',items:[
-                        {index:1,variable:'dwsa_ddc',base_formula:'[DWSA_MERALCO.dwsa_ddc_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ddc_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_dec',base_formula:'[DWSA_MERALCO.dwsa_dec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dec_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'dwsa_metering',base_formula:'[DWSA_MERALCO.dwsa_metering_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_metering_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:4,variable:'dwsa_supply',base_formula:'[DWSA_MERALCO.dwsa_supply_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_supply_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:5,variable:'dwsa_pfa',base_formula:'[DWSA_MERALCO.dwsa_pfa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfa_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:6,variable:'dwsa_dtru',base_formula:'[DWSA_MERALCO.dwsa_dtru_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dtru_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},                        
+                    {index:3,type:'baseprice',code:'group_distributioncharge',text:'Distribution Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_ddc',base_formula:'[DWSA_MERALCO.dwsa_ddc_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ddc_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_dec',base_formula:'[DWSA_MERALCO.dwsa_dec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dec_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_metering',base_formula:'[DWSA_MERALCO.dwsa_metering_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_metering_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_supply',base_formula:'[DWSA_MERALCO.dwsa_supply_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_supply_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:5,variable:'dwsa_pfa',base_formula:'[DWSA_MERALCO.dwsa_pfa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfa_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:6,variable:'dwsa_dtru',base_formula:'[DWSA_MERALCO.dwsa_dtru_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_dtru_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},                        
                     ]},
-                    {index:4,type:'baseprice',text:'DU Generation Charge Adjustment',internal:'false',items:[
-                        {index:1,variable:'dwsa_ilprec',base_formula:'[DWSA_MERALCO.dwsa_ilprec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ilprec_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_gour',base_formula:'[DWSA_MERALCO.dwsa_gour_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gour_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'dwsa_gramiceradaa',base_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:4,variable:'dwsa_acrmrec',base_formula:'[DWSA_MERALCO.dwsa_acrmrec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_acrmrec_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},                        
+                    {index:4,type:'baseprice',code:'group_duchargeadj',text:'DU Generation Charge Adjustment',internal:'false',items:[
+                        {index:1,variable:'dwsa_ilprec',base_formula:'[DWSA_MERALCO.dwsa_ilprec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ilprec_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_gour',base_formula:'[DWSA_MERALCO.dwsa_gour_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gour_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_gramiceradaa',base_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_gramiceradaa_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_acrmrec',base_formula:'[DWSA_MERALCO.dwsa_acrmrec_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_acrmrec_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},                        
                     ]},
-                    {index:5,type:'baseprice',text:'Transmission Charges',internal:'false',items:[
-                        {index:1,variable:'dwsa_transdemand',base_formula:'[DWSA_MERALCO.dwsa_transdemand_base]',base_unit:'kW',price_formula:'[DWSA_MERALCO.dwsa_transdemand_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_transenergy',base_formula:'[DWSA_MERALCO.dwsa_transenergy_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_transenergy_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:5,type:'baseprice',code:'group_transmissioncharge',text:'Transmission Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_transdemand',base_formula:'[DWSA_MERALCO.dwsa_transdemand_base]',base_unit:'kW',price_formula:'[DWSA_MERALCO.dwsa_transdemand_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_transenergy',base_formula:'[DWSA_MERALCO.dwsa_transenergy_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_transenergy_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:6,type:'baseprice',text:'System Loss',internal:'false',items:[
-                        {index:1,variable:'dwsa_systemloss',base_formula:'[DWSA_MERALCO.dwsa_systemloss_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_systemloss_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:6,type:'baseprice',code:'group_systemloss',text:'System Loss',internal:'false',items:[
+                        {index:1,variable:'dwsa_systemloss',base_formula:'[DWSA_MERALCO.dwsa_systemloss_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_systemloss_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:7,type:'baseprice',text:'Reinvestment fund for sustainable capex',internal:'false',items:[
-                        {index:1,variable:'dwsa_reinvestcapex',base_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:7,type:'baseprice',code:'group_reinvestmentcapex',text:'Reinvestment fund for sustainable capex',internal:'false',items:[
+                        {index:1,variable:'dwsa_reinvestcapex',base_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_reinvestcapex_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:8,type:'baseprice',text:'Subsidies',internal:'false',items:[
-                        {index:1,variable:'dwsa_subslifeline',base_formula:'[DWSA_MERALCO.dwsa_subslifeline_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subslifeline_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_subsseniorcit',base_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'dwsa_substrac',base_formula:'[DWSA_MERALCO.dwsa_substrac_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_substrac_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:4,variable:'dwsa_pfdiscsurg',base_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:8,type:'baseprice',code:'group_subsidies',text:'Subsidies',internal:'false',items:[
+                        {index:1,variable:'dwsa_subslifeline',base_formula:'[DWSA_MERALCO.dwsa_subslifeline_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subslifeline_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_subsseniorcit',base_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_subsseniorcit_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_substrac',base_formula:'[DWSA_MERALCO.dwsa_substrac_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_substrac_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_pfdiscsurg',base_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_pfdiscsurg_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:9,type:'baseprice',text:'Local Tax from DU',internal:'false',items:[
-                        {index:1,variable:'dwsa_localfranctax',base_formula:'[DWSA_MERALCO.dwsa_localfranctax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_localfranctax_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_realproptax',base_formula:'[DWSA_MERALCO.dwsa_realproptax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_realproptax_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:9,type:'baseprice',code:'group_localtaxdu',text:'Local Tax from DU',internal:'false',items:[
+                        {index:1,variable:'dwsa_localfranctax',base_formula:'[DWSA_MERALCO.dwsa_localfranctax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_localfranctax_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_realproptax',base_formula:'[DWSA_MERALCO.dwsa_realproptax_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_realproptax_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:10,type:'baseprice',text:'Universal Charges',internal:'false',items:[
-                        {index:1,variable:'dwsa_ucmissionary',base_formula:'[DWSA_MERALCO.dwsa_ucmissionary_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucmissionary_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:2,variable:'dwsa_ucenvshare',base_formula:'[DWSA_MERALCO.dwsa_ucenvshare_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucenvshare_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:3,variable:'dwsa_ucnpcstrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:4,variable:'dwsa_ucnpcstrandeddebt',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:5,variable:'dwsa_ucdustrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
-                        {index:6,variable:'dwsa_ucequaltr',base_formula:'[DWSA_MERALCO.dwsa_ucequaltr_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucequaltr_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:10,type:'baseprice',code:'group_govtaxes',text:'Goverment Taxes',internal:'false',items:[
+                        {index:1,variable:'vat_energy',base_formula:'[gencharge.amount]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'vat_energyexc',base_formula:'[genchargeexcc.amount]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_linerental',base_formula:'[linerentalcharge.amount]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_interestincome',base_formula:'0',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_distribution',base_formula:'[group_distributioncharge.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_dugenchargeadj',base_formula:'[group_duchargeadj.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_transmission',base_formula:'[group_transmissioncharge.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_systemloss',base_formula:'[group_systemloss.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_reinvscapex',base_formula:'[group_reinvestmentcapex.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_subsidies',base_formula:'[group_subsidies.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_localtaxdu',base_formula:'[group_subsidies.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_otherrev',base_formula:'[group_localtaxdu.total]',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_othervatable',base_formula:'0',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_othervatexempt',base_formula:'0',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_otherzerorated',base_formula:'0',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'vat_wesmfees',base_formula:'0',base_unit:'Php',price_formula:'[FINCONST.vatrate]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                    ]},            
+                    {index:11,type:'baseprice',code:'group_universalcharges',text:'Universal Charges',internal:'false',items:[
+                        {index:1,variable:'dwsa_ucmissionary',base_formula:'[DWSA_MERALCO.dwsa_ucmissionary_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucmissionary_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:2,variable:'dwsa_ucenvshare',base_formula:'[DWSA_MERALCO.dwsa_ucenvshare_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucenvshare_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:3,variable:'dwsa_ucnpcstrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandedcost_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:4,variable:'dwsa_ucnpcstrandeddebt',base_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucnpcstrandeddebt_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:5,variable:'dwsa_ucdustrandedcost',base_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucdustrandedcost_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
+                        {index:6,variable:'dwsa_ucequaltr',base_formula:'[DWSA_MERALCO.dwsa_ucequaltr_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_ucequaltr_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
-                    {index:11,type:'baseprice',text:'Fit-All (Renewable)',internal:'false',items:[
-                        {index:1,variable:'dwsa_fitallcurrent',base_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_price]',amount_formula:'[base]*[price]',tax_rule:'vat',null_handling_rules:'general'},
+                    {index:12,type:'baseprice',code:'group_fitallre',text:'Fit-All (Renewable)',internal:'false',items:[
+                        {index:1,variable:'dwsa_fitallcurrent',base_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_base]',base_unit:'kWh',price_formula:'[DWSA_MERALCO.dwsa_fitallcurrent_price]',amount_formula:'[base]*[price]',tax_category:'vatsales',null_handling_rules:'general'},
                     ]},
                 ]
             },
@@ -1234,7 +1436,8 @@ var contract_billing_setup =[
 
 
 
-var billing_calculations = [{
+var billing_calculations = [
+    {
     report_period:'2024-04',
     period:'2024-04',
     contract:'PSA-GEN01-00002',
@@ -1345,6 +1548,3614 @@ var billing_calculations = [{
             {variable:'vat',amount_prev:0,amount:3666462,amount_diff:3666462},
         ]
         },
+
+
+     
+            {"report_period": "2024-01",
+                "period": "2024-01",
+                "contract": "RSC-GEN01-ALPDC-001",
+                "revision_number": 0,
+                "template": "RETAIL_MERALCO V.0",                
+                "status":[
+                    {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                    {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'ONESTEPFINAL'},
+                    {code:'approved',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                    {code:'released',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                ],
+                "values": [
+                    {
+                        "index": 1,
+                        "type": "determinant",
+                        "text": "Metering Information",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "det_metering_energy",
+                                "base": 554623.93,
+                                "comment": 0
+                            },
+                            {
+                                "index": 2,
+                                "variable": "det_metering_demand",
+                                "base": 1159.76,
+                                "comment": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Generation Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "gencharge",
+                                "base": 532582.37,
+                                "price": 6.1,
+                                "amount": 3248752.457
+                            },
+                            {
+                                "index": 2,
+                                "variable": "genchargeexcc",
+                                "base": 16341.56,
+                                "price": 9.2135,
+                                "amount": 150562.96305999998
+                            },
+                            {
+                                "index": 3,
+                                "variable": "linerentalcharge",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 227160.69
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Distribution Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ddc",
+                                "base": 1159.76,
+                                "price": 178.85,
+                                "amount": 207423.076
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_dec",
+                                "base": 553955,
+                                "price": 0.0502,
+                                "amount": 27808.541
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_metering",
+                                "base": 1,
+                                "price": 11823.21,
+                                "amount": 11823.21
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_supply",
+                                "base": 1,
+                                "price": 12460.82,
+                                "amount": 12460.82
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_pfa",
+                                "base": 235231.62,
+                                "price": -0.093200012821405,
+                                "amount": -21923.58999999987
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_dtru",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "DU Generation Charge Adjustment",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ilprec",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_gour",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_gramiceradaa",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_acrmrec",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Transmission Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_transdemand",
+                                "base": 1159.76,
+                                "price": 257.9,
+                                "amount": 299102.104
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_transenergy",
+                                "base": 554623.93,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "System Loss",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_systemloss",
+                                "base": 553955,
+                                "price": 0.2343,
+                                "amount": 129791.6565
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Reinvestment fund for sustainable capex",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_reinvestcapex",
+                                "base": 1169.78,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Subsidies",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_subslifeline",
+                                "base": 553955,
+                                "price": -0.0199,
+                                "amount": -11023.7045
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_subsseniorcit",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_substrac",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_pfdiscsurg",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Local Tax from DU",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_localfranctax",
+                                "base": 658896.65,
+                                "price": 0.00627,
+                                "amount": 4131.2819955
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_realproptax",
+                                "base": 553955,
+                                "price": 0.006,
+                                "amount": 3323.73
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Goverment Taxes",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "vat_energy",
+                                "base": 3248752.457,
+                                "price": 0.12,
+                                "amount": 389850.29484
+                            },
+                            {
+                                "index": 2,
+                                "variable": "vat_energyexc",
+                                "base": 150562.96305999998,
+                                "price": 0.12,
+                                "amount": 18067.555567199997
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_linerental",
+                                "base": 227160.69,
+                                "price": 0.12,
+                                "amount": 27259.2828
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_interestincome",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_distribution",
+                                "base": 237592.05700000012,
+                                "price": 0.12,
+                                "amount": 28511.046840000014
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_dugenchargeadj",
+                                "base": 55.395500000000006,
+                                "price": 0.12,
+                                "amount": 6.647460000000001
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_transmission",
+                                "base": 299102.104,
+                                "price": 0.12,
+                                "amount": 35892.252479999996
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_systemloss",
+                                "base": 129791.6565,
+                                "price": 0.12,
+                                "amount": 15574.99878
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_reinvscapex",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_subsidies",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_localtaxdu",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherrev",
+                                "base": 7455.011995500001,
+                                "price": 0.12,
+                                "amount": 894.60143946
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatable",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatexempt",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherzerorated",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_wesmfees",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Universal Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ucmissionary",
+                                "base": 553955,
+                                "price": 0.1822,
+                                "amount": 100930.601
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_ucenvshare",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_ucnpcstrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_ucnpcstrandeddebt",
+                                "base": 553955,
+                                "price": 0.0428,
+                                "amount": 23709.273999999998
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_ucdustrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_ucequaltr",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Fit-All (Renewable)",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_fitallcurrent",
+                                "base": 554623.93,
+                                "price": 0.0838,
+                                "amount": 46477.485334000005
+                            }
+                        ]
+                    }
+                ],
+                "amounts": [
+                    {
+                        "variable": "gencharge",
+                        "amount_prev": 0,
+                        "amount": 3248752.457,
+                        "amount_diff": 3248752.457
+                    },
+                    {
+                        "variable": "genchargeexcc",
+                        "amount_prev": 0,
+                        "amount": 150562.96305999998,
+                        "amount_diff": 150562.96305999998
+                    },
+                    {
+                        "variable": "linerentalcharge",
+                        "amount_prev": 0,
+                        "amount": 227160.69,
+                        "amount_diff": 227160.69
+                    },
+                    {
+                        "variable": "dwsa_ddc",
+                        "amount_prev": 0,
+                        "amount": 207423.076,
+                        "amount_diff": 207423.076
+                    },
+                    {
+                        "variable": "dwsa_dec",
+                        "amount_prev": 0,
+                        "amount": 27808.541,
+                        "amount_diff": 27808.541
+                    },
+                    {
+                        "variable": "dwsa_metering",
+                        "amount_prev": 0,
+                        "amount": 11823.21,
+                        "amount_diff": 11823.21
+                    },
+                    {
+                        "variable": "dwsa_supply",
+                        "amount_prev": 0,
+                        "amount": 12460.82,
+                        "amount_diff": 12460.82
+                    },
+                    {
+                        "variable": "dwsa_pfa",
+                        "amount_prev": 0,
+                        "amount": -21923.58999999987,
+                        "amount_diff": -21923.58999999987
+                    },
+                    {
+                        "variable": "dwsa_dtru",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ilprec",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_gour",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_gramiceradaa",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_acrmrec",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_transdemand",
+                        "amount_prev": 0,
+                        "amount": 299102.104,
+                        "amount_diff": 299102.104
+                    },
+                    {
+                        "variable": "dwsa_transenergy",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_systemloss",
+                        "amount_prev": 0,
+                        "amount": 129791.6565,
+                        "amount_diff": 129791.6565
+                    },
+                    {
+                        "variable": "dwsa_reinvestcapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_subslifeline",
+                        "amount_prev": 0,
+                        "amount": -11023.7045,
+                        "amount_diff": -11023.7045
+                    },
+                    {
+                        "variable": "dwsa_subsseniorcit",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_substrac",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_pfdiscsurg",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_localfranctax",
+                        "amount_prev": 0,
+                        "amount": 4131.2819955,
+                        "amount_diff": 4131.2819955
+                    },
+                    {
+                        "variable": "dwsa_realproptax",
+                        "amount_prev": 0,
+                        "amount": 3323.73,
+                        "amount_diff": 3323.73
+                    },
+                    {
+                        "variable": "vat_energy",
+                        "amount_prev": 0,
+                        "amount": 389850.29484,
+                        "amount_diff": 389850.29484
+                    },
+                    {
+                        "variable": "vat_energyexc",
+                        "amount_prev": 0,
+                        "amount": 18067.555567199997,
+                        "amount_diff": 18067.555567199997
+                    },
+                    {
+                        "variable": "vat_linerental",
+                        "amount_prev": 0,
+                        "amount": 27259.2828,
+                        "amount_diff": 27259.2828
+                    },
+                    {
+                        "variable": "vat_interestincome",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_distribution",
+                        "amount_prev": 0,
+                        "amount": 28511.046840000014,
+                        "amount_diff": 28511.046840000014
+                    },
+                    {
+                        "variable": "vat_dugenchargeadj",
+                        "amount_prev": 0,
+                        "amount": 6.647460000000001,
+                        "amount_diff": 6.647460000000001
+                    },
+                    {
+                        "variable": "vat_transmission",
+                        "amount_prev": 0,
+                        "amount": 35892.252479999996,
+                        "amount_diff": 35892.252479999996
+                    },
+                    {
+                        "variable": "vat_systemloss",
+                        "amount_prev": 0,
+                        "amount": 15574.99878,
+                        "amount_diff": 15574.99878
+                    },
+                    {
+                        "variable": "vat_reinvscapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_subsidies",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_localtaxdu",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_otherrev",
+                        "amount_prev": 0,
+                        "amount": 894.60143946,
+                        "amount_diff": 894.60143946
+                    },
+                    {
+                        "variable": "vat_othervatable",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_othervatexempt",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_otherzerorated",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_wesmfees",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucmissionary",
+                        "amount_prev": 0,
+                        "amount": 100930.601,
+                        "amount_diff": 100930.601
+                    },
+                    {
+                        "variable": "dwsa_ucenvshare",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandeddebt",
+                        "amount_prev": 0,
+                        "amount": 23709.273999999998,
+                        "amount_diff": 23709.273999999998
+                    },
+                    {
+                        "variable": "dwsa_ucdustrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucequaltr",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_fitallcurrent",
+                        "amount_prev": 0,
+                        "amount": 46477.485334000005,
+                        "amount_diff": 46477.485334000005
+                    }
+                ]
+            },
+
+            {
+                "report_period": "2024-02",
+                "period": "2024-02",
+                "contract": "RSC-GEN01-ALPDC-001",
+                "revision_number": 0,
+                "template": "RETAIL_MERALCO V.0",                
+                "status":[
+                    {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                    {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'ONESTEPFINAL'},
+                    {code:'approved',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                    {code:'released',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                ],
+                "values": [
+                    {
+                        "index": 1,
+                        "type": "determinant",
+                        "text": "Metering Information",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "det_metering_energy",
+                                "base": 554623.93,
+                                "comment": 0
+                            },
+                            {
+                                "index": 2,
+                                "variable": "det_metering_demand",
+                                "base": 1159.76,
+                                "comment": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Generation Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "gencharge",
+                                "base": 532582.37,
+                                "price": 6.1,
+                                "amount": 3248752.457
+                            },
+                            {
+                                "index": 2,
+                                "variable": "genchargeexcc",
+                                "base": 16341.56,
+                                "price": 9.2135,
+                                "amount": 150562.96305999998
+                            },
+                            {
+                                "index": 3,
+                                "variable": "linerentalcharge",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 227160.69
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Distribution Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ddc",
+                                "base": 1159.76,
+                                "price": 178.85,
+                                "amount": 207423.076
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_dec",
+                                "base": 553955,
+                                "price": 0.0502,
+                                "amount": 27808.541
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_metering",
+                                "base": 1,
+                                "price": 11823.21,
+                                "amount": 11823.21
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_supply",
+                                "base": 1,
+                                "price": 12460.82,
+                                "amount": 12460.82
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_pfa",
+                                "base": 235231.62,
+                                "price": -0.093200012821405,
+                                "amount": -21923.58999999987
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_dtru",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "DU Generation Charge Adjustment",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ilprec",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_gour",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_gramiceradaa",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_acrmrec",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Transmission Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_transdemand",
+                                "base": 1159.76,
+                                "price": 257.9,
+                                "amount": 299102.104
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_transenergy",
+                                "base": 554623.93,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "System Loss",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_systemloss",
+                                "base": 553955,
+                                "price": 0.2343,
+                                "amount": 129791.6565
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Reinvestment fund for sustainable capex",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_reinvestcapex",
+                                "base": 1169.78,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Subsidies",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_subslifeline",
+                                "base": 553955,
+                                "price": -0.0199,
+                                "amount": -11023.7045
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_subsseniorcit",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_substrac",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_pfdiscsurg",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Local Tax from DU",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_localfranctax",
+                                "base": 658896.65,
+                                "price": 0.00627,
+                                "amount": 4131.2819955
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_realproptax",
+                                "base": 553955,
+                                "price": 0.006,
+                                "amount": 3323.73
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Goverment Taxes",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "vat_energy",
+                                "base": 3248752.457,
+                                "price": 0.12,
+                                "amount": 389850.29484
+                            },
+                            {
+                                "index": 2,
+                                "variable": "vat_energyexc",
+                                "base": 150562.96305999998,
+                                "price": 0.12,
+                                "amount": 18067.555567199997
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_linerental",
+                                "base": 227160.69,
+                                "price": 0.12,
+                                "amount": 27259.2828
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_interestincome",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_distribution",
+                                "base": 237592.05700000012,
+                                "price": 0.12,
+                                "amount": 28511.046840000014
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_dugenchargeadj",
+                                "base": 55.395500000000006,
+                                "price": 0.12,
+                                "amount": 6.647460000000001
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_transmission",
+                                "base": 299102.104,
+                                "price": 0.12,
+                                "amount": 35892.252479999996
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_systemloss",
+                                "base": 129791.6565,
+                                "price": 0.12,
+                                "amount": 15574.99878
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_reinvscapex",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_subsidies",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_localtaxdu",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherrev",
+                                "base": 7455.011995500001,
+                                "price": 0.12,
+                                "amount": 894.60143946
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatable",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatexempt",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherzerorated",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_wesmfees",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Universal Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ucmissionary",
+                                "base": 553955,
+                                "price": 0.1822,
+                                "amount": 100930.601
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_ucenvshare",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_ucnpcstrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_ucnpcstrandeddebt",
+                                "base": 553955,
+                                "price": 0.0428,
+                                "amount": 23709.273999999998
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_ucdustrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_ucequaltr",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Fit-All (Renewable)",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_fitallcurrent",
+                                "base": 554623.93,
+                                "price": 0.0838,
+                                "amount": 46477.485334000005
+                            }
+                        ]
+                    }
+                ],
+                "amounts": [
+                    {
+                        "variable": "gencharge",
+                        "amount_prev": 0,
+                        "amount": 3248752.457,
+                        "amount_diff": 3248752.457
+                    },
+                    {
+                        "variable": "genchargeexcc",
+                        "amount_prev": 0,
+                        "amount": 150562.96305999998,
+                        "amount_diff": 150562.96305999998
+                    },
+                    {
+                        "variable": "linerentalcharge",
+                        "amount_prev": 0,
+                        "amount": 227160.69,
+                        "amount_diff": 227160.69
+                    },
+                    {
+                        "variable": "dwsa_ddc",
+                        "amount_prev": 0,
+                        "amount": 207423.076,
+                        "amount_diff": 207423.076
+                    },
+                    {
+                        "variable": "dwsa_dec",
+                        "amount_prev": 0,
+                        "amount": 27808.541,
+                        "amount_diff": 27808.541
+                    },
+                    {
+                        "variable": "dwsa_metering",
+                        "amount_prev": 0,
+                        "amount": 11823.21,
+                        "amount_diff": 11823.21
+                    },
+                    {
+                        "variable": "dwsa_supply",
+                        "amount_prev": 0,
+                        "amount": 12460.82,
+                        "amount_diff": 12460.82
+                    },
+                    {
+                        "variable": "dwsa_pfa",
+                        "amount_prev": 0,
+                        "amount": -21923.58999999987,
+                        "amount_diff": -21923.58999999987
+                    },
+                    {
+                        "variable": "dwsa_dtru",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ilprec",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_gour",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_gramiceradaa",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_acrmrec",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_transdemand",
+                        "amount_prev": 0,
+                        "amount": 299102.104,
+                        "amount_diff": 299102.104
+                    },
+                    {
+                        "variable": "dwsa_transenergy",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_systemloss",
+                        "amount_prev": 0,
+                        "amount": 129791.6565,
+                        "amount_diff": 129791.6565
+                    },
+                    {
+                        "variable": "dwsa_reinvestcapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_subslifeline",
+                        "amount_prev": 0,
+                        "amount": -11023.7045,
+                        "amount_diff": -11023.7045
+                    },
+                    {
+                        "variable": "dwsa_subsseniorcit",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_substrac",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_pfdiscsurg",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_localfranctax",
+                        "amount_prev": 0,
+                        "amount": 4131.2819955,
+                        "amount_diff": 4131.2819955
+                    },
+                    {
+                        "variable": "dwsa_realproptax",
+                        "amount_prev": 0,
+                        "amount": 3323.73,
+                        "amount_diff": 3323.73
+                    },
+                    {
+                        "variable": "vat_energy",
+                        "amount_prev": 0,
+                        "amount": 389850.29484,
+                        "amount_diff": 389850.29484
+                    },
+                    {
+                        "variable": "vat_energyexc",
+                        "amount_prev": 0,
+                        "amount": 18067.555567199997,
+                        "amount_diff": 18067.555567199997
+                    },
+                    {
+                        "variable": "vat_linerental",
+                        "amount_prev": 0,
+                        "amount": 27259.2828,
+                        "amount_diff": 27259.2828
+                    },
+                    {
+                        "variable": "vat_interestincome",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_distribution",
+                        "amount_prev": 0,
+                        "amount": 28511.046840000014,
+                        "amount_diff": 28511.046840000014
+                    },
+                    {
+                        "variable": "vat_dugenchargeadj",
+                        "amount_prev": 0,
+                        "amount": 6.647460000000001,
+                        "amount_diff": 6.647460000000001
+                    },
+                    {
+                        "variable": "vat_transmission",
+                        "amount_prev": 0,
+                        "amount": 35892.252479999996,
+                        "amount_diff": 35892.252479999996
+                    },
+                    {
+                        "variable": "vat_systemloss",
+                        "amount_prev": 0,
+                        "amount": 15574.99878,
+                        "amount_diff": 15574.99878
+                    },
+                    {
+                        "variable": "vat_reinvscapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_subsidies",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_localtaxdu",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_otherrev",
+                        "amount_prev": 0,
+                        "amount": 894.60143946,
+                        "amount_diff": 894.60143946
+                    },
+                    {
+                        "variable": "vat_othervatable",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_othervatexempt",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_otherzerorated",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_wesmfees",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucmissionary",
+                        "amount_prev": 0,
+                        "amount": 100930.601,
+                        "amount_diff": 100930.601
+                    },
+                    {
+                        "variable": "dwsa_ucenvshare",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandeddebt",
+                        "amount_prev": 0,
+                        "amount": 23709.273999999998,
+                        "amount_diff": 23709.273999999998
+                    },
+                    {
+                        "variable": "dwsa_ucdustrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucequaltr",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_fitallcurrent",
+                        "amount_prev": 0,
+                        "amount": 46477.485334000005,
+                        "amount_diff": 46477.485334000005
+                    }
+                ]
+            },
+
+            {"report_period": "2024-03",
+                "period": "2024-03",
+                "contract": "RSC-GEN01-ALPDC-001",
+                "revision_number": 0,
+                "template": "RETAIL_MERALCO V.0",                
+                "status":[
+                    {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                    {code:'for-approval',update_by:'MKTG',update_time:'2024-05-05 12:31',sub_status:'ONESTEPFINAL'},
+                ],
+                "values": [
+                    {
+                        "index": 1,
+                        "type": "determinant",
+                        "text": "Metering Information",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "det_metering_energy",
+                                "base": 554623.93,
+                                "comment": 0
+                            },
+                            {
+                                "index": 2,
+                                "variable": "det_metering_demand",
+                                "base": 1159.76,
+                                "comment": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Generation Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "gencharge",
+                                "base": 532582.37,
+                                "price": 6.1,
+                                "amount": 3248752.457
+                            },
+                            {
+                                "index": 2,
+                                "variable": "genchargeexcc",
+                                "base": 16341.56,
+                                "price": 9.2135,
+                                "amount": 150562.96305999998
+                            },
+                            {
+                                "index": 3,
+                                "variable": "linerentalcharge",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 227160.69
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Distribution Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ddc",
+                                "base": 1159.76,
+                                "price": 178.85,
+                                "amount": 207423.076
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_dec",
+                                "base": 553955,
+                                "price": 0.0502,
+                                "amount": 27808.541
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_metering",
+                                "base": 1,
+                                "price": 11823.21,
+                                "amount": 11823.21
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_supply",
+                                "base": 1,
+                                "price": 12460.82,
+                                "amount": 12460.82
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_pfa",
+                                "base": 235231.62,
+                                "price": -0.093200012821405,
+                                "amount": -21923.58999999987
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_dtru",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "DU Generation Charge Adjustment",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ilprec",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_gour",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_gramiceradaa",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_acrmrec",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Transmission Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_transdemand",
+                                "base": 1159.76,
+                                "price": 257.9,
+                                "amount": 299102.104
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_transenergy",
+                                "base": 554623.93,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "System Loss",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_systemloss",
+                                "base": 553955,
+                                "price": 0.2343,
+                                "amount": 129791.6565
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Reinvestment fund for sustainable capex",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_reinvestcapex",
+                                "base": 1169.78,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Subsidies",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_subslifeline",
+                                "base": 553955,
+                                "price": -0.0199,
+                                "amount": -11023.7045
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_subsseniorcit",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_substrac",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_pfdiscsurg",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Local Tax from DU",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_localfranctax",
+                                "base": 658896.65,
+                                "price": 0.00627,
+                                "amount": 4131.2819955
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_realproptax",
+                                "base": 553955,
+                                "price": 0.006,
+                                "amount": 3323.73
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Goverment Taxes",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "vat_energy",
+                                "base": 3248752.457,
+                                "price": 0.12,
+                                "amount": 389850.29484
+                            },
+                            {
+                                "index": 2,
+                                "variable": "vat_energyexc",
+                                "base": 150562.96305999998,
+                                "price": 0.12,
+                                "amount": 18067.555567199997
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_linerental",
+                                "base": 227160.69,
+                                "price": 0.12,
+                                "amount": 27259.2828
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_interestincome",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_distribution",
+                                "base": 237592.05700000012,
+                                "price": 0.12,
+                                "amount": 28511.046840000014
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_dugenchargeadj",
+                                "base": 55.395500000000006,
+                                "price": 0.12,
+                                "amount": 6.647460000000001
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_transmission",
+                                "base": 299102.104,
+                                "price": 0.12,
+                                "amount": 35892.252479999996
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_systemloss",
+                                "base": 129791.6565,
+                                "price": 0.12,
+                                "amount": 15574.99878
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_reinvscapex",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_subsidies",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_localtaxdu",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherrev",
+                                "base": 7455.011995500001,
+                                "price": 0.12,
+                                "amount": 894.60143946
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatable",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatexempt",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherzerorated",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_wesmfees",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Universal Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ucmissionary",
+                                "base": 553955,
+                                "price": 0.1822,
+                                "amount": 100930.601
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_ucenvshare",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_ucnpcstrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_ucnpcstrandeddebt",
+                                "base": 553955,
+                                "price": 0.0428,
+                                "amount": 23709.273999999998
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_ucdustrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_ucequaltr",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Fit-All (Renewable)",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_fitallcurrent",
+                                "base": 554623.93,
+                                "price": 0.0838,
+                                "amount": 46477.485334000005
+                            }
+                        ]
+                    }
+                ],
+                "amounts": [
+                    {
+                        "variable": "gencharge",
+                        "amount_prev": 0,
+                        "amount": 3248752.457,
+                        "amount_diff": 3248752.457
+                    },
+                    {
+                        "variable": "genchargeexcc",
+                        "amount_prev": 0,
+                        "amount": 150562.96305999998,
+                        "amount_diff": 150562.96305999998
+                    },
+                    {
+                        "variable": "linerentalcharge",
+                        "amount_prev": 0,
+                        "amount": 227160.69,
+                        "amount_diff": 227160.69
+                    },
+                    {
+                        "variable": "dwsa_ddc",
+                        "amount_prev": 0,
+                        "amount": 207423.076,
+                        "amount_diff": 207423.076
+                    },
+                    {
+                        "variable": "dwsa_dec",
+                        "amount_prev": 0,
+                        "amount": 27808.541,
+                        "amount_diff": 27808.541
+                    },
+                    {
+                        "variable": "dwsa_metering",
+                        "amount_prev": 0,
+                        "amount": 11823.21,
+                        "amount_diff": 11823.21
+                    },
+                    {
+                        "variable": "dwsa_supply",
+                        "amount_prev": 0,
+                        "amount": 12460.82,
+                        "amount_diff": 12460.82
+                    },
+                    {
+                        "variable": "dwsa_pfa",
+                        "amount_prev": 0,
+                        "amount": -21923.58999999987,
+                        "amount_diff": -21923.58999999987
+                    },
+                    {
+                        "variable": "dwsa_dtru",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ilprec",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_gour",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_gramiceradaa",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_acrmrec",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_transdemand",
+                        "amount_prev": 0,
+                        "amount": 299102.104,
+                        "amount_diff": 299102.104
+                    },
+                    {
+                        "variable": "dwsa_transenergy",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_systemloss",
+                        "amount_prev": 0,
+                        "amount": 129791.6565,
+                        "amount_diff": 129791.6565
+                    },
+                    {
+                        "variable": "dwsa_reinvestcapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_subslifeline",
+                        "amount_prev": 0,
+                        "amount": -11023.7045,
+                        "amount_diff": -11023.7045
+                    },
+                    {
+                        "variable": "dwsa_subsseniorcit",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_substrac",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_pfdiscsurg",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_localfranctax",
+                        "amount_prev": 0,
+                        "amount": 4131.2819955,
+                        "amount_diff": 4131.2819955
+                    },
+                    {
+                        "variable": "dwsa_realproptax",
+                        "amount_prev": 0,
+                        "amount": 3323.73,
+                        "amount_diff": 3323.73
+                    },
+                    {
+                        "variable": "vat_energy",
+                        "amount_prev": 0,
+                        "amount": 389850.29484,
+                        "amount_diff": 389850.29484
+                    },
+                    {
+                        "variable": "vat_energyexc",
+                        "amount_prev": 0,
+                        "amount": 18067.555567199997,
+                        "amount_diff": 18067.555567199997
+                    },
+                    {
+                        "variable": "vat_linerental",
+                        "amount_prev": 0,
+                        "amount": 27259.2828,
+                        "amount_diff": 27259.2828
+                    },
+                    {
+                        "variable": "vat_interestincome",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_distribution",
+                        "amount_prev": 0,
+                        "amount": 28511.046840000014,
+                        "amount_diff": 28511.046840000014
+                    },
+                    {
+                        "variable": "vat_dugenchargeadj",
+                        "amount_prev": 0,
+                        "amount": 6.647460000000001,
+                        "amount_diff": 6.647460000000001
+                    },
+                    {
+                        "variable": "vat_transmission",
+                        "amount_prev": 0,
+                        "amount": 35892.252479999996,
+                        "amount_diff": 35892.252479999996
+                    },
+                    {
+                        "variable": "vat_systemloss",
+                        "amount_prev": 0,
+                        "amount": 15574.99878,
+                        "amount_diff": 15574.99878
+                    },
+                    {
+                        "variable": "vat_reinvscapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_subsidies",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_localtaxdu",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_otherrev",
+                        "amount_prev": 0,
+                        "amount": 894.60143946,
+                        "amount_diff": 894.60143946
+                    },
+                    {
+                        "variable": "vat_othervatable",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_othervatexempt",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_otherzerorated",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_wesmfees",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucmissionary",
+                        "amount_prev": 0,
+                        "amount": 100930.601,
+                        "amount_diff": 100930.601
+                    },
+                    {
+                        "variable": "dwsa_ucenvshare",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandeddebt",
+                        "amount_prev": 0,
+                        "amount": 23709.273999999998,
+                        "amount_diff": 23709.273999999998
+                    },
+                    {
+                        "variable": "dwsa_ucdustrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucequaltr",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_fitallcurrent",
+                        "amount_prev": 0,
+                        "amount": 46477.485334000005,
+                        "amount_diff": 46477.485334000005
+                    }
+                ]
+            },
+
+            { "period": "2024-04",
+                "contract": "RSC-GEN01-ALPDC-001",
+                "revision_number": 0,
+                "template": "RETAIL_MERALCO V.0",                
+                "status":[
+                    {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                ],
+                "values": [
+                    {
+                        "index": 1,
+                        "type": "determinant",
+                        "text": "Metering Information",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "det_metering_energy",
+                                "base": 554623.93,
+                                "comment": 0
+                            },
+                            {
+                                "index": 2,
+                                "variable": "det_metering_demand",
+                                "base": 1159.76,
+                                "comment": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Generation Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "gencharge",
+                                "base": 532582.37,
+                                "price": 6.1,
+                                "amount": 3248752.457
+                            },
+                            {
+                                "index": 2,
+                                "variable": "genchargeexcc",
+                                "base": 16341.56,
+                                "price": 9.2135,
+                                "amount": 150562.96305999998
+                            },
+                            {
+                                "index": 3,
+                                "variable": "linerentalcharge",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 227160.69
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Distribution Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ddc",
+                                "base": 1159.76,
+                                "price": 178.85,
+                                "amount": 207423.076
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_dec",
+                                "base": 553955,
+                                "price": 0.0502,
+                                "amount": 27808.541
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_metering",
+                                "base": 1,
+                                "price": 11823.21,
+                                "amount": 11823.21
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_supply",
+                                "base": 1,
+                                "price": 12460.82,
+                                "amount": 12460.82
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_pfa",
+                                "base": 235231.62,
+                                "price": -0.093200012821405,
+                                "amount": -21923.58999999987
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_dtru",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "DU Generation Charge Adjustment",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ilprec",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_gour",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_gramiceradaa",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_acrmrec",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Transmission Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_transdemand",
+                                "base": 1159.76,
+                                "price": 257.9,
+                                "amount": 299102.104
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_transenergy",
+                                "base": 554623.93,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "System Loss",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_systemloss",
+                                "base": 553955,
+                                "price": 0.2343,
+                                "amount": 129791.6565
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Reinvestment fund for sustainable capex",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_reinvestcapex",
+                                "base": 1169.78,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Subsidies",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_subslifeline",
+                                "base": 553955,
+                                "price": -0.0199,
+                                "amount": -11023.7045
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_subsseniorcit",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_substrac",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_pfdiscsurg",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Local Tax from DU",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_localfranctax",
+                                "base": 658896.65,
+                                "price": 0.00627,
+                                "amount": 4131.2819955
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_realproptax",
+                                "base": 553955,
+                                "price": 0.006,
+                                "amount": 3323.73
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Goverment Taxes",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "vat_energy",
+                                "base": 3248752.457,
+                                "price": 0.12,
+                                "amount": 389850.29484
+                            },
+                            {
+                                "index": 2,
+                                "variable": "vat_energyexc",
+                                "base": 150562.96305999998,
+                                "price": 0.12,
+                                "amount": 18067.555567199997
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_linerental",
+                                "base": 227160.69,
+                                "price": 0.12,
+                                "amount": 27259.2828
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_interestincome",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_distribution",
+                                "base": 237592.05700000012,
+                                "price": 0.12,
+                                "amount": 28511.046840000014
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_dugenchargeadj",
+                                "base": 55.395500000000006,
+                                "price": 0.12,
+                                "amount": 6.647460000000001
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_transmission",
+                                "base": 299102.104,
+                                "price": 0.12,
+                                "amount": 35892.252479999996
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_systemloss",
+                                "base": 129791.6565,
+                                "price": 0.12,
+                                "amount": 15574.99878
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_reinvscapex",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_subsidies",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_localtaxdu",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherrev",
+                                "base": 7455.011995500001,
+                                "price": 0.12,
+                                "amount": 894.60143946
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatable",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatexempt",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherzerorated",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_wesmfees",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Universal Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ucmissionary",
+                                "base": 553955,
+                                "price": 0.1822,
+                                "amount": 100930.601
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_ucenvshare",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_ucnpcstrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_ucnpcstrandeddebt",
+                                "base": 553955,
+                                "price": 0.0428,
+                                "amount": 23709.273999999998
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_ucdustrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_ucequaltr",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Fit-All (Renewable)",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_fitallcurrent",
+                                "base": 554623.93,
+                                "price": 0.0838,
+                                "amount": 46477.485334000005
+                            }
+                        ]
+                    }
+                ],
+                "amounts": [
+                    {
+                        "variable": "gencharge",
+                        "amount_prev": 0,
+                        "amount": 3248752.457,
+                        "amount_diff": 3248752.457
+                    },
+                    {
+                        "variable": "genchargeexcc",
+                        "amount_prev": 0,
+                        "amount": 150562.96305999998,
+                        "amount_diff": 150562.96305999998
+                    },
+                    {
+                        "variable": "linerentalcharge",
+                        "amount_prev": 0,
+                        "amount": 227160.69,
+                        "amount_diff": 227160.69
+                    },
+                    {
+                        "variable": "dwsa_ddc",
+                        "amount_prev": 0,
+                        "amount": 207423.076,
+                        "amount_diff": 207423.076
+                    },
+                    {
+                        "variable": "dwsa_dec",
+                        "amount_prev": 0,
+                        "amount": 27808.541,
+                        "amount_diff": 27808.541
+                    },
+                    {
+                        "variable": "dwsa_metering",
+                        "amount_prev": 0,
+                        "amount": 11823.21,
+                        "amount_diff": 11823.21
+                    },
+                    {
+                        "variable": "dwsa_supply",
+                        "amount_prev": 0,
+                        "amount": 12460.82,
+                        "amount_diff": 12460.82
+                    },
+                    {
+                        "variable": "dwsa_pfa",
+                        "amount_prev": 0,
+                        "amount": -21923.58999999987,
+                        "amount_diff": -21923.58999999987
+                    },
+                    {
+                        "variable": "dwsa_dtru",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ilprec",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_gour",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_gramiceradaa",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_acrmrec",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_transdemand",
+                        "amount_prev": 0,
+                        "amount": 299102.104,
+                        "amount_diff": 299102.104
+                    },
+                    {
+                        "variable": "dwsa_transenergy",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_systemloss",
+                        "amount_prev": 0,
+                        "amount": 129791.6565,
+                        "amount_diff": 129791.6565
+                    },
+                    {
+                        "variable": "dwsa_reinvestcapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_subslifeline",
+                        "amount_prev": 0,
+                        "amount": -11023.7045,
+                        "amount_diff": -11023.7045
+                    },
+                    {
+                        "variable": "dwsa_subsseniorcit",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_substrac",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_pfdiscsurg",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_localfranctax",
+                        "amount_prev": 0,
+                        "amount": 4131.2819955,
+                        "amount_diff": 4131.2819955
+                    },
+                    {
+                        "variable": "dwsa_realproptax",
+                        "amount_prev": 0,
+                        "amount": 3323.73,
+                        "amount_diff": 3323.73
+                    },
+                    {
+                        "variable": "vat_energy",
+                        "amount_prev": 0,
+                        "amount": 389850.29484,
+                        "amount_diff": 389850.29484
+                    },
+                    {
+                        "variable": "vat_energyexc",
+                        "amount_prev": 0,
+                        "amount": 18067.555567199997,
+                        "amount_diff": 18067.555567199997
+                    },
+                    {
+                        "variable": "vat_linerental",
+                        "amount_prev": 0,
+                        "amount": 27259.2828,
+                        "amount_diff": 27259.2828
+                    },
+                    {
+                        "variable": "vat_interestincome",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_distribution",
+                        "amount_prev": 0,
+                        "amount": 28511.046840000014,
+                        "amount_diff": 28511.046840000014
+                    },
+                    {
+                        "variable": "vat_dugenchargeadj",
+                        "amount_prev": 0,
+                        "amount": 6.647460000000001,
+                        "amount_diff": 6.647460000000001
+                    },
+                    {
+                        "variable": "vat_transmission",
+                        "amount_prev": 0,
+                        "amount": 35892.252479999996,
+                        "amount_diff": 35892.252479999996
+                    },
+                    {
+                        "variable": "vat_systemloss",
+                        "amount_prev": 0,
+                        "amount": 15574.99878,
+                        "amount_diff": 15574.99878
+                    },
+                    {
+                        "variable": "vat_reinvscapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_subsidies",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_localtaxdu",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_otherrev",
+                        "amount_prev": 0,
+                        "amount": 894.60143946,
+                        "amount_diff": 894.60143946
+                    },
+                    {
+                        "variable": "vat_othervatable",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_othervatexempt",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_otherzerorated",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_wesmfees",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucmissionary",
+                        "amount_prev": 0,
+                        "amount": 100930.601,
+                        "amount_diff": 100930.601
+                    },
+                    {
+                        "variable": "dwsa_ucenvshare",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandeddebt",
+                        "amount_prev": 0,
+                        "amount": 23709.273999999998,
+                        "amount_diff": 23709.273999999998
+                    },
+                    {
+                        "variable": "dwsa_ucdustrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucequaltr",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_fitallcurrent",
+                        "amount_prev": 0,
+                        "amount": 46477.485334000005,
+                        "amount_diff": 46477.485334000005
+                    }
+                ]
+            },
+
+            { "period": "2024-05",
+                "contract": "RSC-GEN01-ALPDC-001",
+                "revision_number": 0,
+                "template": "RETAIL_MERALCO V.0",                
+                "status":[
+                    {code:'calculated',update_by:'MKTG',update_time:'2024-05-05 12:31'},
+                ],
+                "values": [
+                    {
+                        "index": 1,
+                        "type": "determinant",
+                        "text": "Metering Information",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "det_metering_energy",
+                                "base": 554623.93,
+                                "comment": 0
+                            },
+                            {
+                                "index": 2,
+                                "variable": "det_metering_demand",
+                                "base": 1159.76,
+                                "comment": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Generation Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "gencharge",
+                                "base": 532582.37,
+                                "price": 6.1,
+                                "amount": 3248752.457
+                            },
+                            {
+                                "index": 2,
+                                "variable": "genchargeexcc",
+                                "base": 16341.56,
+                                "price": 9.2135,
+                                "amount": 150562.96305999998
+                            },
+                            {
+                                "index": 3,
+                                "variable": "linerentalcharge",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 227160.69
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Distribution Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ddc",
+                                "base": 1159.76,
+                                "price": 178.85,
+                                "amount": 207423.076
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_dec",
+                                "base": 553955,
+                                "price": 0.0502,
+                                "amount": 27808.541
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_metering",
+                                "base": 1,
+                                "price": 11823.21,
+                                "amount": 11823.21
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_supply",
+                                "base": 1,
+                                "price": 12460.82,
+                                "amount": 12460.82
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_pfa",
+                                "base": 235231.62,
+                                "price": -0.093200012821405,
+                                "amount": -21923.58999999987
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_dtru",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "DU Generation Charge Adjustment",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ilprec",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_gour",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_gramiceradaa",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_acrmrec",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Transmission Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_transdemand",
+                                "base": 1159.76,
+                                "price": 257.9,
+                                "amount": 299102.104
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_transenergy",
+                                "base": 554623.93,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "System Loss",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_systemloss",
+                                "base": 553955,
+                                "price": 0.2343,
+                                "amount": 129791.6565
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Reinvestment fund for sustainable capex",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_reinvestcapex",
+                                "base": 1169.78,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Subsidies",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_subslifeline",
+                                "base": 553955,
+                                "price": -0.0199,
+                                "amount": -11023.7045
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_subsseniorcit",
+                                "base": 553955,
+                                "price": 0.0001,
+                                "amount": 55.395500000000006
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_substrac",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_pfdiscsurg",
+                                "base": 0,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Local Tax from DU",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_localfranctax",
+                                "base": 658896.65,
+                                "price": 0.00627,
+                                "amount": 4131.2819955
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_realproptax",
+                                "base": 553955,
+                                "price": 0.006,
+                                "amount": 3323.73
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Goverment Taxes",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "vat_energy",
+                                "base": 3248752.457,
+                                "price": 0.12,
+                                "amount": 389850.29484
+                            },
+                            {
+                                "index": 2,
+                                "variable": "vat_energyexc",
+                                "base": 150562.96305999998,
+                                "price": 0.12,
+                                "amount": 18067.555567199997
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_linerental",
+                                "base": 227160.69,
+                                "price": 0.12,
+                                "amount": 27259.2828
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_interestincome",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_distribution",
+                                "base": 237592.05700000012,
+                                "price": 0.12,
+                                "amount": 28511.046840000014
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_dugenchargeadj",
+                                "base": 55.395500000000006,
+                                "price": 0.12,
+                                "amount": 6.647460000000001
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_transmission",
+                                "base": 299102.104,
+                                "price": 0.12,
+                                "amount": 35892.252479999996
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_systemloss",
+                                "base": 129791.6565,
+                                "price": 0.12,
+                                "amount": 15574.99878
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_reinvscapex",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_subsidies",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_localtaxdu",
+                                "base": -10968.309,
+                                "price": 0.12,
+                                "amount": -1316.19708
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherrev",
+                                "base": 7455.011995500001,
+                                "price": 0.12,
+                                "amount": 894.60143946
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatable",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_othervatexempt",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_otherzerorated",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "vat_wesmfees",
+                                "base": 0,
+                                "price": 0.12,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Universal Charges",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_ucmissionary",
+                                "base": 553955,
+                                "price": 0.1822,
+                                "amount": 100930.601
+                            },
+                            {
+                                "index": 2,
+                                "variable": "dwsa_ucenvshare",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 3,
+                                "variable": "dwsa_ucnpcstrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 4,
+                                "variable": "dwsa_ucnpcstrandeddebt",
+                                "base": 553955,
+                                "price": 0.0428,
+                                "amount": 23709.273999999998
+                            },
+                            {
+                                "index": 5,
+                                "variable": "dwsa_ucdustrandedcost",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            },
+                            {
+                                "index": 6,
+                                "variable": "dwsa_ucequaltr",
+                                "base": 553955,
+                                "price": 0,
+                                "amount": 0
+                            }
+                        ]
+                    },
+                    {
+                        "index": 1,
+                        "type": "baseprice",
+                        "text": "Fit-All (Renewable)",
+                        "internal": "false",
+                        "items": [
+                            {
+                                "index": 1,
+                                "variable": "dwsa_fitallcurrent",
+                                "base": 554623.93,
+                                "price": 0.0838,
+                                "amount": 46477.485334000005
+                            }
+                        ]
+                    }
+                ],
+                "amounts": [
+                    {
+                        "variable": "gencharge",
+                        "amount_prev": 0,
+                        "amount": 3248752.457,
+                        "amount_diff": 3248752.457
+                    },
+                    {
+                        "variable": "genchargeexcc",
+                        "amount_prev": 0,
+                        "amount": 150562.96305999998,
+                        "amount_diff": 150562.96305999998
+                    },
+                    {
+                        "variable": "linerentalcharge",
+                        "amount_prev": 0,
+                        "amount": 227160.69,
+                        "amount_diff": 227160.69
+                    },
+                    {
+                        "variable": "dwsa_ddc",
+                        "amount_prev": 0,
+                        "amount": 207423.076,
+                        "amount_diff": 207423.076
+                    },
+                    {
+                        "variable": "dwsa_dec",
+                        "amount_prev": 0,
+                        "amount": 27808.541,
+                        "amount_diff": 27808.541
+                    },
+                    {
+                        "variable": "dwsa_metering",
+                        "amount_prev": 0,
+                        "amount": 11823.21,
+                        "amount_diff": 11823.21
+                    },
+                    {
+                        "variable": "dwsa_supply",
+                        "amount_prev": 0,
+                        "amount": 12460.82,
+                        "amount_diff": 12460.82
+                    },
+                    {
+                        "variable": "dwsa_pfa",
+                        "amount_prev": 0,
+                        "amount": -21923.58999999987,
+                        "amount_diff": -21923.58999999987
+                    },
+                    {
+                        "variable": "dwsa_dtru",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ilprec",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_gour",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_gramiceradaa",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_acrmrec",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_transdemand",
+                        "amount_prev": 0,
+                        "amount": 299102.104,
+                        "amount_diff": 299102.104
+                    },
+                    {
+                        "variable": "dwsa_transenergy",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_systemloss",
+                        "amount_prev": 0,
+                        "amount": 129791.6565,
+                        "amount_diff": 129791.6565
+                    },
+                    {
+                        "variable": "dwsa_reinvestcapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_subslifeline",
+                        "amount_prev": 0,
+                        "amount": -11023.7045,
+                        "amount_diff": -11023.7045
+                    },
+                    {
+                        "variable": "dwsa_subsseniorcit",
+                        "amount_prev": 0,
+                        "amount": 55.395500000000006,
+                        "amount_diff": 55.395500000000006
+                    },
+                    {
+                        "variable": "dwsa_substrac",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_pfdiscsurg",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_localfranctax",
+                        "amount_prev": 0,
+                        "amount": 4131.2819955,
+                        "amount_diff": 4131.2819955
+                    },
+                    {
+                        "variable": "dwsa_realproptax",
+                        "amount_prev": 0,
+                        "amount": 3323.73,
+                        "amount_diff": 3323.73
+                    },
+                    {
+                        "variable": "vat_energy",
+                        "amount_prev": 0,
+                        "amount": 389850.29484,
+                        "amount_diff": 389850.29484
+                    },
+                    {
+                        "variable": "vat_energyexc",
+                        "amount_prev": 0,
+                        "amount": 18067.555567199997,
+                        "amount_diff": 18067.555567199997
+                    },
+                    {
+                        "variable": "vat_linerental",
+                        "amount_prev": 0,
+                        "amount": 27259.2828,
+                        "amount_diff": 27259.2828
+                    },
+                    {
+                        "variable": "vat_interestincome",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_distribution",
+                        "amount_prev": 0,
+                        "amount": 28511.046840000014,
+                        "amount_diff": 28511.046840000014
+                    },
+                    {
+                        "variable": "vat_dugenchargeadj",
+                        "amount_prev": 0,
+                        "amount": 6.647460000000001,
+                        "amount_diff": 6.647460000000001
+                    },
+                    {
+                        "variable": "vat_transmission",
+                        "amount_prev": 0,
+                        "amount": 35892.252479999996,
+                        "amount_diff": 35892.252479999996
+                    },
+                    {
+                        "variable": "vat_systemloss",
+                        "amount_prev": 0,
+                        "amount": 15574.99878,
+                        "amount_diff": 15574.99878
+                    },
+                    {
+                        "variable": "vat_reinvscapex",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_subsidies",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_localtaxdu",
+                        "amount_prev": 0,
+                        "amount": -1316.19708,
+                        "amount_diff": -1316.19708
+                    },
+                    {
+                        "variable": "vat_otherrev",
+                        "amount_prev": 0,
+                        "amount": 894.60143946,
+                        "amount_diff": 894.60143946
+                    },
+                    {
+                        "variable": "vat_othervatable",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_othervatexempt",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_otherzerorated",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "vat_wesmfees",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucmissionary",
+                        "amount_prev": 0,
+                        "amount": 100930.601,
+                        "amount_diff": 100930.601
+                    },
+                    {
+                        "variable": "dwsa_ucenvshare",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucnpcstrandeddebt",
+                        "amount_prev": 0,
+                        "amount": 23709.273999999998,
+                        "amount_diff": 23709.273999999998
+                    },
+                    {
+                        "variable": "dwsa_ucdustrandedcost",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_ucequaltr",
+                        "amount_prev": 0,
+                        "amount": 0,
+                        "amount_diff": 0
+                    },
+                    {
+                        "variable": "dwsa_fitallcurrent",
+                        "amount_prev": 0,
+                        "amount": 46477.485334000005,
+                        "amount_diff": 46477.485334000005
+                    }
+                ]
+            }
 ]
 
 
@@ -1370,6 +5181,56 @@ var finance_schemes =[
             {charge:'fuel',account_pos:'GLR0002',account_neg:'GLP0002',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
             {charge:'vat',account_pos:'GLR0100',account_neg:'GLP0100',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
         ]
+    },
+    {code:'RETAIL_MERALCO',text:'RETAIL MERALCO Scheme',description:'',create_by:'user',create_time:'2024-01-01 00:00',update_by:'user',update_time:'2024-01-01 00:00',
+        lines:[
+            {charge:'gencharge',account_pos:'GLR0001',account_neg:'GLR0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},  {charge:'fom',account_pos:'GLR0001',account_neg:'GLP0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'genchargeexcc',account_pos:'GLR0001',account_neg:'GLR0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'linerentalcharge',account_pos:'GLR0001',account_neg:'GLR0001',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_ddc',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_dec',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_metering',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_supply',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_pfa',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_dtru',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_ilprec',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_gour',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_gramiceradaa',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_acrmrec',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_transdemand',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_transenergy',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_systemloss',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_reinvestcapex',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_subslifeline',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            {charge:'dwsa_subsseniorcit',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_substrac',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_pfdiscsurg',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_localfranctax',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_realproptax',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_energy',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_energyexc',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_linerental',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_interestincome',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_distribution',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_dugenchargeadj',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_transmission',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_systemloss',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_reinvscapex',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_subsidies',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_localtaxdu',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_otherrev',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_othervatable',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_othervatexempt',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_otherzerorated',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'vat_wesmfees',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucmissionary',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucenvshare',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucnpcstrandedcost',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucnpcstrandeddebt',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucdustrandedcost',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_ucequaltr',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+          {charge:'dwsa_fitallcurrent',account_pos:'GLR0050',account_neg:'GLR0050',active:'true',update_by:'user',update_time:'2024-01-01 00:00'},
+            ]
     },
 ]
 

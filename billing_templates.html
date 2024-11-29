@@ -136,7 +136,8 @@
           {code:'variable',text:'Variable',type:'domain', options:deepCopy(variables).filter(x=> x.category == 'charges').map(x=> { return {value:x.code,text:x.text}}),required:true},
           {code:'base_formula',text:'Base Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
           {code:'price_formula',text:'Price Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
-          {code:'tax_rule',view:'rounding_text',text:'Tax Rule',readonly:false,required:false,type:'domain',options:getOptionDomain('tax_rules')},
+          {code:'amount_formula',text:'Amount Formula',type:'code',code_structure:'formula',extension:`style="min-width:300px" rows="1"`,required:true},
+          {code:'tax_category',text:'Tax Category',type:'domain', options:deepCopy(tax_category).filter(x=> x.category == 'charges').map(x=> { return {value:x.code,text:x.text}}),required:true},
         )
         break;
     }  
